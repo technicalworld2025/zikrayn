@@ -1,0 +1,1709 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zikrayn - ইসলামিক গাইড</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #0a5c0a;
+            --secondary: #0d8b0d;
+            --accent: #d4af37;
+            --dark: #121212;
+            --darker: #0a0a0a;
+            --light: #f5f5f5;
+            --card-bg: #1e1e1e;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--darker), var(--dark));
+            color: var(--light);
+            overflow-x: hidden;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        .background-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(10, 92, 10, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(13, 139, 13, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(212, 175, 55, 0.05) 0%, transparent 50%);
+            z-index: -1;
+        }
+
+        .islamic-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle, var(--primary) 1px, transparent 1px);
+            background-size: 50px 50px;
+            opacity: 0.03;
+            z-index: -1;
+        }
+
+        /* Splash Screen */
+        .splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--darker), var(--dark));
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .logo-container {
+            text-align: center;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .islamic-logo {
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, var(--light), var(--accent));
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            position: relative;
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 3px solid var(--accent);
+        }
+
+        .islamic-logo i {
+            font-size: 70px;
+            color: var(--primary);
+        }
+
+        .app-name {
+            font-size: 3.5rem;
+            font-weight: bold;
+            color: var(--accent);
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+            margin-bottom: 10px;
+            font-family: 'Times New Roman', serif;
+        }
+
+        .powered-by {
+            font-size: 1rem;
+            color: #aaa;
+            letter-spacing: 1px;
+        }
+
+        .loading-animation {
+            margin-top: 40px;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 5px solid rgba(255,255,255,0.1);
+            border-top: 5px solid var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Main App */
+        .app-container {
+            display: none;
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0 10px 80px;
+        }
+
+        /* Desktop Layout */
+        @media (min-width: 768px) {
+            .app-container {
+                max-width: 1200px;
+                padding: 0 20px 80px;
+            }
+        }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* Header */
+        .islamic-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 15px;
+            background: rgba(30, 30, 30, 0.8);
+            border-radius: 20px;
+            margin: 15px 0;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        /* Desktop Header */
+        @media (min-width: 768px) {
+            .islamic-header {
+                padding: 25px 30px;
+                margin: 20px 0;
+            }
+        }
+
+        .app-title h1 {
+            font-size: 1.8rem;
+            color: var(--accent);
+            font-family: 'Times New Roman', serif;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        }
+
+        /* Desktop App Title */
+        @media (min-width: 768px) {
+            .app-title h1 {
+                font-size: 2.2rem;
+            }
+        }
+
+        .search-container {
+            display: flex;
+            width: 60%;
+        }
+
+        /* Desktop Search */
+        @media (min-width: 768px) {
+            .search-container {
+                width: 50%;
+            }
+        }
+
+        .search-bar {
+            flex: 1;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 25px 0 0 25px;
+            background: rgba(255,255,255,0.1);
+            outline: none;
+            color: var(--light);
+            font-size: 0.9rem;
+        }
+
+        /* Desktop Search Bar */
+        @media (min-width: 768px) {
+            .search-bar {
+                padding: 15px 20px;
+                font-size: 1rem;
+            }
+        }
+
+        .search-bar::placeholder {
+            color: #aaa;
+        }
+
+        .search-btn {
+            padding: 12px 15px;
+            border: none;
+            border-radius: 0 25px 25px 0;
+            background: var(--accent);
+            color: var(--dark);
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        /* Desktop Search Button */
+        @media (min-width: 768px) {
+            .search-btn {
+                padding: 15px 20px;
+                font-size: 1.1rem;
+            }
+        }
+
+        .search-btn:hover {
+            background: #e6c44d;
+        }
+
+        /* Slideshow */
+        .slideshow-container {
+            height: 200px;
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        /* Desktop Slideshow */
+        @media (min-width: 768px) {
+            .slideshow-container {
+                height: 300px;
+                margin-bottom: 30px;
+            }
+        }
+
+        .slideshow {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+
+        .slide.active {
+            opacity: 1;
+        }
+
+        /* Time Display */
+        .time-display {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        /* Desktop Time Display */
+        @media (min-width: 768px) {
+            .time-display {
+                padding: 25px;
+                margin-bottom: 25px;
+            }
+        }
+
+        .date-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .date-item {
+            flex: 1;
+            padding: 10px;
+        }
+
+        .date-label {
+            font-size: 0.8rem;
+            color: var(--accent);
+            margin-bottom: 5px;
+        }
+
+        /* Desktop Date Label */
+        @media (min-width: 768px) {
+            .date-label {
+                font-size: 0.9rem;
+            }
+        }
+
+        .date-value {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        /* Desktop Date Value */
+        @media (min-width: 768px) {
+            .date-value {
+                font-size: 1.3rem;
+            }
+        }
+
+        /* Prayer Times */
+        .prayer-times {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        /* Desktop Prayer Times */
+        @media (min-width: 768px) {
+            .prayer-times {
+                padding: 25px;
+                margin-bottom: 25px;
+            }
+        }
+
+        .section-title {
+            margin-bottom: 20px;
+            text-align: center;
+            color: var(--accent);
+            font-size: 1.3rem;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 2px;
+            background: var(--accent);
+        }
+
+        /* Desktop Section Title */
+        @media (min-width: 768px) {
+            .section-title {
+                font-size: 1.6rem;
+                margin-bottom: 25px;
+            }
+            
+            .section-title::after {
+                width: 100px;
+            }
+        }
+
+        .prayer-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        /* Desktop Prayer Grid */
+        @media (min-width: 768px) {
+            .prayer-grid {
+                grid-template-columns: repeat(5, 1fr);
+                gap: 20px;
+            }
+        }
+
+        .prayer-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            transition: all 0.3s;
+        }
+
+        /* Desktop Prayer Item */
+        @media (min-width: 768px) {
+            .prayer-item {
+                flex-direction: column;
+                text-align: center;
+                padding: 20px 15px;
+            }
+        }
+
+        .prayer-item:hover {
+            background: rgba(255,255,255,0.08);
+            transform: translateY(-2px);
+        }
+
+        .prayer-name {
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        /* Desktop Prayer Name */
+        @media (min-width: 768px) {
+            .prayer-name {
+                margin-bottom: 10px;
+                font-size: 1.1rem;
+            }
+        }
+
+        .prayer-time {
+            font-weight: bold;
+        }
+
+        /* Hadith Section */
+        .hadith-section {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        /* Desktop Hadith Section */
+        @media (min-width: 768px) {
+            .hadith-section {
+                padding: 25px;
+                margin-bottom: 25px;
+            }
+        }
+
+        .hadith-text {
+            font-style: italic;
+            text-align: center;
+            line-height: 1.6;
+            font-size: 1.1rem;
+            padding: 10px;
+        }
+
+        /* Desktop Hadith Text */
+        @media (min-width: 768px) {
+            .hadith-text {
+                font-size: 1.2rem;
+                line-height: 1.8;
+                padding: 15px 20px;
+            }
+        }
+
+        /* Footer Navigation */
+        .main-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(30, 30, 30, 0.9);
+            padding: 15px;
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255,255,255,0.1);
+            z-index: 100;
+        }
+
+        /* Desktop Footer */
+        @media (min-width: 768px) {
+            .main-footer {
+                padding: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: auto;
+                max-width: 500px;
+                border-radius: 25px 25px 0 0;
+                border-top: none;
+                box-shadow: 0 -5px 20px rgba(0,0,0,0.3);
+            }
+        }
+
+        .nav-icons {
+            display: flex;
+            justify-content: space-around;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: #aaa;
+            font-size: 1.5rem;
+            padding: 10px 20px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Desktop Nav Button */
+        @media (min-width: 768px) {
+            .nav-btn {
+                padding: 12px 25px;
+                font-size: 1.6rem;
+                border-radius: 20px;
+            }
+        }
+
+        .nav-btn span {
+            font-size: 0.7rem;
+            margin-top: 5px;
+        }
+
+        /* Desktop Nav Button Text */
+        @media (min-width: 768px) {
+            .nav-btn span {
+                font-size: 0.8rem;
+                margin-top: 8px;
+            }
+        }
+
+        .nav-btn.active {
+            background: var(--accent);
+            color: var(--dark);
+            box-shadow: 0 3px 10px rgba(212, 175, 55, 0.3);
+        }
+
+        /* Video Grid */
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        /* Desktop Video Grid */
+        @media (min-width: 768px) {
+            .video-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 25px;
+                margin-top: 30px;
+            }
+        }
+
+        /* Tablet Video Grid */
+        @media (min-width: 480px) and (max-width: 767px) {
+            .video-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+        }
+
+        .video-item {
+            background: var(--card-bg);
+            border-radius: 15px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .video-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+
+        .video-thumbnail {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+        }
+
+        /* Desktop Video Thumbnail */
+        @media (min-width: 768px) {
+            .video-thumbnail {
+                height: 160px;
+            }
+        }
+
+        .video-title {
+            padding: 15px;
+            font-size: 0.9rem;
+            text-align: center;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Desktop Video Title */
+        @media (min-width: 768px) {
+            .video-title {
+                padding: 20px;
+                font-size: 1rem;
+                height: 70px;
+            }
+        }
+
+        /* Video Popup */
+        .video-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .video-popup.active {
+            display: flex;
+        }
+
+        .popup-content {
+            width: 100%;
+            max-width: 900px;
+            position: relative;
+            background: var(--card-bg);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--accent);
+            border: none;
+            color: var(--dark);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s;
+            z-index: 1001;
+        }
+
+        .close-btn:hover {
+            transform: scale(1.1);
+            background: #e6c44d;
+        }
+
+        #videoPlayer {
+            width: 100%;
+            height: 0;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            position: relative;
+        }
+
+        #videoPlayer iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* Profile Page */
+        .profile-container {
+            text-align: center;
+        }
+
+        /* Desktop Profile Container */
+        @media (min-width: 768px) {
+            .profile-container {
+                max-width: 600px;
+                margin: 0 auto;
+            }
+        }
+
+        .profile-pic {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--accent);
+            margin: 0 auto 20px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            transition: all 0.3s;
+        }
+
+        /* Desktop Profile Picture */
+        @media (min-width: 768px) {
+            .profile-pic {
+                width: 180px;
+                height: 180px;
+                margin-bottom: 30px;
+            }
+        }
+
+        .profile-pic:hover {
+            transform: scale(1.05);
+        }
+
+        .profile-form {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        /* Desktop Profile Form */
+        @media (min-width: 768px) {
+            .profile-form {
+                padding: 30px;
+                margin: 25px 0;
+            }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.1);
+            color: var(--light);
+            font-size: 1rem;
+        }
+
+        /* Desktop Form Inputs */
+        @media (min-width: 768px) {
+            .form-group input {
+                padding: 15px 20px;
+                font-size: 1.1rem;
+            }
+        }
+
+        .form-group input:focus {
+            outline: 1px solid var(--accent);
+        }
+
+        .save-btn {
+            background: var(--accent);
+            color: var(--dark);
+            border: none;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+        }
+
+        /* Desktop Save Button */
+        @media (min-width: 768px) {
+            .save-btn {
+                padding: 18px;
+                font-size: 1.2rem;
+            }
+        }
+
+        .save-btn:hover {
+            background: #e6c44d;
+            transform: translateY(-2px);
+        }
+
+        .social-section {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        /* Desktop Social Section */
+        @media (min-width: 768px) {
+            .social-section {
+                padding: 30px;
+                margin: 25px 0;
+            }
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        /* Desktop Social Links */
+        @media (min-width: 768px) {
+            .social-links {
+                gap: 20px;
+                margin-top: 25px;
+            }
+        }
+
+        .social-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--accent);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--dark);
+            text-decoration: none;
+            font-size: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        /* Desktop Social Icons */
+        @media (min-width: 768px) {
+            .social-icon {
+                width: 60px;
+                height: 60px;
+                font-size: 1.7rem;
+            }
+        }
+
+        .social-icon:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
+        }
+
+        /* Responsive Grid for Home Page - Desktop */
+        @media (min-width: 1024px) {
+            #homePage {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: auto auto auto;
+                gap: 25px;
+                grid-template-areas: 
+                    "header header"
+                    "slideshow slideshow"
+                    "time prayer"
+                    "hadith hadith";
+            }
+            
+            #homePage .islamic-header {
+                grid-area: header;
+            }
+            
+            #homePage .slideshow-container {
+                grid-area: slideshow;
+            }
+            
+            #homePage .time-display {
+                grid-area: time;
+                margin-bottom: 0;
+            }
+            
+            #homePage .prayer-times {
+                grid-area: prayer;
+                margin-bottom: 0;
+            }
+            
+            #homePage .hadith-section {
+                grid-area: hadith;
+            }
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 480px) {
+            .app-container {
+                padding: 0 5px 80px;
+            }
+            
+            .date-row {
+                flex-direction: column;
+            }
+            
+            .date-item {
+                margin-bottom: 10px;
+            }
+            
+            .video-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .prayer-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .islamic-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .search-container {
+                width: 100%;
+            }
+            
+            .nav-btn {
+                padding: 8px 15px;
+                font-size: 1.3rem;
+            }
+            
+            .nav-btn span {
+                font-size: 0.6rem;
+            }
+        }
+
+        /* Profile Picture Gallery Modal */
+        .profile-pic-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .profile-pic-modal.active {
+            display: flex;
+        }
+
+        .profile-pic-content {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 25px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .profile-pic-options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .profile-pic-option {
+            background: rgba(255,255,255,0.05);
+            border: none;
+            color: var(--light);
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .profile-pic-option:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateY(-2px);
+        }
+
+        .profile-pic-option i {
+            font-size: 1.2rem;
+            color: var(--accent);
+        }
+
+        #profilePicInput {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="background-animation"></div>
+    <div class="islamic-pattern"></div>
+
+    <!-- Splash Screen -->
+    <div class="splash-screen" id="splashScreen">
+        <div class="logo-container">
+            <div class="islamic-logo">
+                <i class="fas fa-mosque"></i>
+            </div>
+            <h1 class="app-name">Zikrayn</h1>
+            <p class="powered-by">Powered by MVBD Studio</p>
+        </div>
+        <div class="loading-animation">
+            <div class="spinner"></div>
+        </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div class="app-container" id="appContainer">
+        <!-- Home Page -->
+        <div class="page active" id="homePage">
+            <header class="islamic-header">
+                <div class="app-title">
+                    <h1>Zikrayn</h1>
+                </div>
+                <div class="search-container">
+                    <input type="text" placeholder="Search..." class="search-bar" id="homeSearch">
+                    <button class="search-btn"><i class="fas fa-search"></i></button>
+                </div>
+            </header>
+
+            <div class="slideshow-container">
+                <div class="slideshow">
+                    <img src="https://i.postimg.cc/L54VvTzF/images.jpg" class="slide active">
+                    <img src="https://i.postimg.cc/2jHdrnQD/pngtree-hanging-islam-lantern-background-symbol-or-object-for-ramadan-kareem-or-picture-image-153532.png" class="slide">
+                    <img src="https://i.postimg.cc/7hb2fQ3h/images-2.jpg" class="slide">
+                    <img src="https://i.postimg.cc/7LDJgL3F/images-1.jpg" class="slide">
+                    <img src="https://i.postimg.cc/PJBPNffB/drgyr.jpg" class="slide">
+                    <img src="https://i.postimg.cc/MGWXnFwh/353927af90768132d1193ec40a55ab0f.jpg" class="slide">
+                </div>
+            </div>
+
+            <div class="time-display">
+                <div class="date-row">
+                    <div class="date-item">
+                        <div class="date-label">বাংলা তারিখ</div>
+                        <div class="date-value" id="banglaDate">লোড হচ্ছে...</div>
+                    </div>
+                    <div class="date-item">
+                        <div class="date-label">English Date</div>
+                        <div class="date-value" id="englishDate">Loading...</div>
+                    </div>
+                </div>
+                <div class="date-row">
+                    <div class="date-item">
+                        <div class="date-label">হিজরি তারিখ</div>
+                        <div class="date-value" id="arabicDate">جارٍ التحميل...</div>
+                    </div>
+                    <div class="date-item">
+                        <div class="date-label">সময়</div>
+                        <div class="date-value" id="currentTime">--:--:--</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="prayer-times">
+                <h3 class="section-title">আজকের নামাজের সময়</h3>
+                <div class="prayer-grid">
+                    <div class="prayer-item">
+                        <span class="prayer-name">ফজর</span>
+                        <span class="prayer-time" id="fajrTime">--:--</span>
+                    </div>
+                    <div class="prayer-item">
+                        <span class="prayer-name">জোহর</span>
+                        <span class="prayer-time" id="dhuhrTime">--:--</span>
+                    </div>
+                    <div class="prayer-item">
+                        <span class="prayer-name">আসর</span>
+                        <span class="prayer-time" id="asrTime">--:--</span>
+                    </div>
+                    <div class="prayer-item">
+                        <span class="prayer-name">মাগরিব</span>
+                        <span class="prayer-time" id="maghribTime">--:--</span>
+                    </div>
+                    <div class="prayer-item">
+                        <span class="prayer-name">ইশা</span>
+                        <span class="prayer-time" id="ishaTime">--:--</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hadith-section">
+                <h3 class="section-title">হাদিস শরীফ</h3>
+                <p class="hadith-text" id="randomHadith">লোড হচ্ছে...</p>
+            </div>
+        </div>
+
+        <!-- Waz Page -->
+        <div class="page" id="wazPage">
+            <header class="islamic-header">
+                <div class="app-title">
+                    <h1>Zikrayn</h1>
+                </div>
+                <div class="search-container">
+                    <input type="text" placeholder="ওয়াজ খুঁজুন..." class="search-bar" id="wazSearch">
+                    <button class="search-btn"><i class="fas fa-search"></i></button>
+                </div>
+            </header>
+
+            <div class="recent-waz">
+                <h3 class="section-title">সাম্প্রতিক ওয়াজ</h3>
+                <div class="video-grid" id="wazGrid">
+                    <!-- Waz items will be populated from Firebase -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Gojol Page -->
+        <div class="page" id="gojolPage">
+            <header class="islamic-header">
+                <div class="app-title">
+                    <h1>Zikrayn</h1>
+                </div>
+                <div class="search-container">
+                    <input type="text" placeholder="গজল খুঁজুন..." class="search-bar" id="gojolSearch">
+                    <button class="search-btn"><i class="fas fa-search"></i></button>
+                </div>
+            </header>
+
+            <div class="recent-gojol">
+                <h3 class="section-title">গজল সমগ্র</h3>
+                <div class="video-grid" id="gojolGrid">
+                    <!-- Gojol items will be populated from Firebase -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Page -->
+        <div class="page" id="profilePage">
+            <header class="islamic-header">
+                <div class="app-title">
+                    <h1>Zikrayn</h1>
+                </div>
+            </header>
+
+            <div class="profile-container">
+                <img src="https://via.placeholder.com/150/1a5e1a/ffffff?text=User" class="profile-pic" id="profilePic">
+                
+                <div class="profile-form">
+                    <div class="form-group">
+                        <label for="userName">নাম</label>
+                        <input type="text" id="userName" placeholder="আপনার নাম লিখুন">
+                    </div>
+                    <div class="form-group">
+                        <label for="userAge">বয়স</label>
+                        <input type="number" id="userAge" placeholder="আপনার বয়স লিখুন">
+                    </div>
+                    <div class="form-group">
+                        <label for="userMobile">মোবাইল নম্বর</label>
+                        <input type="tel" id="userMobile" placeholder="আপনার মোবাইল নম্বর লিখুন">
+                    </div>
+                    <div class="form-group">
+                        <label for="userEmail">ইমেইল</label>
+                        <input type="email" id="userEmail" placeholder="আপনার ইমেইল লিখুন">
+                    </div>
+                    <button class="save-btn" id="saveProfile">সেভ করুন</button>
+                </div>
+
+                <div class="social-section">
+                    <h3 class="section-title">যোগাযোগ করুন</h3>
+                    <div class="social-links">
+                        <a href="#" class="social-icon"><i class="fab fa-whatsapp"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-facebook-messenger"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-tiktok"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-telegram"></i></a>
+                        <a href="#" class="social-icon"><i class="fas fa-globe"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Video Popup -->
+        <div class="video-popup" id="videoPopup">
+            <div class="popup-content">
+                <button class="close-btn" id="closeVideo"><i class="fas fa-times"></i></button>
+                <div id="videoPlayer"></div>
+            </div>
+        </div>
+
+        <!-- Profile Picture Gallery Modal -->
+        <div class="profile-pic-modal" id="profilePicModal">
+            <div class="profile-pic-content">
+                <h3 class="section-title">প্রোফাইল ছবি পরিবর্তন করুন</h3>
+                <div class="profile-pic-options">
+                    <button class="profile-pic-option" id="galleryOption">
+                        <i class="fas fa-images"></i>
+                        গ্যালারি থেকে ছবি নির্বাচন করুন
+                    </button>
+                    <button class="profile-pic-option" id="cameraOption">
+                        <i class="fas fa-camera"></i>
+                        ক্যামেরা দিয়ে ছবি তুলুন
+                    </button>
+                    <button class="profile-pic-option" id="defaultOption">
+                        <i class="fas fa-user-circle"></i>
+                        ডিফল্ট ছবি ব্যবহার করুন
+                    </button>
+                </div>
+                <button class="save-btn" id="closeProfilePicModal" style="margin-top: 20px;">বন্ধ করুন</button>
+                <input type="file" id="profilePicInput" accept="image/*">
+            </div>
+        </div>
+
+        <!-- Footer Navigation -->
+        <footer class="main-footer">
+            <div class="nav-icons">
+                <button class="nav-btn active" data-page="home">
+                    <i class="fas fa-home"></i>
+                    <span>হোম</span>
+                </button>
+                <button class="nav-btn" data-page="waz">
+                    <i class="fas fa-book-open"></i>
+                    <span>ওয়াজ</span>
+                </button>
+                <button class="nav-btn" data-page="gojol">
+                    <i class="fas fa-music"></i>
+                    <span>গজল</span>
+                </button>
+                <button class="nav-btn" data-page="profile">
+                    <i class="fas fa-user"></i>
+                    <span>প্রোফাইল</span>
+                </button>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCjrUpoUEtouapeVMSZL0IwtteW8JObqN8",
+            authDomain: "zikrayn-app.firebaseapp.com",
+            projectId: "zikrayn-app",
+            storageBucket: "zikrayn-app.firebasestorage.app",
+            messagingSenderId: "397688673617",
+            appId: "1:397688673617:web:a03869eb25585b5aa3ef70",
+            measurementId: "G-BS71JD2G05"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Firebase Collections
+        const wazCollection = db.collection('waz');
+        const gojolCollection = db.collection('gojol');
+        const hadithCollection = db.collection('hadiths');
+
+        // Sample data for initial setup
+        const sampleHadiths = [
+            "যে ব্যক্তি আল্লাহ ও আখিরাতের দিনের উপর ঈমান রাখে, সে যেন তার প্রতিবেশীকে কষ্ট না দেয়।",
+            "তোমাদের মধ্যে সেই ব্যক্তি সর্বোত্তম, যে কুরআন শিক্ষা করে এবং অন্যকে শিক্ষা দেয়।",
+            "সদকাহ দারিদ্র্য দূর করে, আয়ু বাড়ায় এবং অসুস্থতা থেকে রক্ষা করে।",
+            "যে ব্যক্তি তার ভাইয়ের প্রয়োজনে সাহায্য করে, আল্লাহও তার প্রয়োজনে সাহায্য করেন।",
+            "আল্লাহ তায়ালা বলেন, 'হে আদম সন্তান, তুমি আমার ইবাদত কর, আমি তোমার অন্তরকে ধন-সম্পদে পূর্ণ করে দিব।'"
+        ];
+
+        // App initialization
+        document.addEventListener('DOMContentLoaded', function() {
+            // Show splash screen for 3 seconds
+            setTimeout(() => {
+                document.getElementById('splashScreen').style.display = 'none';
+                document.getElementById('appContainer').style.display = 'block';
+                initializeApp();
+            }, 3000);
+        });
+
+        function initializeApp() {
+            // Initialize slideshow
+            initSlideshow();
+            
+            // Initialize date and time
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+            
+            // Initialize prayer times
+            updatePrayerTimes();
+            
+            // Initialize random hadith
+            loadRandomHadithFromFirebase();
+            
+            // Load waz and gojol from Firebase
+            loadWazFromFirebase();
+            loadGojolFromFirebase();
+            
+            // Set up real-time listeners
+            setupRealTimeWazListener();
+            setupRealTimeGojolListener();
+            
+            // Set up navigation
+            setupNavigation();
+            
+            // Set up profile functionality
+            setupProfile();
+            
+            // Set up search functionality
+            setupSearch();
+        }
+
+        function initSlideshow() {
+            let currentSlide = 0;
+            const slides = document.querySelectorAll('.slide');
+            
+            setInterval(() => {
+                slides[currentSlide].classList.remove('active');
+                currentSlide = (currentSlide + 1) % slides.length;
+                slides[currentSlide].classList.add('active');
+            }, 4000);
+        }
+
+        function updateDateTime() {
+            const now = new Date();
+            
+            // English date
+            const englishDate = now.toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            document.getElementById('englishDate').textContent = englishDate;
+            
+            // Bangla date - simplified version
+            const banglaMonths = ['বৈশাখ', 'জ্যৈষ্ঠ', 'আষাঢ়', 'শ্রাবণ', 'ভাদ্র', 'আশ্বিন', 'কার্তিক', 'অগ্রহায়ণ', 'পৌষ', 'মাঘ', 'ফাল্গুন', 'চৈত্র'];
+            const banglaDate = `${now.getDate()} ${banglaMonths[now.getMonth()]}, ${now.getFullYear()}`;
+            document.getElementById('banglaDate').textContent = banglaDate;
+            
+            // Arabic/Hijri date - simplified version
+            const arabicMonths = ['মুহররম', 'সফর', 'রবিউল আউয়াল', 'রবিউস সানি', 'জমাদিউল আউয়াল', 'জমাদিউস সানি', 'রজব', 'শাবান', 'রমজান', 'শাওয়াল', 'জিলকদ', 'জিলহজ'];
+            const hijriYear = Math.floor((now.getFullYear() - 622) * (33/32));
+            const arabicDate = `${now.getDate()} ${arabicMonths[now.getMonth()]}, ${hijriYear}`;
+            document.getElementById('arabicDate').textContent = arabicDate;
+            
+            // Current time
+            const currentTime = now.toLocaleTimeString('bn-BD');
+            document.getElementById('currentTime').textContent = currentTime;
+        }
+
+        function updatePrayerTimes() {
+            // Simplified prayer times - in real app, calculate based on location
+            document.getElementById('fajrTime').textContent = '4:45';
+            document.getElementById('dhuhrTime').textContent = '12:15';
+            document.getElementById('asrTime').textContent = '4:30';
+            document.getElementById('maghribTime').textContent = '6:20';
+            document.getElementById('ishaTime').textContent = '7:45';
+        }
+
+        // Firebase Functions for User App
+        function loadWazFromFirebase() {
+            const wazGrid = document.getElementById('wazGrid');
+            wazGrid.innerHTML = '<p style="text-align:center; padding:20px; color: var(--accent);">লোড হচ্ছে...</p>';
+            
+            wazCollection.orderBy('timestamp', 'desc').limit(12).get()
+                .then((querySnapshot) => {
+                    wazGrid.innerHTML = '';
+                    
+                    if (querySnapshot.empty) {
+                        wazGrid.innerHTML = '<p style="text-align:center; padding:20px; color: #aaa;">কোনো ওয়াজ পাওয়া যায়নি</p>';
+                        return;
+                    }
+                    
+                    querySnapshot.forEach((doc) => {
+                        const waz = doc.data();
+                        createVideoItem(wazGrid, waz, 'waz');
+                    });
+                })
+                .catch((error) => {
+                    wazGrid.innerHTML = '<p style="text-align:center; padding:20px; color: #ff6b6b;">লোড করতে সমস্যা হচ্ছে</p>';
+                    console.error("Error loading waz: ", error);
+                });
+        }
+
+        function loadGojolFromFirebase() {
+            const gojolGrid = document.getElementById('gojolGrid');
+            gojolGrid.innerHTML = '<p style="text-align:center; padding:20px; color: var(--accent);">লোড হচ্ছে...</p>';
+            
+            gojolCollection.orderBy('timestamp', 'desc').limit(12).get()
+                .then((querySnapshot) => {
+                    gojolGrid.innerHTML = '';
+                    
+                    if (querySnapshot.empty) {
+                        gojolGrid.innerHTML = '<p style="text-align:center; padding:20px; color: #aaa;">কোনো গজল পাওয়া যায়নি</p>';
+                        return;
+                    }
+                    
+                    querySnapshot.forEach((doc) => {
+                        const gojol = doc.data();
+                        createVideoItem(gojolGrid, gojol, 'gojol');
+                    });
+                })
+                .catch((error) => {
+                    gojolGrid.innerHTML = '<p style="text-align:center; padding:20px; color: #ff6b6b;">লোড করতে সমস্যা হচ্ছে</p>';
+                    console.error("Error loading gojol: ", error);
+                });
+        }
+
+        function createVideoItem(container, item, type) {
+            const videoItem = document.createElement('div');
+            videoItem.className = 'video-item';
+            
+            // Generate thumbnail URL from YouTube video ID
+            const videoId = getYouTubeId(item.videoUrl);
+            const thumbnailUrl = item.thumbnail || `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+            
+            videoItem.innerHTML = `
+                <img src="${thumbnailUrl}" class="video-thumbnail" alt="${item.title}" onerror="this.src='https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80'">
+                <div class="video-title">${item.title}</div>
+            `;
+            
+            videoItem.addEventListener('click', () => playVideo(item.videoUrl, item.title));
+            container.appendChild(videoItem);
+        }
+
+        function getYouTubeId(url) {
+            if (!url) return null;
+            
+            // Extract YouTube video ID from various URL formats
+            const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[7].length === 11) ? match[7] : null;
+        }
+
+        function loadRandomHadithFromFirebase() {
+            hadithCollection.get()
+                .then((querySnapshot) => {
+                    if (!querySnapshot.empty) {
+                        const hadiths = [];
+                        querySnapshot.forEach((doc) => {
+                            hadiths.push(doc.data().text);
+                        });
+                        
+                        // Random hadith select koro
+                        const randomIndex = Math.floor(Math.random() * hadiths.length);
+                        document.getElementById('randomHadith').textContent = hadiths[randomIndex];
+                    } else {
+                        // If no hadiths in Firebase, use sample hadiths
+                        const randomIndex = Math.floor(Math.random() * sampleHadiths.length);
+                        document.getElementById('randomHadith').textContent = sampleHadiths[randomIndex];
+                    }
+                })
+                .catch((error) => {
+                    // If error, use sample hadiths
+                    const randomIndex = Math.floor(Math.random() * sampleHadiths.length);
+                    document.getElementById('randomHadith').textContent = sampleHadiths[randomIndex];
+                    console.error("Error loading hadith: ", error);
+                });
+        }
+
+        // Real-time listeners for instant updates
+        function setupRealTimeWazListener() {
+            wazCollection.orderBy('timestamp', 'desc').limit(12)
+                .onSnapshot((querySnapshot) => {
+                    const wazGrid = document.getElementById('wazGrid');
+                    wazGrid.innerHTML = '';
+                    
+                    if (querySnapshot.empty) {
+                        wazGrid.innerHTML = '<p style="text-align:center; padding:20px; color: #aaa;">কোনো ওয়াজ পাওয়া যায়নি</p>';
+                        return;
+                    }
+                    
+                    querySnapshot.forEach((doc) => {
+                        const waz = doc.data();
+                        createVideoItem(wazGrid, waz, 'waz');
+                    });
+                }, (error) => {
+                    console.error("Real-time waz listener error: ", error);
+                });
+        }
+
+        function setupRealTimeGojolListener() {
+            gojolCollection.orderBy('timestamp', 'desc').limit(12)
+                .onSnapshot((querySnapshot) => {
+                    const gojolGrid = document.getElementById('gojolGrid');
+                    gojolGrid.innerHTML = '';
+                    
+                    if (querySnapshot.empty) {
+                        gojolGrid.innerHTML = '<p style="text-align:center; padding:20px; color: #aaa;">কোনো গজল পাওয়া যায়নি</p>';
+                        return;
+                    }
+                    
+                    querySnapshot.forEach((doc) => {
+                        const gojol = doc.data();
+                        createVideoItem(gojolGrid, gojol, 'gojol');
+                    });
+                }, (error) => {
+                    console.error("Real-time gojol listener error: ", error);
+                });
+        }
+
+        function playVideo(videoUrl, title) {
+            const videoPopup = document.getElementById('videoPopup');
+            const videoPlayer = document.getElementById('videoPlayer');
+            
+            const videoId = getYouTubeId(videoUrl);
+            if (!videoId) {
+                alert('ভিডিও লোড করতে সমস্যা হচ্ছে। দয়া করে ভিডিও লিঙ্ক চেক করুন।');
+                return;
+            }
+            
+            videoPlayer.innerHTML = `
+                <iframe 
+                    src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen>
+                </iframe>
+            `;
+            
+            videoPopup.classList.add('active');
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        }
+
+        function setupNavigation() {
+            const navButtons = document.querySelectorAll('.nav-btn');
+            const pages = document.querySelectorAll('.page');
+            
+            navButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const targetPage = button.getAttribute('data-page');
+                    
+                    // Update active button
+                    navButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    
+                    // Show target page
+                    pages.forEach(page => page.classList.remove('active'));
+                    document.getElementById(`${targetPage}Page`).classList.add('active');
+                    
+                    // Scroll to top when changing pages
+                    window.scrollTo(0, 0);
+                });
+            });
+            
+            // Close video popup
+            document.getElementById('closeVideo').addEventListener('click', () => {
+                document.getElementById('videoPopup').classList.remove('active');
+                document.getElementById('videoPlayer').innerHTML = '';
+                document.body.style.overflow = 'auto'; // Restore scrolling
+            });
+            
+            // Close popup when clicking outside
+            document.getElementById('videoPopup').addEventListener('click', (e) => {
+                if (e.target.id === 'videoPopup') {
+                    document.getElementById('videoPopup').classList.remove('active');
+                    document.getElementById('videoPlayer').innerHTML = '';
+                    document.body.style.overflow = 'auto';
+                }
+            });
+        }
+
+        function setupProfile() {
+            // Profile picture change - direct gallery access
+            document.getElementById('profilePic').addEventListener('click', function() {
+                document.getElementById('profilePicInput').click();
+            });
+            
+            // Profile picture modal options
+            document.getElementById('galleryOption').addEventListener('click', function() {
+                document.getElementById('profilePicInput').click();
+            });
+            
+            document.getElementById('cameraOption').addEventListener('click', function() {
+                alert('ক্যামেরা অপশন শীঘ্রই আসছে!');
+            });
+            
+            document.getElementById('defaultOption').addEventListener('click', function() {
+                document.getElementById('profilePic').src = 'https://via.placeholder.com/150/1a5e1a/ffffff?text=User';
+                saveProfilePicture('https://via.placeholder.com/150/1a5e1a/ffffff?text=User');
+                document.getElementById('profilePicModal').classList.remove('active');
+            });
+            
+            document.getElementById('closeProfilePicModal').addEventListener('click', function() {
+                document.getElementById('profilePicModal').classList.remove('active');
+            });
+            
+            // Handle file selection
+            document.getElementById('profilePicInput').addEventListener('change', function(e) {
+                if (e.target.files && e.target.files[0]) {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(event) {
+                        document.getElementById('profilePic').src = event.target.result;
+                        saveProfilePicture(event.target.result);
+                    }
+                    
+                    reader.readAsDataURL(e.target.files[0]);
+                }
+            });
+            
+            // Load saved profile data if exists
+            const savedProfile = localStorage.getItem('zikraynProfile');
+            if (savedProfile) {
+                const profile = JSON.parse(savedProfile);
+                document.getElementById('userName').value = profile.name || '';
+                document.getElementById('userAge').value = profile.age || '';
+                document.getElementById('userMobile').value = profile.mobile || '';
+                document.getElementById('userEmail').value = profile.email || '';
+                
+                // Load profile picture if saved
+                if (profile.profilePic) {
+                    document.getElementById('profilePic').src = profile.profilePic;
+                }
+            }
+            
+            // Save profile on button click
+            document.getElementById('saveProfile').addEventListener('click', function() {
+                const profile = {
+                    name: document.getElementById('userName').value,
+                    age: document.getElementById('userAge').value,
+                    mobile: document.getElementById('userMobile').value,
+                    email: document.getElementById('userEmail').value,
+                    profilePic: document.getElementById('profilePic').src
+                };
+                
+                localStorage.setItem('zikraynProfile', JSON.stringify(profile));
+                alert('প্রোফাইল তথ্য সফলভাবে সেভ করা হয়েছে!');
+            });
+        }
+
+        function saveProfilePicture(imageData) {
+            const savedProfile = localStorage.getItem('zikraynProfile');
+            let profile = {};
+            
+            if (savedProfile) {
+                profile = JSON.parse(savedProfile);
+            }
+            
+            profile.profilePic = imageData;
+            localStorage.setItem('zikraynProfile', JSON.stringify(profile));
+        }
+
+        function setupSearch() {
+            // Home search
+            document.querySelector('#homeSearch + .search-btn').addEventListener('click', function() {
+                const query = document.getElementById('homeSearch').value;
+                if (query.trim()) {
+                    alert(`"${query}" খুঁজছেন...`);
+                }
+            });
+            
+            // Waz search
+            document.querySelector('#wazSearch + .search-btn').addEventListener('click', function() {
+                const query = document.getElementById('wazSearch').value;
+                if (query.trim()) {
+                    alert(`ওয়াজে "${query}" খুঁজছেন...`);
+                }
+            });
+            
+            // Gojol search
+            document.querySelector('#gojolSearch + .search-btn').addEventListener('click', function() {
+                const query = document.getElementById('gojolSearch').value;
+                if (query.trim()) {
+                    alert(`গজলে "${query}" খুঁজছেন...`);
+                }
+            });
+            
+            // Enter key support for search
+            const searchInputs = document.querySelectorAll('.search-bar');
+            searchInputs.forEach(input => {
+                input.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        this.nextElementSibling.click();
+                    }
+                });
+            });
+        }
+    </script>
+</body>
+</html>
