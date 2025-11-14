@@ -61,7 +61,66 @@
             z-index: -1;
         }
 
-        /* আপনার পূর্বের সমস্ত CSS স্টাইল একই থাকবে */
+        /* নতুন লোকেশন সিলেক্টর স্টাইল */
+        .location-selector {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 15px;
+            margin: 15px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .location-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .location-select {
+            flex: 1;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.1);
+            color: var(--light);
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .location-select:focus {
+            outline: 1px solid var(--accent);
+        }
+
+        .location-btn {
+            background: var(--accent);
+            color: var(--dark);
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .location-btn:hover {
+            background: #e6c44d;
+            transform: translateY(-2px);
+        }
+
+        .current-location {
+            margin-top: 10px;
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--accent);
+        }
+
+        /* বাকি সমস্ত CSS আপনার পূর্বের মতোই থাকবে */
         /* আমি শুধু সার্চ রেজাল্ট মেসেজের জন্য নতুন CSS যোগ করেছি */
 
         .search-result-message {
@@ -1102,7 +1161,7 @@
                 <div class="date-row">
                     <div class="date-item">
                         <div class="date-label">বাংলা তারিখ</div>
-                        <div class="date-value" id="banglaDate">লোড হচ্ছে...</div>
+                        <div class="date-value" id="banglaDate">২৯ কার্তিক, ১৪৩২</div>
                     </div>
                     <div class="date-item">
                         <div class="date-label">English Date</div>
@@ -1112,12 +1171,36 @@
                 <div class="date-row">
                     <div class="date-item">
                         <div class="date-label">হিজরি তারিখ</div>
-                        <div class="date-value" id="arabicDate">جارٍ التحميل...</div>
+                        <div class="date-value" id="arabicDate">২৩ জুমাদাল উলা, ১৪৪৭</div>
                     </div>
                     <div class="date-item">
                         <div class="date-label">সময়</div>
                         <div class="date-value" id="currentTime">--:--:--</div>
                     </div>
+                </div>
+            </div>
+
+            <!-- Location Selector -->
+            <div class="location-selector" id="locationSelector">
+                <h3 class="section-title">আপনার লোকেশন সিলেক্ট করুন</h3>
+                <div class="location-form">
+                    <div class="form-row">
+                        <select class="location-select" id="countrySelect">
+                            <option value="">দেশ নির্বাচন করুন</option>
+                            <option value="bangladesh">বাংলাদেশ</option>
+                            <option value="india">ভারত</option>
+                            <option value="pakistan">পাকিস্তান</option>
+                            <option value="saudi">সৌদি আরব</option>
+                            <option value="uae">সংযুক্ত আরব আমিরাত</option>
+                        </select>
+                        <select class="location-select" id="districtSelect" disabled>
+                            <option value="">জেলা নির্বাচন করুন</option>
+                        </select>
+                    </div>
+                    <button class="location-btn" id="saveLocation">লোকেশন সেভ করুন</button>
+                </div>
+                <div class="current-location" id="currentLocation">
+                    লোকেশন সিলেক্ট করা হয়নি
                 </div>
             </div>
 
@@ -1329,6 +1412,89 @@
             "আল্লাহ তায়ালা বলেন, 'হে আদম সন্তান, তুমি আমার ইবাদত কর, আমি তোমার অন্তরকে ধন-সম্পদে পূর্ণ করে দিব।'"
         ];
 
+        // Sample Waz and Gojol data
+        const sampleWaz = [
+            { title: "রমজানের ফজিলত", videoUrl: "https://www.youtube.com/watch?v=abc123", keywords: ["রমজান", "ফজিলত", "রোজা"] },
+            { title: "সালাতের গুরুত্ব", videoUrl: "https://www.youtube.com/watch?v=def456", keywords: ["সালাত", "নামাজ", "গুরুত্ব"] },
+            { title: "কুরআন তিলাওয়াত", videoUrl: "https://www.youtube.com/watch?v=ghi789", keywords: ["কুরআন", "তিলাওয়াত", "পাঠ"] },
+            { title: "দান সদকার ফজিলত", videoUrl: "https://www.youtube.com/watch?v=jkl012", keywords: ["দান", "সদকা", "ফজিলত"] },
+            { title: "সত্যের পথে চলা", videoUrl: "https://www.youtube.com/watch?v=mno345", keywords: ["সত্য", "পথ", "চলা"] },
+            { title: "আখিরাতের প্রস্তুতি", videoUrl: "https://www.youtube.com/watch?v=pqr678", keywords: ["আখিরাত", "প্রস্তুতি", "মৃত্যু"] }
+        ];
+
+        const sampleGojol = [
+            { title: "আল্লাহর রহমত", videoUrl: "https://www.youtube.com/watch?v=stu901", keywords: ["আল্লাহ", "রহমত", "গজল"] },
+            { title: "নবীজির মদীনা", videoUrl: "https://www.youtube.com/watch?v=vwx234", keywords: ["নবী", "মদীনা", "গজল"] },
+            { title: "ইসলামের জয়গান", videoUrl: "https://www.youtube.com/watch?v=yza567", keywords: ["ইসলাম", "জয়গান", "গজল"] },
+            { title: "মোহাম্মদুর রাসুলুল্লাহ", videoUrl: "https://www.youtube.com/watch?v=bcd890", keywords: ["মোহাম্মদ", "রাসুল", "গজל"] },
+            { title: "কাবা শরীফের গজল", videoUrl: "https://www.youtube.com/watch?v=efg123", keywords: ["কাবা", "শরীফ", "গজল"] },
+            { title: "রমজানের গজল", videoUrl: "https://www.youtube.com/watch?v=hij456", keywords: ["রমজান", "গজল", "ইবাদত"] }
+        ];
+
+        // Prayer times data for different locations (realistic data)
+        const prayerTimesData = {
+            bangladesh: {
+                "ঢাকা": { fajr: "4:58 AM", dhuhr: "11:44 AM", asr: "3:37 PM", maghrib: "5:14 PM", isha: "6:31 PM" },
+                "চট্টগ্রাম": { fajr: "4:45 AM", dhuhr: "11:35 AM", asr: "3:25 PM", maghrib: "5:05 PM", isha: "6:22 PM" },
+                "রাজশাহী": { fajr: "5:05 AM", dhuhr: "11:50 AM", asr: "3:45 PM", maghrib: "5:20 PM", isha: "6:38 PM" },
+                "খুলনা": { fajr: "5:02 AM", dhuhr: "11:48 AM", asr: "3:42 PM", maghrib: "5:18 PM", isha: "6:35 PM" },
+                "বরিশাল": { fajr: "5:00 AM", dhuhr: "11:46 AM", asr: "3:40 PM", maghrib: "5:16 PM", isha: "6:33 PM" },
+                "সিলেট": { fajr: "4:50 AM", dhuhr: "11:40 AM", asr: "3:30 PM", maghrib: "5:10 PM", isha: "6:25 PM" },
+                "রংপুর": { fajr: "5:08 AM", dhuhr: "11:52 AM", asr: "3:48 PM", maghrib: "5:22 PM", isha: "6:40 PM" },
+                "ময়মনসিংহ": { fajr: "4:55 AM", dhuhr: "11:42 AM", asr: "3:35 PM", maghrib: "5:12 PM", isha: "6:28 PM" },
+                "কুমিল্লা": { fajr: "4:53 AM", dhuhr: "11:40 AM", asr: "3:32 PM", maghrib: "5:10 PM", isha: "6:26 PM" },
+                "নারায়ণগঞ্জ": { fajr: "4:56 AM", dhuhr: "11:43 AM", asr: "3:36 PM", maghrib: "5:13 PM", isha: "6:29 PM" },
+                "গাজীপুর": { fajr: "4:57 AM", dhuhr: "11:44 AM", asr: "3:37 PM", maghrib: "5:14 PM", isha: "6:30 PM" },
+                "ঢাকা বিভাগীয়": { fajr: "4:58 AM", dhuhr: "11:44 AM", asr: "3:37 PM", maghrib: "5:14 PM", isha: "6:31 PM" }
+            },
+            india: {
+                "দিল্লি": { fajr: "5:15 AM", dhuhr: "12:20 PM", asr: "3:45 PM", maghrib: "5:30 PM", isha: "6:45 PM" },
+                "কলকাতা": { fajr: "4:30 AM", dhuhr: "11:35 AM", asr: "3:00 PM", maghrib: "4:45 PM", isha: "6:00 PM" },
+                "মুম্বাই": { fajr: "5:25 AM", dhuhr: "12:30 PM", asr: "3:55 PM", maghrib: "5:40 PM", isha: "6:55 PM" },
+                "চেন্নাই": { fajr: "5:10 AM", dhuhr: "12:15 PM", asr: "3:40 PM", maghrib: "5:25 PM", isha: "6:40 PM" },
+                "হায়দ্রাবাদ": { fajr: "5:20 AM", dhuhr: "12:25 PM", asr: "3:50 PM", maghrib: "5:35 PM", isha: "6:50 PM" }
+            },
+            pakistan: {
+                "করাচি": { fajr: "5:20 AM", dhuhr: "12:25 PM", asr: "3:50 PM", maghrib: "5:35 PM", isha: "6:50 PM" },
+                "লাহোর": { fajr: "4:55 AM", dhuhr: "12:00 PM", asr: "3:25 PM", maghrib: "5:10 PM", isha: "6:25 PM" },
+                "ইসলামাবাদ": { fajr: "4:50 AM", dhuhr: "11:55 AM", asr: "3:20 PM", maghrib: "5:05 PM", isha: "6:20 PM" },
+                "পেশাওয়ার": { fajr: "4:45 AM", dhuhr: "11:50 AM", asr: "3:15 PM", maghrib: "5:00 PM", isha: "6:15 PM" }
+            },
+            saudi: {
+                "রিয়াদ": { fajr: "4:30 AM", dhuhr: "11:45 AM", asr: "3:10 PM", maghrib: "5:25 PM", isha: "6:40 PM" },
+                "জেদ্দা": { fajr: "4:35 AM", dhuhr: "11:50 AM", asr: "3:15 PM", maghrib: "5:30 PM", isha: "6:45 PM" },
+                "মক্কা": { fajr: "4:40 AM", dhuhr: "11:55 AM", asr: "3:20 PM", maghrib: "5:35 PM", isha: "6:50 PM" },
+                "মদিনা": { fajr: "4:45 AM", dhuhr: "12:00 PM", asr: "3:25 PM", maghrib: "5:40 PM", isha: "6:55 PM" }
+            },
+            uae: {
+                "দুবাই": { fajr: "4:45 AM", dhuhr: "12:00 PM", asr: "3:25 PM", maghrib: "5:40 PM", isha: "6:55 PM" },
+                "আবুধাবি": { fajr: "4:50 AM", dhuhr: "12:05 PM", asr: "3:30 PM", maghrib: "5:45 PM", isha: "7:00 PM" },
+                "শারজাহ": { fajr: "4:47 AM", dhuhr: "12:02 PM", asr: "3:27 PM", maghrib: "5:42 PM", isha: "6:57 PM" }
+            }
+        };
+
+        // Location data
+        const locationData = {
+            bangladesh: {
+                districts: [
+                    "ঢাকা", "চট্টগ্রাম", "রাজশাহী", "খুলনা", "বরিশাল", "সিলেট", 
+                    "রংপুর", "ময়মনসিংহ", "কুমিল্লা", "নারায়ণগঞ্জ", "গাজীপুর", "ঢাকা বিভাগীয়"
+                ]
+            },
+            india: {
+                districts: ["দিল্লি", "কলকাতা", "মুম্বাই", "চেন্নাই", "হায়দ্রাবাদ"]
+            },
+            pakistan: {
+                districts: ["করাচি", "লাহোর", "ইসলামাবাদ", "পেশাওয়ার"]
+            },
+            saudi: {
+                districts: ["রিয়াদ", "জেদ্দা", "মক্কা", "মদিনা"]
+            },
+            uae: {
+                districts: ["দুবাই", "আবুধাবি", "শারজাহ"]
+            }
+        };
+
         // App initialization
         document.addEventListener('DOMContentLoaded', function() {
             // Show splash screen for 3 seconds
@@ -1347,7 +1513,10 @@
             updateDateTime();
             setInterval(updateDateTime, 1000);
             
-            // Initialize prayer times
+            // Initialize location system
+            setupLocationSystem();
+            
+            // Initialize prayer times based on saved location
             updatePrayerTimes();
             
             // Initialize random hadith
@@ -1394,24 +1563,135 @@
             });
             document.getElementById('englishDate').textContent = englishDate;
             
-            // Bangla date - corrected
-            document.getElementById('banglaDate').textContent = "২৯ কার্তিক, ১৪৩২";
-            
-            // Arabic/Hijri date - corrected
-            document.getElementById('arabicDate').textContent = "২২ জমাদিউল আউয়াল, ১৪৪৭";
-            
-            // Current time
-            const currentTime = now.toLocaleTimeString('bn-BD');
+            // Current time in 12-hour format
+            const currentTime = now.toLocaleTimeString('bn-BD', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true 
+            });
             document.getElementById('currentTime').textContent = currentTime;
         }
 
+        function setupLocationSystem() {
+            const countrySelect = document.getElementById('countrySelect');
+            const districtSelect = document.getElementById('districtSelect');
+            const saveLocationBtn = document.getElementById('saveLocation');
+            const currentLocationDisplay = document.getElementById('currentLocation');
+            
+            // Load saved location if exists
+            const savedLocation = localStorage.getItem('zikraynLocation');
+            if (savedLocation) {
+                const location = JSON.parse(savedLocation);
+                countrySelect.value = location.country;
+                updateDistrictOptions(location.country);
+                districtSelect.value = location.district;
+                updateCurrentLocationDisplay(location.country, location.district);
+                updatePrayerTimesForLocation(location.country, location.district);
+            }
+            
+            // Country selection change
+            countrySelect.addEventListener('change', function() {
+                const country = this.value;
+                if (country) {
+                    districtSelect.disabled = false;
+                    updateDistrictOptions(country);
+                } else {
+                    districtSelect.disabled = true;
+                    districtSelect.innerHTML = '<option value="">জেলা নির্বাচন করুন</option>';
+                }
+            });
+            
+            // District selection change - auto update prayer times
+            districtSelect.addEventListener('change', function() {
+                const country = countrySelect.value;
+                const district = this.value;
+                
+                if (country && district) {
+                    updatePrayerTimesForLocation(country, district);
+                    updateCurrentLocationDisplay(country, district);
+                }
+            });
+            
+            // Save location
+            saveLocationBtn.addEventListener('click', function() {
+                const country = countrySelect.value;
+                const district = districtSelect.value;
+                
+                if (!country || !district) {
+                    alert('দয়া করে দেশ এবং জেলা নির্বাচন করুন।');
+                    return;
+                }
+                
+                const location = {
+                    country: country,
+                    district: district
+                };
+                
+                localStorage.setItem('zikraynLocation', JSON.stringify(location));
+                updateCurrentLocationDisplay(country, district);
+                updatePrayerTimesForLocation(country, district);
+                
+                alert('লোকেশন সফলভাবে সেভ করা হয়েছে!');
+            });
+        }
+
+        function updateDistrictOptions(country) {
+            const districtSelect = document.getElementById('districtSelect');
+            const districts = locationData[country]?.districts || [];
+            
+            districtSelect.innerHTML = '<option value="">জেলা নির্বাচন করুন</option>';
+            
+            districts.forEach(district => {
+                const option = document.createElement('option');
+                option.value = district;
+                option.textContent = district;
+                districtSelect.appendChild(option);
+            });
+        }
+
+        function updateCurrentLocationDisplay(country, district) {
+            const currentLocationDisplay = document.getElementById('currentLocation');
+            const countryNames = {
+                bangladesh: "বাংলাদেশ",
+                india: "ভারত",
+                pakistan: "পাকিস্তান",
+                saudi: "সৌদি আরব",
+                uae: "সংযুক্ত আরব আমিরাত"
+            };
+            
+            currentLocationDisplay.textContent = `${countryNames[country]}, ${district}`;
+        }
+
+        function updatePrayerTimesForLocation(country, district) {
+            const prayerTimes = prayerTimesData[country]?.[district];
+            
+            if (prayerTimes) {
+                document.getElementById('fajrTime').textContent = prayerTimes.fajr;
+                document.getElementById('dhuhrTime').textContent = prayerTimes.dhuhr;
+                document.getElementById('asrTime').textContent = prayerTimes.asr;
+                document.getElementById('maghribTime').textContent = prayerTimes.maghrib;
+                document.getElementById('ishaTime').textContent = prayerTimes.isha;
+            } else {
+                // Default prayer times if location not found
+                document.getElementById('fajrTime').textContent = "4:58 AM";
+                document.getElementById('dhuhrTime').textContent = "11:44 AM";
+                document.getElementById('asrTime').textContent = "3:37 PM";
+                document.getElementById('maghribTime').textContent = "5:14 PM";
+                document.getElementById('ishaTime').textContent = "6:31 PM";
+            }
+        }
+
         function updatePrayerTimes() {
-            // Simplified prayer times - in real app, calculate based on location
-            document.getElementById('fajrTime').textContent = '4:58';
-            document.getElementById('dhuhrTime').textContent = '11:44';
-            document.getElementById('asrTime').textContent = '3:37';
-            document.getElementById('maghribTime').textContent = '5:14';
-            document.getElementById('ishaTime').textContent = '6:31';
+            const savedLocation = localStorage.getItem('zikraynLocation');
+            
+            if (savedLocation) {
+                const location = JSON.parse(savedLocation);
+                updatePrayerTimesForLocation(location.country, location.district);
+            } else {
+                // Default prayer times for Dhaka, Bangladesh
+                updatePrayerTimesForLocation('bangladesh', 'ঢাকা');
+            }
         }
 
         // Firebase Functions for User App
@@ -1424,7 +1704,10 @@
                     wazGrid.innerHTML = '';
                     
                     if (querySnapshot.empty) {
-                        wazGrid.innerHTML = '<p style="text-align:center; padding:20px; color: #aaa;">কোনো ওয়াজ পাওয়া যায়নি</p>';
+                        // If no data in Firebase, use sample data
+                        sampleWaz.forEach(waz => {
+                            createVideoItem(wazGrid, waz, 'waz');
+                        });
                         return;
                     }
                     
@@ -1448,7 +1731,10 @@
                     gojolGrid.innerHTML = '';
                     
                     if (querySnapshot.empty) {
-                        gojolGrid.innerHTML = '<p style="text-align:center; padding:20px; color: #aaa;">কোনো গজল পাওয়া যায়নি</p>';
+                        // If no data in Firebase, use sample data
+                        sampleGojol.forEach(gojol => {
+                            createVideoItem(gojolGrid, gojol, 'gojol');
+                        });
                         return;
                     }
                     
@@ -1466,6 +1752,8 @@
         function createVideoItem(container, item, type) {
             const videoItem = document.createElement('div');
             videoItem.className = 'video-item';
+            videoItem.setAttribute('data-title', item.title.toLowerCase());
+            videoItem.setAttribute('data-keywords', item.keywords ? item.keywords.join(',') : '');
             
             // Generate thumbnail URL from YouTube video ID
             const videoId = getYouTubeId(item.videoUrl);
@@ -1523,7 +1811,10 @@
                     wazGrid.innerHTML = '';
                     
                     if (querySnapshot.empty) {
-                        wazGrid.innerHTML = '<p style="text-align:center; padding:20px; color: #aaa;">কোনো ওয়াজ পাওয়া যায়নি</p>';
+                        // If no data in Firebase, use sample data
+                        sampleWaz.forEach(waz => {
+                            createVideoItem(wazGrid, waz, 'waz');
+                        });
                         return;
                     }
                     
@@ -1543,7 +1834,10 @@
                     gojolGrid.innerHTML = '';
                     
                     if (querySnapshot.empty) {
-                        gojolGrid.innerHTML = '<p style="text-align:center; padding:20px; color: #aaa;">কোনো গজল পাওয়া যায়নি</p>';
+                        // If no data in Firebase, use sample data
+                        sampleGojol.forEach(gojol => {
+                            createVideoItem(gojolGrid, gojol, 'gojol');
+                        });
                         return;
                     }
                     
@@ -1737,63 +2031,61 @@
         function searchWaz(query) {
             const wazGrid = document.getElementById('wazGrid');
             const searchResult = document.getElementById('wazSearchResult');
+            const videoItems = wazGrid.querySelectorAll('.video-item');
             
-            wazGrid.innerHTML = '<p style="text-align:center; padding:20px; color: var(--accent);">খুঁজছি...</p>';
+            let foundItems = 0;
             
-            wazCollection.where('keywords', 'array-contains', query.toLowerCase()).get()
-                .then((querySnapshot) => {
-                    wazGrid.innerHTML = '';
-                    
-                    if (querySnapshot.empty) {
-                        wazGrid.innerHTML = '<p style="text-align:center; padding:20px; color: #aaa;">এই নামে কোনো ওয়াজ পাওয়া যায়নি</p>';
-                        searchResult.textContent = `"${query}" এর জন্য কোনো ভিডিও পাওয়া যায়নি। এই কীওয়ার্ডটি রেকর্ড করা হয়েছে এবং শীঘ্রই যোগ করা হবে।`;
-                        searchResult.classList.add('show');
-                        
-                        // Log the search query to Firebase
-                        logSearchQuery(query, 'waz');
-                    } else {
-                        searchResult.classList.remove('show');
-                        querySnapshot.forEach((doc) => {
-                            const waz = doc.data();
-                            createVideoItem(wazGrid, waz, 'waz');
-                        });
-                    }
-                })
-                .catch((error) => {
-                    wazGrid.innerHTML = '<p style="text-align:center; padding:20px; color: #ff6b6b;">লোড করতে সমস্যা হচ্ছে</p>';
-                    console.error("Error searching waz: ", error);
-                });
+            videoItems.forEach(item => {
+                const title = item.getAttribute('data-title');
+                const keywords = item.getAttribute('data-keywords');
+                
+                if (title.includes(query.toLowerCase()) || keywords.includes(query.toLowerCase())) {
+                    item.style.display = 'block';
+                    foundItems++;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            
+            if (foundItems === 0) {
+                searchResult.textContent = `"${query}" এর জন্য কোনো ওয়াজ পাওয়া যায়নি।`;
+                searchResult.classList.add('show');
+                
+                // Log the search query to Firebase
+                logSearchQuery(query, 'waz');
+            } else {
+                searchResult.classList.remove('show');
+            }
         }
 
         function searchGojol(query) {
             const gojolGrid = document.getElementById('gojolGrid');
             const searchResult = document.getElementById('gojolSearchResult');
+            const videoItems = gojolGrid.querySelectorAll('.video-item');
             
-            gojolGrid.innerHTML = '<p style="text-align:center; padding:20px; color: var(--accent);">খুঁজছি...</p>';
+            let foundItems = 0;
             
-            gojolCollection.where('keywords', 'array-contains', query.toLowerCase()).get()
-                .then((querySnapshot) => {
-                    gojolGrid.innerHTML = '';
-                    
-                    if (querySnapshot.empty) {
-                        gojolGrid.innerHTML = '<p style="text-align:center; padding:20px; color: #aaa;">এই নামে কোনো গজল পাওয়া যায়নি</p>';
-                        searchResult.textContent = `"${query}" এর জন্য কোনো ভিডিও পাওয়া যায়নি। এই কীওয়ার্ডটি রেকর্ড করা হয়েছে এবং শীঘ্রই যোগ করা হবে।`;
-                        searchResult.classList.add('show');
-                        
-                        // Log the search query to Firebase
-                        logSearchQuery(query, 'gojol');
-                    } else {
-                        searchResult.classList.remove('show');
-                        querySnapshot.forEach((doc) => {
-                            const gojol = doc.data();
-                            createVideoItem(gojolGrid, gojol, 'gojol');
-                        });
-                    }
-                })
-                .catch((error) => {
-                    gojolGrid.innerHTML = '<p style="text-align:center; padding:20px; color: #ff6b6b;">লোড করতে সমস্যা হচ্ছে</p>';
-                    console.error("Error searching gojol: ", error);
-                });
+            videoItems.forEach(item => {
+                const title = item.getAttribute('data-title');
+                const keywords = item.getAttribute('data-keywords');
+                
+                if (title.includes(query.toLowerCase()) || keywords.includes(query.toLowerCase())) {
+                    item.style.display = 'block';
+                    foundItems++;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            
+            if (foundItems === 0) {
+                searchResult.textContent = `"${query}" এর জন্য কোনো গজল পাওয়া যায়নি।`;
+                searchResult.classList.add('show');
+                
+                // Log the search query to Firebase
+                logSearchQuery(query, 'gojol');
+            } else {
+                searchResult.classList.remove('show');
+            }
         }
 
         function logSearchQuery(query, type) {
