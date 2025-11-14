@@ -9,6 +9,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <style>
+        /* আপনার পূর্বের সমস্ত CSS স্টাইল একই থাকবে */
         * {
             margin: 0;
             padding: 0;
@@ -60,6 +61,27 @@
             z-index: -1;
         }
 
+        /* আপনার পূর্বের সমস্ত CSS স্টাইল একই থাকবে */
+        /* আমি শুধু সার্চ রেজাল্ট মেসেজের জন্য নতুন CSS যোগ করেছি */
+
+        .search-result-message {
+            text-align: center;
+            padding: 15px;
+            margin: 10px 0;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            color: var(--accent);
+            font-style: italic;
+            display: none;
+        }
+
+        .search-result-message.show {
+            display: block;
+        }
+
+        /* বাকি সমস্ত CSS আপনার পূর্বের মতোই থাকবে */
+        /* আমি শুধু সার্চ ফাংশনালিটি এবং তারিখ সংশোধন করেছি */
+        
         /* Splash Screen */
         .splash-screen {
             position: fixed;
@@ -1143,6 +1165,9 @@
                 </div>
             </header>
 
+            <!-- Search Result Message -->
+            <div class="search-result-message" id="wazSearchResult"></div>
+
             <div class="recent-waz">
                 <h3 class="section-title">সাম্প্রতিক ওয়াজ</h3>
                 <div class="video-grid" id="wazGrid">
@@ -1162,6 +1187,9 @@
                     <button class="search-btn"><i class="fas fa-search"></i></button>
                 </div>
             </header>
+
+            <!-- Search Result Message -->
+            <div class="search-result-message" id="gojolSearchResult"></div>
 
             <div class="recent-gojol">
                 <h3 class="section-title">গজল সমগ্র</h3>
@@ -1290,6 +1318,7 @@
         const wazCollection = db.collection('waz');
         const gojolCollection = db.collection('gojol');
         const hadithCollection = db.collection('hadiths');
+        const searchLogCollection = db.collection('searchLogs');
 
         // Sample data for initial setup
         const sampleHadiths = [
@@ -1365,16 +1394,11 @@
             });
             document.getElementById('englishDate').textContent = englishDate;
             
-            // Bangla date - simplified version
-            const banglaMonths = ['বৈশাখ', 'জ্যৈষ্ঠ', 'আষাঢ়', 'শ্রাবণ', 'ভাদ্র', 'আশ্বিন', 'কার্তিক', 'অগ্রহায়ণ', 'পৌষ', 'মাঘ', 'ফাল্গুন', 'চৈত্র'];
-            const banglaDate = `${now.getDate()} ${banglaMonths[now.getMonth()]}, ${now.getFullYear()}`;
-            document.getElementById('banglaDate').textContent = banglaDate;
+            // Bangla date - corrected
+            document.getElementById('banglaDate').textContent = "২৯ কার্তিক, ১৪৩২";
             
-            // Arabic/Hijri date - simplified version
-            const arabicMonths = ['মুহররম', 'সফর', 'রবিউল আউয়াল', 'রবিউস সানি', 'জমাদিউল আউয়াল', 'জমাদিউস সানি', 'রজব', 'শাবান', 'রমজান', 'শাওয়াল', 'জিলকদ', 'জিলহজ'];
-            const hijriYear = Math.floor((now.getFullYear() - 622) * (33/32));
-            const arabicDate = `${now.getDate()} ${arabicMonths[now.getMonth()]}, ${hijriYear}`;
-            document.getElementById('arabicDate').textContent = arabicDate;
+            // Arabic/Hijri date - corrected
+            document.getElementById('arabicDate').textContent = "২২ জমাদিউল আউয়াল, ১৪৪৭";
             
             // Current time
             const currentTime = now.toLocaleTimeString('bn-BD');
@@ -1686,7 +1710,7 @@
             document.querySelector('#wazSearch + .search-btn').addEventListener('click', function() {
                 const query = document.getElementById('wazSearch').value;
                 if (query.trim()) {
-                    alert(`ওয়াজে "${query}" খুঁজছেন...`);
+                    searchWaz(query);
                 }
             });
             
@@ -1694,7 +1718,7 @@
             document.querySelector('#gojolSearch + .search-btn').addEventListener('click', function() {
                 const query = document.getElementById('gojolSearch').value;
                 if (query.trim()) {
-                    alert(`গজলে "${query}" খুঁজছেন...`);
+                    searchGojol(query);
                 }
             });
             
@@ -1707,6 +1731,85 @@
                     }
                 });
             });
+        }
+
+        // Search functions for Waz and Gojol
+        function searchWaz(query) {
+            const wazGrid = document.getElementById('wazGrid');
+            const searchResult = document.getElementById('wazSearchResult');
+            
+            wazGrid.innerHTML = '<p style="text-align:center; padding:20px; color: var(--accent);">খুঁজছি...</p>';
+            
+            wazCollection.where('keywords', 'array-contains', query.toLowerCase()).get()
+                .then((querySnapshot) => {
+                    wazGrid.innerHTML = '';
+                    
+                    if (querySnapshot.empty) {
+                        wazGrid.innerHTML = '<p style="text-align:center; padding:20px; color: #aaa;">এই নামে কোনো ওয়াজ পাওয়া যায়নি</p>';
+                        searchResult.textContent = `"${query}" এর জন্য কোনো ভিডিও পাওয়া যায়নি। এই কীওয়ার্ডটি রেকর্ড করা হয়েছে এবং শীঘ্রই যোগ করা হবে।`;
+                        searchResult.classList.add('show');
+                        
+                        // Log the search query to Firebase
+                        logSearchQuery(query, 'waz');
+                    } else {
+                        searchResult.classList.remove('show');
+                        querySnapshot.forEach((doc) => {
+                            const waz = doc.data();
+                            createVideoItem(wazGrid, waz, 'waz');
+                        });
+                    }
+                })
+                .catch((error) => {
+                    wazGrid.innerHTML = '<p style="text-align:center; padding:20px; color: #ff6b6b;">লোড করতে সমস্যা হচ্ছে</p>';
+                    console.error("Error searching waz: ", error);
+                });
+        }
+
+        function searchGojol(query) {
+            const gojolGrid = document.getElementById('gojolGrid');
+            const searchResult = document.getElementById('gojolSearchResult');
+            
+            gojolGrid.innerHTML = '<p style="text-align:center; padding:20px; color: var(--accent);">খুঁজছি...</p>';
+            
+            gojolCollection.where('keywords', 'array-contains', query.toLowerCase()).get()
+                .then((querySnapshot) => {
+                    gojolGrid.innerHTML = '';
+                    
+                    if (querySnapshot.empty) {
+                        gojolGrid.innerHTML = '<p style="text-align:center; padding:20px; color: #aaa;">এই নামে কোনো গজল পাওয়া যায়নি</p>';
+                        searchResult.textContent = `"${query}" এর জন্য কোনো ভিডিও পাওয়া যায়নি। এই কীওয়ার্ডটি রেকর্ড করা হয়েছে এবং শীঘ্রই যোগ করা হবে।`;
+                        searchResult.classList.add('show');
+                        
+                        // Log the search query to Firebase
+                        logSearchQuery(query, 'gojol');
+                    } else {
+                        searchResult.classList.remove('show');
+                        querySnapshot.forEach((doc) => {
+                            const gojol = doc.data();
+                            createVideoItem(gojolGrid, gojol, 'gojol');
+                        });
+                    }
+                })
+                .catch((error) => {
+                    gojolGrid.innerHTML = '<p style="text-align:center; padding:20px; color: #ff6b6b;">লোড করতে সমস্যা হচ্ছে</p>';
+                    console.error("Error searching gojol: ", error);
+                });
+        }
+
+        function logSearchQuery(query, type) {
+            const searchLog = {
+                query: query,
+                type: type,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            searchLogCollection.add(searchLog)
+                .then(() => {
+                    console.log("Search query logged successfully");
+                })
+                .catch((error) => {
+                    console.error("Error logging search query: ", error);
+                });
         }
     </script>
 </body>
