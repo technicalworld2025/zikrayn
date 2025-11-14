@@ -120,9 +120,7 @@
             color: var(--accent);
         }
 
-        /* বাকি সমস্ত CSS আপনার পূর্বের মতোই থাকবে */
-        /* আমি শুধু সার্চ রেজাল্ট মেসেজের জন্য নতুন CSS যোগ করেছি */
-
+        /* সার্চ রেজাল্ট মেসেজের জন্য নতুন CSS */
         .search-result-message {
             text-align: center;
             padding: 15px;
@@ -1426,7 +1424,7 @@
             { title: "আল্লাহর রহমত", videoUrl: "https://www.youtube.com/watch?v=stu901", keywords: ["আল্লাহ", "রহমত", "গজল"] },
             { title: "নবীজির মদীনা", videoUrl: "https://www.youtube.com/watch?v=vwx234", keywords: ["নবী", "মদীনা", "গজল"] },
             { title: "ইসলামের জয়গান", videoUrl: "https://www.youtube.com/watch?v=yza567", keywords: ["ইসলাম", "জয়গান", "গজল"] },
-            { title: "মোহাম্মদুর রাসুলুল্লাহ", videoUrl: "https://www.youtube.com/watch?v=bcd890", keywords: ["মোহাম্মদ", "রাসুল", "গজל"] },
+            { title: "মোহাম্মদুর রাসুলুল্লাহ", videoUrl: "https://www.youtube.com/watch?v=bcd890", keywords: ["মোহাম্মদ", "রাসুল", "গজল"] },
             { title: "কাবা শরীফের গজল", videoUrl: "https://www.youtube.com/watch?v=efg123", keywords: ["কাবা", "শরীফ", "গজল"] },
             { title: "রমজানের গজল", videoUrl: "https://www.youtube.com/watch?v=hij456", keywords: ["রমজান", "গজল", "ইবাদত"] }
         ];
@@ -1442,7 +1440,7 @@
                 "সিলেট": { fajr: "4:50 AM", dhuhr: "11:40 AM", asr: "3:30 PM", maghrib: "5:10 PM", isha: "6:25 PM" },
                 "রংপুর": { fajr: "5:08 AM", dhuhr: "11:52 AM", asr: "3:48 PM", maghrib: "5:22 PM", isha: "6:40 PM" },
                 "ময়মনসিংহ": { fajr: "4:55 AM", dhuhr: "11:42 AM", asr: "3:35 PM", maghrib: "5:12 PM", isha: "6:28 PM" },
-                "কুমিল্লা": { fajr: "4:53 AM", dhuhr: "11:40 AM", asr: "3:32 PM", maghrib: "5:10 PM", isha: "6:26 PM" },
+                "নোয়াখালী": { fajr: "4:50 AM", dhuhr: "11:41 AM", asr: "3:36 PM", maghrib: "5:13 PM", isha: "6:29 PM" },
                 "নারায়ণগঞ্জ": { fajr: "4:56 AM", dhuhr: "11:43 AM", asr: "3:36 PM", maghrib: "5:13 PM", isha: "6:29 PM" },
                 "গাজীপুর": { fajr: "4:57 AM", dhuhr: "11:44 AM", asr: "3:37 PM", maghrib: "5:14 PM", isha: "6:30 PM" },
                 "ঢাকা বিভাগীয়": { fajr: "4:58 AM", dhuhr: "11:44 AM", asr: "3:37 PM", maghrib: "5:14 PM", isha: "6:31 PM" }
@@ -1478,7 +1476,7 @@
             bangladesh: {
                 districts: [
                     "ঢাকা", "চট্টগ্রাম", "রাজশাহী", "খুলনা", "বরিশাল", "সিলেট", 
-                    "রংপুর", "ময়মনসিংহ", "কুমিল্লা", "নারায়ণগঞ্জ", "গাজীপুর", "ঢাকা বিভাগীয়"
+                    "রংপুর", "ময়মনসিংহ", "নোয়াখালী", "নারায়ণগঞ্জ", "গাজীপুর", "ঢাকা বিভাগীয়"
                 ]
             },
             india: {
@@ -2025,6 +2023,36 @@
                     }
                 });
             });
+            
+            // Clear search when input is empty for Waz
+            document.getElementById('wazSearch').addEventListener('input', function() {
+                if (this.value.trim() === '') {
+                    const wazGrid = document.getElementById('wazGrid');
+                    const videoItems = wazGrid.querySelectorAll('.video-item');
+                    const searchResult = document.getElementById('wazSearchResult');
+                    
+                    videoItems.forEach(item => {
+                        item.style.display = 'block';
+                    });
+                    
+                    searchResult.classList.remove('show');
+                }
+            });
+            
+            // Clear search when input is empty for Gojol
+            document.getElementById('gojolSearch').addEventListener('input', function() {
+                if (this.value.trim() === '') {
+                    const gojolGrid = document.getElementById('gojolGrid');
+                    const videoItems = gojolGrid.querySelectorAll('.video-item');
+                    const searchResult = document.getElementById('gojolSearchResult');
+                    
+                    videoItems.forEach(item => {
+                        item.style.display = 'block';
+                    });
+                    
+                    searchResult.classList.remove('show');
+                }
+            });
         }
 
         // Search functions for Waz and Gojol
@@ -2054,7 +2082,8 @@
                 // Log the search query to Firebase
                 logSearchQuery(query, 'waz');
             } else {
-                searchResult.classList.remove('show');
+                searchResult.textContent = `"${query}" এর জন্য ${foundItems} টি ওয়াজ পাওয়া গেছে।`;
+                searchResult.classList.add('show');
             }
         }
 
@@ -2084,7 +2113,8 @@
                 // Log the search query to Firebase
                 logSearchQuery(query, 'gojol');
             } else {
-                searchResult.classList.remove('show');
+                searchResult.textContent = `"${query}" এর জন্য ${foundItems} টি গজল পাওয়া গেছে।`;
+                searchResult.classList.add('show');
             }
         }
 
