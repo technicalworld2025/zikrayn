@@ -1429,48 +1429,6 @@
             { title: "রমজানের গজল", videoUrl: "https://www.youtube.com/watch?v=hij456", keywords: ["রমজান", "গজল", "ইবাদত"] }
         ];
 
-        // Prayer times data for different locations (realistic data)
-        const prayerTimesData = {
-            bangladesh: {
-                "ঢাকা": { fajr: "4:58 AM", dhuhr: "11:44 AM", asr: "3:37 PM", maghrib: "5:14 PM", isha: "6:31 PM" },
-                "চট্টগ্রাম": { fajr: "4:45 AM", dhuhr: "11:35 AM", asr: "3:25 PM", maghrib: "5:05 PM", isha: "6:22 PM" },
-                "রাজশাহী": { fajr: "5:05 AM", dhuhr: "11:50 AM", asr: "3:45 PM", maghrib: "5:20 PM", isha: "6:38 PM" },
-                "খুলনা": { fajr: "5:02 AM", dhuhr: "11:48 AM", asr: "3:42 PM", maghrib: "5:18 PM", isha: "6:35 PM" },
-                "বরিশাল": { fajr: "5:00 AM", dhuhr: "11:46 AM", asr: "3:40 PM", maghrib: "5:16 PM", isha: "6:33 PM" },
-                "সিলেট": { fajr: "4:50 AM", dhuhr: "11:40 AM", asr: "3:30 PM", maghrib: "5:10 PM", isha: "6:25 PM" },
-                "রংপুর": { fajr: "5:08 AM", dhuhr: "11:52 AM", asr: "3:48 PM", maghrib: "5:22 PM", isha: "6:40 PM" },
-                "ময়মনসিংহ": { fajr: "4:55 AM", dhuhr: "11:42 AM", asr: "3:35 PM", maghrib: "5:12 PM", isha: "6:28 PM" },
-                "নোয়াখালী": { fajr: "4:50 AM", dhuhr: "11:41 AM", asr: "3:36 PM", maghrib: "5:13 PM", isha: "6:29 PM" },
-                "নারায়ণগঞ্জ": { fajr: "4:56 AM", dhuhr: "11:43 AM", asr: "3:36 PM", maghrib: "5:13 PM", isha: "6:29 PM" },
-                "গাজীপুর": { fajr: "4:57 AM", dhuhr: "11:44 AM", asr: "3:37 PM", maghrib: "5:14 PM", isha: "6:30 PM" },
-                "ঢাকা বিভাগীয়": { fajr: "4:58 AM", dhuhr: "11:44 AM", asr: "3:37 PM", maghrib: "5:14 PM", isha: "6:31 PM" }
-            },
-            india: {
-                "দিল্লি": { fajr: "5:15 AM", dhuhr: "12:20 PM", asr: "3:45 PM", maghrib: "5:30 PM", isha: "6:45 PM" },
-                "কলকাতা": { fajr: "4:30 AM", dhuhr: "11:35 AM", asr: "3:00 PM", maghrib: "4:45 PM", isha: "6:00 PM" },
-                "মুম্বাই": { fajr: "5:25 AM", dhuhr: "12:30 PM", asr: "3:55 PM", maghrib: "5:40 PM", isha: "6:55 PM" },
-                "চেন্নাই": { fajr: "5:10 AM", dhuhr: "12:15 PM", asr: "3:40 PM", maghrib: "5:25 PM", isha: "6:40 PM" },
-                "হায়দ্রাবাদ": { fajr: "5:20 AM", dhuhr: "12:25 PM", asr: "3:50 PM", maghrib: "5:35 PM", isha: "6:50 PM" }
-            },
-            pakistan: {
-                "করাচি": { fajr: "5:20 AM", dhuhr: "12:25 PM", asr: "3:50 PM", maghrib: "5:35 PM", isha: "6:50 PM" },
-                "লাহোর": { fajr: "4:55 AM", dhuhr: "12:00 PM", asr: "3:25 PM", maghrib: "5:10 PM", isha: "6:25 PM" },
-                "ইসলামাবাদ": { fajr: "4:50 AM", dhuhr: "11:55 AM", asr: "3:20 PM", maghrib: "5:05 PM", isha: "6:20 PM" },
-                "পেশাওয়ার": { fajr: "4:45 AM", dhuhr: "11:50 AM", asr: "3:15 PM", maghrib: "5:00 PM", isha: "6:15 PM" }
-            },
-            saudi: {
-                "রিয়াদ": { fajr: "4:30 AM", dhuhr: "11:45 AM", asr: "3:10 PM", maghrib: "5:25 PM", isha: "6:40 PM" },
-                "জেদ্দা": { fajr: "4:35 AM", dhuhr: "11:50 AM", asr: "3:15 PM", maghrib: "5:30 PM", isha: "6:45 PM" },
-                "মক্কা": { fajr: "4:40 AM", dhuhr: "11:55 AM", asr: "3:20 PM", maghrib: "5:35 PM", isha: "6:50 PM" },
-                "মদিনা": { fajr: "4:45 AM", dhuhr: "12:00 PM", asr: "3:25 PM", maghrib: "5:40 PM", isha: "6:55 PM" }
-            },
-            uae: {
-                "দুবাই": { fajr: "4:45 AM", dhuhr: "12:00 PM", asr: "3:25 PM", maghrib: "5:40 PM", isha: "6:55 PM" },
-                "আবুধাবি": { fajr: "4:50 AM", dhuhr: "12:05 PM", asr: "3:30 PM", maghrib: "5:45 PM", isha: "7:00 PM" },
-                "শারজাহ": { fajr: "4:47 AM", dhuhr: "12:02 PM", asr: "3:27 PM", maghrib: "5:42 PM", isha: "6:57 PM" }
-            }
-        };
-
         // Location data
         const locationData = {
             bangladesh: {
@@ -1492,6 +1450,140 @@
                 districts: ["দুবাই", "আবুধাবি", "শারজাহ"]
             }
         };
+
+        // API থেকে নামাজের সময় আপডেট করার ফাংশন
+        async function updatePrayerTimesFromAPI(country, city) {
+            try {
+                // API কল করার জন্য দেশ ও শহরের নাম ইংরেজিতে রূপান্তর
+                const countryMap = {
+                    'bangladesh': 'Bangladesh',
+                    'india': 'India',
+                    'pakistan': 'Pakistan',
+                    'saudi': 'Saudi Arabia',
+                    'uae': 'United Arab Emirates'
+                };
+                
+                const cityMap = {
+                    'ঢাকা': 'Dhaka',
+                    'চট্টগ্রাম': 'Chittagong',
+                    'রাজশাহী': 'Rajshahi',
+                    'খুলনা': 'Khulna',
+                    'বরিশাল': 'Barisal',
+                    'সিলেট': 'Sylhet',
+                    'রংপুর': 'Rangpur',
+                    'ময়মনসিংহ': 'Mymensingh',
+                    'নোয়াখালী': 'Noakhali',
+                    'নারায়ণগঞ্জ': 'Narayanganj',
+                    'গাজীপুর': 'Gazipur',
+                    'ঢাকা বিভাগীয়': 'Dhaka',
+                    'দিল্লি': 'Delhi',
+                    'কলকাতা': 'Kolkata',
+                    'মুম্বাই': 'Mumbai',
+                    'চেন্নাই': 'Chennai',
+                    'হায়দ্রাবাদ': 'Hyderabad',
+                    'করাচি': 'Karachi',
+                    'লাহোর': 'Lahore',
+                    'ইসলামাবাদ': 'Islamabad',
+                    'পেশাওয়ার': 'Peshawar',
+                    'রিয়াদ': 'Riyadh',
+                    'জেদ্দা': 'Jeddah',
+                    'মক্কা': 'Makkah',
+                    'মদিনা': 'Madinah',
+                    'দুবাই': 'Dubai',
+                    'আবুধাবি': 'Abu Dhabi',
+                    'শারজাহ': 'Sharjah'
+                };
+                
+                const apiCountry = countryMap[country] || country;
+                const apiCity = cityMap[city] || city;
+                
+                // API থেকে নামাজের সময় ডেটা আনুন
+                const response = await fetch(`https://api.aladhan.com/v1/timingsByCity?city=${apiCity}&country=${apiCountry}&method=2`);
+                const data = await response.json();
+                
+                if (data.code === 200) {
+                    const timings = data.data.timings;
+                    
+                    // API থেকে প্রাপ্ত সময়গুলোকে 12-ঘন্টা ফরম্যাটে রূপান্তর করুন
+                    const formatTime = (time24) => {
+                        const [hours, minutes] = time24.split(':');
+                        const hour = parseInt(hours);
+                        const ampm = hour >= 12 ? 'PM' : 'AM';
+                        const hour12 = hour % 12 || 12;
+                        return `${hour12}:${minutes} ${ampm}`;
+                    };
+                    
+                    // DOM আপডেট করুন
+                    document.getElementById('fajrTime').textContent = formatTime(timings.Fajr);
+                    document.getElementById('dhuhrTime').textContent = formatTime(timings.Dhuhr);
+                    document.getElementById('asrTime').textContent = formatTime(timings.Asr);
+                    document.getElementById('maghribTime').textContent = formatTime(timings.Maghrib);
+                    document.getElementById('ishaTime').textContent = formatTime(timings.Isha);
+                    
+                    // লোকাল স্টোরেজে সেভ করুন
+                    const prayerData = {
+                        fajr: formatTime(timings.Fajr),
+                        dhuhr: formatTime(timings.Dhuhr),
+                        asr: formatTime(timings.Asr),
+                        maghrib: formatTime(timings.Maghrib),
+                        isha: formatTime(timings.Isha),
+                        timestamp: new Date().getTime()
+                    };
+                    
+                    localStorage.setItem(`zikraynPrayerTimes_${country}_${city}`, JSON.stringify(prayerData));
+                } else {
+                    throw new Error('API থেকে ডেটা লোড করতে সমস্যা হয়েছে');
+                }
+            } catch (error) {
+                console.error('Prayer times API error:', error);
+                
+                // API ব্যর্থ হলে পূর্বের স্ট্যাটিক ডেটা ব্যবহার করুন
+                const storageKey = `zikraynPrayerTimes_${country}_${city}`;
+                const storedData = localStorage.getItem(storageKey);
+                
+                if (storedData) {
+                    const prayerData = JSON.parse(storedData);
+                    document.getElementById('fajrTime').textContent = prayerData.fajr;
+                    document.getElementById('dhuhrTime').textContent = prayerData.dhuhr;
+                    document.getElementById('asrTime').textContent = prayerData.asr;
+                    document.getElementById('maghribTime').textContent = prayerData.maghrib;
+                    document.getElementById('ishaTime').textContent = prayerData.isha;
+                } else {
+                    // ডিফল্ট নামাজের সময়
+                    document.getElementById('fajrTime').textContent = "4:58 AM";
+                    document.getElementById('dhuhrTime').textContent = "11:44 AM";
+                    document.getElementById('asrTime').textContent = "3:37 PM";
+                    document.getElementById('maghribTime').textContent = "5:14 PM";
+                    document.getElementById('ishaTime').textContent = "6:31 PM";
+                }
+            }
+        }
+
+        // লোকেশন পরিবর্তন হলে নামাজের সময় আপডেট করুন
+        function updatePrayerTimesForLocation(country, district) {
+            // প্রথমে লোকাল স্টোরেজ চেক করুন (24 ঘন্টার মধ্যে হলে নতুন API কল করবে না)
+            const storageKey = `zikraynPrayerTimes_${country}_${district}`;
+            const storedData = localStorage.getItem(storageKey);
+            
+            if (storedData) {
+                const prayerData = JSON.parse(storedData);
+                const now = new Date().getTime();
+                const oneDay = 24 * 60 * 60 * 1000; // 24 ঘন্টা
+                
+                // যদি 24 ঘন্টার মধ্যে ডেটা সেভ করা থাকে, তাহলে সেটাই ব্যবহার করুন
+                if (now - prayerData.timestamp < oneDay) {
+                    document.getElementById('fajrTime').textContent = prayerData.fajr;
+                    document.getElementById('dhuhrTime').textContent = prayerData.dhuhr;
+                    document.getElementById('asrTime').textContent = prayerData.asr;
+                    document.getElementById('maghribTime').textContent = prayerData.maghrib;
+                    document.getElementById('ishaTime').textContent = prayerData.isha;
+                    return;
+                }
+            }
+            
+            // নতুন API কল করুন
+            updatePrayerTimesFromAPI(country, district);
+        }
 
         // App initialization
         document.addEventListener('DOMContentLoaded', function() {
@@ -1659,25 +1751,6 @@
             };
             
             currentLocationDisplay.textContent = `${countryNames[country]}, ${district}`;
-        }
-
-        function updatePrayerTimesForLocation(country, district) {
-            const prayerTimes = prayerTimesData[country]?.[district];
-            
-            if (prayerTimes) {
-                document.getElementById('fajrTime').textContent = prayerTimes.fajr;
-                document.getElementById('dhuhrTime').textContent = prayerTimes.dhuhr;
-                document.getElementById('asrTime').textContent = prayerTimes.asr;
-                document.getElementById('maghribTime').textContent = prayerTimes.maghrib;
-                document.getElementById('ishaTime').textContent = prayerTimes.isha;
-            } else {
-                // Default prayer times if location not found
-                document.getElementById('fajrTime').textContent = "4:58 AM";
-                document.getElementById('dhuhrTime').textContent = "11:44 AM";
-                document.getElementById('asrTime').textContent = "3:37 PM";
-                document.getElementById('maghribTime').textContent = "5:14 PM";
-                document.getElementById('ishaTime').textContent = "6:31 PM";
-            }
         }
 
         function updatePrayerTimes() {
