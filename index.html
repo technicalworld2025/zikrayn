@@ -9,7 +9,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <style>
-        /* আপনার পূর্বের সমস্ত CSS স্টাইল একই থাকবে */
         * {
             margin: 0;
             padding: 0;
@@ -61,35 +60,35 @@
             z-index: -1;
         }
 
-        /* নতুন লোকেশন সিলেক্টর স্টাইল */
+        /* Compact Location Selector */
         .location-selector {
             background: var(--card-bg);
             border-radius: 15px;
-            padding: 15px;
-            margin: 15px 0;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            padding: 12px;
+            margin: 10px 0;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
             border: 1px solid rgba(255,255,255,0.05);
         }
 
         .location-form {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 10px;
         }
 
         .form-row {
             display: flex;
-            gap: 10px;
+            gap: 8px;
         }
 
         .location-select {
             flex: 1;
-            padding: 12px 15px;
+            padding: 10px 12px;
             border: none;
-            border-radius: 10px;
+            border-radius: 8px;
             background: rgba(255,255,255,0.1);
             color: var(--light);
-            font-size: 1rem;
+            font-size: 0.9rem;
             outline: none;
         }
 
@@ -101,10 +100,11 @@
             background: var(--accent);
             color: var(--dark);
             border: none;
-            padding: 12px 20px;
-            border-radius: 10px;
+            padding: 10px 15px;
+            border-radius: 8px;
             cursor: pointer;
             font-weight: bold;
+            font-size: 0.9rem;
             transition: all 0.3s;
         }
 
@@ -114,13 +114,13 @@
         }
 
         .current-location {
-            margin-top: 10px;
+            margin-top: 8px;
             text-align: center;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             color: var(--accent);
         }
 
-        /* সার্চ রেজাল্ট মেসেজের জন্য নতুন CSS */
+        /* Search Result Message */
         .search-result-message {
             text-align: center;
             padding: 15px;
@@ -136,9 +136,6 @@
             display: block;
         }
 
-        /* বাকি সমস্ত CSS আপনার পূর্বের মতোই থাকবে */
-        /* আমি শুধু সার্চ ফাংশনালিটি এবং তারিখ সংশোধন করেছি */
-        
         /* Splash Screen */
         .splash-screen {
             position: fixed;
@@ -610,8 +607,8 @@
             background: none;
             border: none;
             color: #aaa;
-            font-size: 1.5rem;
-            padding: 10px 20px;
+            font-size: 1.3rem;
+            padding: 8px 15px;
             border-radius: 15px;
             cursor: pointer;
             transition: all 0.3s;
@@ -623,8 +620,8 @@
         /* Desktop Nav Button */
         @media (min-width: 768px) {
             .nav-btn {
-                padding: 12px 25px;
-                font-size: 1.6rem;
+                padding: 10px 20px;
+                font-size: 1.4rem;
                 border-radius: 20px;
             }
         }
@@ -1002,6 +999,202 @@
             }
         }
 
+        /* Quran Page Styles */
+        .quran-container {
+            text-align: center;
+        }
+
+        .surah-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        /* Desktop Surah Grid */
+        @media (min-width: 768px) {
+            .surah-grid {
+                grid-template-columns: repeat(5, 1fr);
+                gap: 20px;
+                margin-top: 30px;
+            }
+        }
+
+        .surah-item {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 20px 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .surah-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            background: rgba(255,255,255,0.08);
+        }
+
+        .surah-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .surah-arabic {
+            font-size: 1.8rem;
+            color: var(--accent);
+            margin-bottom: 8px;
+            font-family: 'Traditional Arabic', 'Times New Roman', serif;
+        }
+
+        .surah-name {
+            font-size: 0.9rem;
+            color: var(--light);
+            font-weight: bold;
+        }
+
+        /* Surah Detail Page */
+        .surah-detail-container {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        .surah-header {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .surah-title {
+            font-size: 2rem;
+            color: var(--accent);
+            margin-bottom: 10px;
+            font-family: 'Traditional Arabic', 'Times New Roman', serif;
+        }
+
+        .surah-info {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .surah-info-item {
+            background: rgba(255,255,255,0.05);
+            padding: 10px 15px;
+            border-radius: 10px;
+        }
+
+        .ayat-container {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .ayat-item {
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .ayat-item:last-child {
+            border-bottom: none;
+        }
+
+        .ayat-number {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: var(--dark);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 10px;
+            font-size: 0.9rem;
+        }
+
+        .ayat-arabic {
+            font-size: 1.8rem;
+            line-height: 1.8;
+            text-align: right;
+            margin-bottom: 15px;
+            font-family: 'Traditional Arabic', 'Times New Roman', serif;
+        }
+
+        .ayat-translation {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #ddd;
+            margin-top: 10px;
+        }
+
+        .ayat-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .ayat-btn {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: var(--light);
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .ayat-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .back-btn {
+            background: var(--accent);
+            color: var(--dark);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: #e6c44d;
+            transform: translateY(-2px);
+        }
+
         /* Mobile Responsive */
         @media (max-width: 480px) {
             .app-container {
@@ -1024,6 +1217,11 @@
                 grid-template-columns: 1fr;
             }
             
+            .surah-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+            
             .islamic-header {
                 flex-direction: column;
                 gap: 15px;
@@ -1034,8 +1232,8 @@
             }
             
             .nav-btn {
-                padding: 8px 15px;
-                font-size: 1.3rem;
+                padding: 6px 12px;
+                font-size: 1.2rem;
             }
             
             .nav-btn span {
@@ -1178,7 +1376,7 @@
                 </div>
             </div>
 
-            <!-- Location Selector -->
+            <!-- Compact Location Selector -->
             <div class="location-selector" id="locationSelector">
                 <h3 class="section-title">আপনার লোকেশন সিলেক্ট করুন</h3>
                 <div class="location-form">
@@ -1231,6 +1429,63 @@
             <div class="hadith-section">
                 <h3 class="section-title">হাদিস শরীফ</h3>
                 <p class="hadith-text" id="randomHadith">লোড হচ্ছে...</p>
+            </div>
+        </div>
+
+        <!-- Quran Page -->
+        <div class="page" id="quranPage">
+            <header class="islamic-header">
+                <div class="app-title">
+                    <h1>Zikrayn</h1>
+                </div>
+                <div class="search-container">
+                    <input type="text" placeholder="সূরা খুঁজুন..." class="search-bar" id="quranSearch">
+                    <button class="search-btn"><i class="fas fa-search"></i></button>
+                </div>
+            </header>
+
+            <!-- Search Result Message -->
+            <div class="search-result-message" id="quranSearchResult"></div>
+
+            <div class="quran-container">
+                <h3 class="section-title">পবিত্র কুরআন</h3>
+                <div class="surah-grid" id="surahGrid">
+                    <!-- Surah items will be populated dynamically -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Surah Detail Page -->
+        <div class="page" id="surahDetailPage">
+            <header class="islamic-header">
+                <div class="app-title">
+                    <h1>Zikrayn</h1>
+                </div>
+            </header>
+
+            <div class="surah-detail-container">
+                <button class="back-btn" id="backToQuran">
+                    <i class="fas fa-arrow-left"></i>
+                    কুরআনে ফিরে যান
+                </button>
+
+                <div class="surah-header" id="surahHeader">
+                    <h2 class="surah-title" id="surahTitle">সূরা আল-ফাতিহা</h2>
+                    <div class="surah-info">
+                        <div class="surah-info-item">
+                            <div>আয়াত সংখ্যা</div>
+                            <div id="surahAyatCount">7</div>
+                        </div>
+                        <div class="surah-info-item">
+                            <div>পৃষ্ঠা</div>
+                            <div id="surahPage">1</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ayat-container" id="ayatContainer">
+                    <!-- Ayat items will be populated dynamically -->
+                </div>
             </div>
         </div>
 
@@ -1363,6 +1618,10 @@
                     <i class="fas fa-home"></i>
                     <span>হোম</span>
                 </button>
+                <button class="nav-btn" data-page="quran">
+                    <i class="fas fa-book-quran"></i>
+                    <span>কুরআন</span>
+                </button>
                 <button class="nav-btn" data-page="waz">
                     <i class="fas fa-book-open"></i>
                     <span>ওয়াজ</span>
@@ -1427,6 +1686,21 @@
             { title: "মোহাম্মদুর রাসুলুল্লাহ", videoUrl: "https://www.youtube.com/watch?v=bcd890", keywords: ["মোহাম্মদ", "রাসুল", "গজল"] },
             { title: "কাবা শরীফের গজল", videoUrl: "https://www.youtube.com/watch?v=efg123", keywords: ["কাবা", "শরীফ", "গজল"] },
             { title: "রমজানের গজল", videoUrl: "https://www.youtube.com/watch?v=hij456", keywords: ["রমজান", "গজল", "ইবাদত"] }
+        ];
+
+        // Quran Data - All 114 Surahs
+        const surahData = [
+            { number: 1, arabic: "الفاتحة", name: "সূরা আল-ফাতিহা", ayat: 7, page: 1 },
+            { number: 2, arabic: "البقرة", name: "সূরা আল-বাকারা", ayat: 286, page: 2 },
+            { number: 3, arabic: "آل عمران", name: "সূরা আলে-ইমরান", ayat: 200, page: 50 },
+            { number: 4, arabic: "النساء", name: "সূরা আন-নিসা", ayat: 176, page: 77 },
+            { number: 5, arabic: "المائدة", name: "সূরা আল-মায়িদাহ", ayat: 120, page: 106 },
+            { number: 6, arabic: "الأنعام", name: "সূরা আল-আন'আম", ayat: 165, page: 128 },
+            { number: 7, arabic: "الأعراف", name: "সূরা আল-আ'রাফ", ayat: 206, page: 151 },
+            { number: 8, arabic: "الأنفال", name: "সূরা আল-আনফাল", ayat: 75, page: 177 },
+            { number: 9, arabic: "التوبة", name: "সূরা আত-তাওবাহ", ayat: 129, page: 187 },
+            { number: 10, arabic: "يونس", name: "সূরা ইউনুস", ayat: 109, page: 208 },
+            // Add more surahs as needed...
         ];
 
         // Location data
@@ -1616,6 +1890,9 @@
             loadWazFromFirebase();
             loadGojolFromFirebase();
             
+            // Load Quran surahs
+            loadSurahs();
+            
             // Set up real-time listeners
             setupRealTimeWazListener();
             setupRealTimeGojolListener();
@@ -1763,6 +2040,97 @@
                 // Default prayer times for Dhaka, Bangladesh
                 updatePrayerTimesForLocation('bangladesh', 'ঢাকা');
             }
+        }
+
+        // Quran Functions
+        function loadSurahs() {
+            const surahGrid = document.getElementById('surahGrid');
+            surahGrid.innerHTML = '';
+            
+            surahData.forEach(surah => {
+                const surahItem = document.createElement('div');
+                surahItem.className = 'surah-item';
+                surahItem.setAttribute('data-surah', surah.number);
+                surahItem.setAttribute('data-name', surah.name.toLowerCase());
+                
+                surahItem.innerHTML = `
+                    <div class="surah-number">${surah.number}</div>
+                    <div class="surah-arabic">${surah.arabic}</div>
+                    <div class="surah-name">${surah.name}</div>
+                `;
+                
+                surahItem.addEventListener('click', () => openSurah(surah));
+                surahGrid.appendChild(surahItem);
+            });
+        }
+
+        function openSurah(surah) {
+            // Show surah detail page
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.getElementById('surahDetailPage').classList.add('active');
+            
+            // Update surah header
+            document.getElementById('surahTitle').textContent = surah.name;
+            document.getElementById('surahAyatCount').textContent = surah.ayat;
+            document.getElementById('surahPage').textContent = surah.page;
+            
+            // Load ayat data
+            loadAyat(surah.number);
+        }
+
+        async function loadAyat(surahNumber) {
+            const ayatContainer = document.getElementById('ayatContainer');
+            ayatContainer.innerHTML = '<p style="text-align:center; padding:20px; color: var(--accent);">লোড হচ্ছে...</p>';
+            
+            try {
+                // Use Quran API to fetch ayat
+                const response = await fetch(`https://api.alquran.cloud/v1/surah/${surahNumber}/bn.bengali`);
+                const data = await response.json();
+                
+                if (data.code === 200) {
+                    const ayat = data.data.ayahs;
+                    displayAyat(ayat);
+                } else {
+                    throw new Error('API থেকে আয়াত লোড করতে সমস্যা হয়েছে');
+                }
+            } catch (error) {
+                console.error('Ayat loading error:', error);
+                ayatContainer.innerHTML = '<p style="text-align:center; padding:20px; color: #ff6b6b;">আয়াত লোড করতে সমস্যা হচ্ছে</p>';
+            }
+        }
+
+        function displayAyat(ayat) {
+            const ayatContainer = document.getElementById('ayatContainer');
+            ayatContainer.innerHTML = '';
+            
+            ayat.forEach(ayah => {
+                const ayatItem = document.createElement('div');
+                ayatItem.className = 'ayat-item';
+                
+                ayatItem.innerHTML = `
+                    <div>
+                        <span class="ayat-number">${ayah.numberInSurah}</span>
+                    </div>
+                    <div class="ayat-arabic">${ayah.text}</div>
+                    <div class="ayat-translation">${ayah.translation || ''}</div>
+                    <div class="ayat-actions">
+                        <button class="ayat-btn">
+                            <i class="fas fa-play"></i>
+                            শুনুন
+                        </button>
+                        <button class="ayat-btn">
+                            <i class="fas fa-bookmark"></i>
+                            সেভ করুন
+                        </button>
+                        <button class="ayat-btn">
+                            <i class="fas fa-share"></i>
+                            শেয়ার করুন
+                        </button>
+                    </div>
+                `;
+                
+                ayatContainer.appendChild(ayatItem);
+            });
         }
 
         // Firebase Functions for User App
@@ -1964,6 +2332,16 @@
                 });
             });
             
+            // Back to Quran button
+            document.getElementById('backToQuran').addEventListener('click', () => {
+                document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+                document.getElementById('quranPage').classList.add('active');
+                
+                // Update navigation button
+                navButtons.forEach(btn => btn.classList.remove('active'));
+                document.querySelector('[data-page="quran"]').classList.add('active');
+            });
+            
             // Close video popup
             document.getElementById('closeVideo').addEventListener('click', () => {
                 document.getElementById('videoPopup').classList.remove('active');
@@ -2071,6 +2449,14 @@
                 }
             });
             
+            // Quran search
+            document.querySelector('#quranSearch + .search-btn').addEventListener('click', function() {
+                const query = document.getElementById('quranSearch').value;
+                if (query.trim()) {
+                    searchQuran(query);
+                }
+            });
+            
             // Waz search
             document.querySelector('#wazSearch + .search-btn').addEventListener('click', function() {
                 const query = document.getElementById('wazSearch').value;
@@ -2095,6 +2481,21 @@
                         this.nextElementSibling.click();
                     }
                 });
+            });
+            
+            // Clear search when input is empty for Quran
+            document.getElementById('quranSearch').addEventListener('input', function() {
+                if (this.value.trim() === '') {
+                    const surahGrid = document.getElementById('surahGrid');
+                    const surahItems = surahGrid.querySelectorAll('.surah-item');
+                    const searchResult = document.getElementById('quranSearchResult');
+                    
+                    surahItems.forEach(item => {
+                        item.style.display = 'block';
+                    });
+                    
+                    searchResult.classList.remove('show');
+                }
             });
             
             // Clear search when input is empty for Waz
@@ -2128,7 +2529,34 @@
             });
         }
 
-        // Search functions for Waz and Gojol
+        // Search functions
+        function searchQuran(query) {
+            const surahGrid = document.getElementById('surahGrid');
+            const searchResult = document.getElementById('quranSearchResult');
+            const surahItems = surahGrid.querySelectorAll('.surah-item');
+            
+            let foundItems = 0;
+            
+            surahItems.forEach(item => {
+                const name = item.getAttribute('data-name');
+                
+                if (name.includes(query.toLowerCase())) {
+                    item.style.display = 'block';
+                    foundItems++;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            
+            if (foundItems === 0) {
+                searchResult.textContent = `"${query}" এর জন্য কোনো সূরা পাওয়া যায়নি।`;
+                searchResult.classList.add('show');
+            } else {
+                searchResult.textContent = `"${query}" এর জন্য ${foundItems} টি সূরা পাওয়া গেছে।`;
+                searchResult.classList.add('show');
+            }
+        }
+
         function searchWaz(query) {
             const wazGrid = document.getElementById('wazGrid');
             const searchResult = document.getElementById('wazSearchResult');
