@@ -120,6 +120,34 @@
             color: var(--accent);
         }
 
+        /* লোকেশন স্ট্যাটাস স্টাইল */
+        .location-status {
+            animation: slideDown 0.5s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* অটো ডিটেক্ট বাটন স্টাইল */
+        #autoDetectLocation {
+            background: #2d7bd4 !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        #autoDetectLocation:hover {
+            background: #1e6bb8 !important;
+        }
+
+        #autoDetectLocation:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
         /* Search Result Message */
         .search-result-message {
             text-align: center;
@@ -1507,8 +1535,22 @@
                             <option value="">জেলা নির্বাচন করুন</option>
                         </select>
                     </div>
-                    <button class="location-btn" id="saveLocation">লোকেশন সেভ করুন</button>
+                    <div class="form-row">
+                        <button class="location-btn" id="saveLocation">লোকেশন সেভ করুন</button>
+                        <button class="location-btn" id="autoDetectLocation">
+                            <i class="fas fa-location-crosshairs"></i> অটো ডিটেক্ট
+                        </button>
+                    </div>
                 </div>
+                
+                <!-- লোকেশন স্ট্যাটাস ডিসপ্লে -->
+                <div class="location-status" id="locationStatus" style="display: none;">
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 10px; padding: 10px; background: rgba(212, 175, 55, 0.1); border-radius: 10px; margin-top: 10px;">
+                        <i class="fas fa-check-circle" style="color: var(--accent);"></i>
+                        <span style="font-size: 0.9rem; color: var(--accent);">অটো লোকেশন ডিটেক্ট করা হয়েছে</span>
+                    </div>
+                </div>
+                
                 <div class="current-location" id="currentLocation">
                     লোকেশন সিলেক্ট করা হয়নি
                 </div>
@@ -1868,7 +1910,7 @@
             { number: 4, arabic: "النساء", name: "সূরা আন-নিসা", ayat: 176, page: 77 },
             { number: 5, arabic: "المائدة", name: "সূরা আল-মায়িদাহ", ayat: 120, page: 106 },
             { number: 6, arabic: "الأنعام", name: "সূরা আল-আন'আম", ayat: 165, page: 128 },
-            { number: 7, arabic: "الأعراف", name: "সূরা আল-آ'راف", ayat: 206, page: 151 },
+            { number: 7, arabic: "الأعراف", name: "সূরা আল-আ'রাফ", ayat: 206, page: 151 },
             { number: 8, arabic: "الأنفال", name: "সূরা আল-আনফাল", ayat: 75, page: 177 },
             { number: 9, arabic: "التوبة", name: "সূরা আত-তাওবাহ", ayat: 129, page: 187 },
             { number: 10, arabic: "يونس", name: "সূরা ইউনুস", ayat: 109, page: 208 },
@@ -1896,6 +1938,175 @@
                 districts: ["দুবাই", "আবুধাবি", "শারজাহ"]
             }
         };
+
+        // ১. অটো লোকেশন ডিটেকশন ফাংশন
+        function getAutoLocation() {
+            return new Promise((resolve, reject) => {
+                if (!navigator.geolocation) {
+                    reject('আপনার ব্রাউজার লোকেশন সাপোর্ট করে না');
+                    return;
+                }
+
+                navigator.geolocation.getCurrentPosition(
+                    async (position) => {
+                        try {
+                            const { latitude, longitude } = position.coords;
+                            
+                            // Reverse Geocoding API দিয়ে লোকেশনের নাম জানুন
+                            const locationResponse = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=bn`);
+                            const locationData = await locationResponse.json();
+                            
+                            // Aladhan API দিয়ে নামাজের সময় নিয়ে আসুন
+                            const prayerResponse = await fetch(`https://api.aladhan.com/v1/timings/${getFormattedDate()}?latitude=${latitude}&longitude=${longitude}&method=2`);
+                            const prayerData = await prayerResponse.json();
+                            
+                            if (prayerData.code === 200) {
+                                resolve({
+                                    latitude,
+                                    longitude,
+                                    city: locationData.city || locationData.locality,
+                                    country: locationData.countryName,
+                                    prayerTimes: prayerData.data.timings
+                                });
+                            } else {
+                                reject('নামাজের সময় লোড করতে সমস্যা হয়েছে');
+                            }
+                        } catch (error) {
+                            reject('লোকেশন ডেটা লোড করতে সমস্যা হয়েছে');
+                        }
+                    },
+                    (error) => {
+                        let errorMessage = 'লোকেশন ডিটেক্ট করতে সমস্যা হয়েছে';
+                        switch(error.code) {
+                            case error.PERMISSION_DENIED:
+                                errorMessage = 'লোকেশন এক্সেস ডিনাই করা হয়েছে। দয়া করে ম্যানুয়ালি লোকেশন সিলেক্ট করুন।';
+                                break;
+                            case error.POSITION_UNAVAILABLE:
+                                errorMessage = 'লোকেশন তথ্য অনুপলব্ধ।';
+                                break;
+                            case error.TIMEOUT:
+                                errorMessage = 'লোকেশন রিকোয়েস্ট টাইমআউট হয়েছে।';
+                                break;
+                        }
+                        reject(errorMessage);
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 60000
+                    }
+                );
+            });
+        }
+
+        // বর্তমান তারিখ ফরম্যাট করা
+        function getFormattedDate() {
+            const now = new Date();
+            const day = now.getDate();
+            const month = now.getMonth() + 1;
+            const year = now.getFullYear();
+            return `${day}-${month}-${year}`;
+        }
+
+        // ২. অটো ডিটেকশন ফাংশনালিটি ইমপ্লিমেন্ট করুন
+        // অটো লোকেশন ডিটেক্ট বাটন ইভেন্ট লিসেনার
+        document.getElementById('autoDetectLocation').addEventListener('click', async function() {
+            const button = this;
+            const originalText = button.innerHTML;
+            
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ডিটেক্ট হচ্ছে...';
+            button.disabled = true;
+            
+            try {
+                const locationData = await getAutoLocation();
+                await updatePrayerTimesWithAutoLocation(locationData);
+                
+                // লোকেশন স্ট্যাটাস দেখান
+                document.getElementById('locationStatus').style.display = 'block';
+                
+                // লোকেশন ডিসপ্লে আপডেট করুন
+                document.getElementById('currentLocation').innerHTML = 
+                    `<i class="fas fa-location-dot"></i> ${locationData.city}, ${locationData.country} (অটো ডিটেক্ট)`;
+                    
+                // লোকেশন সিলেক্টরে মান সেট করুন (যদি ম্যাচ করে)
+                setLocationInSelectors(locationData);
+                
+            } catch (error) {
+                alert(error);
+            } finally {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }
+        });
+
+        // অটো লোকেশন দিয়ে নামাজের সময় আপডেট
+        async function updatePrayerTimesWithAutoLocation(locationData) {
+            const timings = locationData.prayerTimes;
+            
+            // সময় ফরম্যাট করা
+            const formatTime = (time24) => {
+                const [hours, minutes] = time24.split(':');
+                const hour = parseInt(hours);
+                const ampm = hour >= 12 ? 'PM' : 'AM';
+                const hour12 = hour % 12 || 12;
+                return `${hour12}:${minutes} ${ampm}`;
+            };
+            
+            // DOM আপডেট
+            document.getElementById('fajrTime').textContent = formatTime(timings.Fajr);
+            document.getElementById('dhuhrTime').textContent = formatTime(timings.Dhuhr);
+            document.getElementById('asrTime').textContent = formatTime(timings.Asr);
+            document.getElementById('maghribTime').textContent = formatTime(timings.Maghrib);
+            document.getElementById('ishaTime').textContent = formatTime(timings.Isha);
+            
+            // লোকাল স্টোরেজে সেভ করুন
+            const prayerData = {
+                fajr: formatTime(timings.Fajr),
+                dhuhr: formatTime(timings.Dhuhr),
+                asr: formatTime(timings.Asr),
+                maghrib: formatTime(timings.Maghrib),
+                isha: formatTime(timings.Isha),
+                timestamp: new Date().getTime(),
+                autoDetected: true,
+                city: locationData.city,
+                country: locationData.country
+            };
+            
+            localStorage.setItem('zikraynAutoLocationPrayerTimes', JSON.stringify(prayerData));
+        }
+
+        // সিলেক্টরে লোকেশন সেট করা
+        function setLocationInSelectors(locationData) {
+            // দেশ ম্যাপিং
+            const countryMap = {
+                'Bangladesh': 'bangladesh',
+                'India': 'india',
+                'Pakistan': 'pakistan',
+                'Saudi Arabia': 'saudi',
+                'United Arab Emirates': 'uae'
+            };
+            
+            const country = countryMap[locationData.country];
+            if (country) {
+                document.getElementById('countrySelect').value = country;
+                updateDistrictOptions(country);
+                
+                // জেলা ম্যাপিং (যদি সম্ভব হয়)
+                const cityMap = {
+                    'Dhaka': 'ঢাকা',
+                    'Chittagong': 'চট্টগ্রাম',
+                    'Rajshahi': 'রাজশাহী',
+                    'Khulna': 'খুলনা',
+                    'Sylhet': 'সিলেট'
+                    // আরো শহর যোগ করুন
+                };
+                
+                const district = cityMap[locationData.city];
+                if (district) {
+                    document.getElementById('districtSelect').value = district;
+                }
+            }
+        }
 
         // API থেকে নামাজের সময় আপডেট করার ফাংশন
         async function updatePrayerTimesFromAPI(country, city) {
@@ -2055,6 +2266,9 @@
             // Initialize prayer times based on saved location
             updatePrayerTimes();
             
+            // অটো লোকেশন চেক করুন
+            checkAutoLocationOnStartup();
+            
             // Initialize random hadith
             loadRandomHadithFromFirebase();
             
@@ -2087,6 +2301,35 @@
             
             // Set up search functionality
             setupSearch();
+        }
+
+        // অ্যাপ স্টার্টে অটো লোকেশন চেক
+        async function checkAutoLocationOnStartup() {
+            const savedAutoLocation = localStorage.getItem('zikraynAutoLocationPrayerTimes');
+            
+            if (savedAutoLocation) {
+                const prayerData = JSON.parse(savedAutoLocation);
+                const now = new Date().getTime();
+                const oneHour = 60 * 60 * 1000; // 1 ঘন্টা
+                
+                // যদি 1 ঘন্টার মধ্যে ডেটা থাকে, তাহলে সেটা ব্যবহার করুন
+                if (now - prayerData.timestamp < oneHour) {
+                    document.getElementById('fajrTime').textContent = prayerData.fajr;
+                    document.getElementById('dhuhrTime').textContent = prayerData.dhuhr;
+                    document.getElementById('asrTime').textContent = prayerData.asr;
+                    document.getElementById('maghribTime').textContent = prayerData.maghrib;
+                    document.getElementById('ishaTime').textContent = prayerData.isha;
+                    
+                    document.getElementById('currentLocation').innerHTML = 
+                        `<i class="fas fa-location-dot"></i> ${prayerData.city}, ${prayerData.country} (অটো ডিটেক্ট)`;
+                    
+                    document.getElementById('locationStatus').style.display = 'block';
+                    return;
+                }
+            }
+            
+            // যদি সেভড ডেটা না থাকে বা পুরানো হয়, তাহলে ম্যানুয়াল লোকেশন ব্যবহার করুন
+            updatePrayerTimes();
         }
 
         function initSlideshow() {
