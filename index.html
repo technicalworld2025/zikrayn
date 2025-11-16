@@ -1873,6 +1873,8 @@
         const tilawatCollection = db.collection('tilawat');
         const socialIconsCollection = db.collection('socialIcons');
         const searchLogCollection = db.collection('searchLogs');
+        const prayerTimesCollection = db.collection('prayerTimes');
+        const dateSettingsCollection = db.collection('dateSettings');
 
         // Sample data for initial setup
         const sampleHadiths = [
@@ -1907,7 +1909,7 @@
             { number: 1, arabic: "الفاتحة", name: "সূরা আল-ফাতিহা", ayat: 7, page: 1 },
             { number: 2, arabic: "البقرة", name: "সূরা আল-বাকারা", ayat: 286, page: 2 },
             { number: 3, arabic: "آل عمران", name: "সূরা আলে-ইমরান", ayat: 200, page: 50 },
-            { number: 4, arabic: "النساء", name: "সূরা আন-নিসা", ayat: 176, page: 77 },
+            { number: 4, arabic: "النساء", name: "সূরা আন-নিসا", ayat: 176, page: 77 },
             { number: 5, arabic: "المائدة", name: "সূরা আল-মায়িদাহ", ayat: 120, page: 106 },
             { number: 6, arabic: "الأنعام", name: "সূরা আল-আন'আম", ayat: 165, page: 128 },
             { number: 7, arabic: "الأعراف", name: "সূরা আল-আ'রাফ", ayat: 206, page: 151 },
@@ -1939,173 +1941,356 @@
             }
         };
 
-        // ১. অটো লোকেশন ডিটেকশন ফাংশন
-        function getAutoLocation() {
-            return new Promise((resolve, reject) => {
-                if (!navigator.geolocation) {
-                    reject('আপনার ব্রাউজার লোকেশন সাপোর্ট করে না');
+        // Country names mapping
+        const countryNames = {
+            bangladesh: "বাংলাদেশ",
+            india: "ভারত",
+            pakistan: "পাকিস্তান",
+            saudi: "সৌদি আরব",
+            uae: "সংযুক্ত আরব আমিরাত"
+        };
+
+        // App initialization
+        document.addEventListener('DOMContentLoaded', function() {
+            // Show splash screen for 3 seconds
+            setTimeout(() => {
+                document.getElementById('splashScreen').style.display = 'none';
+                document.getElementById('appContainer').style.display = 'block';
+                initializeApp();
+            }, 3000);
+        });
+
+        function initializeApp() {
+            // Initialize slideshow
+            initSlideshow();
+            
+            // Initialize date and time
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+            
+            // Initialize location system
+            setupLocationSystem();
+            
+            // Initialize prayer times based on saved location
+            updatePrayerTimes();
+            
+            // অটো লোকেশন চেক করুন
+            checkAutoLocationOnStartup();
+            
+            // Initialize random hadith
+            loadRandomHadithFromFirebase();
+            
+            // Load waz and gojol from Firebase
+            loadWazFromFirebase();
+            loadGojolFromFirebase();
+            
+            // Load new data from Firebase
+            loadMasayelFromFirebase();
+            loadDuaFromFirebase();
+            loadTilawatFromFirebase();
+            loadSocialIconsFromFirebase();
+            
+            // Load Quran surahs
+            loadSurahs();
+            
+            // Set up real-time listeners
+            setupRealTimeWazListener();
+            setupRealTimeGojolListener();
+            setupRealTimeMasayelListener();
+            setupRealTimeDuaListener();
+            setupRealTimeTilawatListener();
+            setupRealTimeSocialIconsListener();
+            setupRealTimePrayerTimesListener();
+            setupRealTimeDateSettingsListener();
+            
+            // Set up navigation
+            setupNavigation();
+            
+            // Set up profile functionality
+            setupProfile();
+            
+            // Set up search functionality
+            setupSearch();
+        }
+
+        function initSlideshow() {
+            let currentSlide = 0;
+            const slides = document.querySelectorAll('.slide');
+            
+            setInterval(() => {
+                slides[currentSlide].classList.remove('active');
+                currentSlide = (currentSlide + 1) % slides.length;
+                slides[currentSlide].classList.add('active');
+            }, 4000);
+        }
+
+        function updateDateTime() {
+            const now = new Date();
+            
+            // English date
+            const englishDate = now.toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            document.getElementById('englishDate').textContent = englishDate;
+            
+            // Current time in 12-hour format
+            const currentTime = now.toLocaleTimeString('bn-BD', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true 
+            });
+            document.getElementById('currentTime').textContent = currentTime;
+        }
+
+        function setupLocationSystem() {
+            const countrySelect = document.getElementById('countrySelect');
+            const districtSelect = document.getElementById('districtSelect');
+            const saveLocationBtn = document.getElementById('saveLocation');
+            const autoDetectBtn = document.getElementById('autoDetectLocation');
+            const currentLocationDisplay = document.getElementById('currentLocation');
+            
+            // Load saved location if exists
+            const savedLocation = localStorage.getItem('zikraynLocation');
+            if (savedLocation) {
+                const location = JSON.parse(savedLocation);
+                countrySelect.value = location.country;
+                updateDistrictOptions(location.country);
+                districtSelect.value = location.district;
+                updateCurrentLocationDisplay(location.country, location.district);
+                updatePrayerTimesForLocation(location.country, location.district);
+            }
+            
+            // Country selection change
+            countrySelect.addEventListener('change', function() {
+                const country = this.value;
+                if (country) {
+                    districtSelect.disabled = false;
+                    updateDistrictOptions(country);
+                } else {
+                    districtSelect.disabled = true;
+                    districtSelect.innerHTML = '<option value="">জেলা নির্বাচন করুন</option>';
+                }
+            });
+            
+            // District selection change - auto update prayer times
+            districtSelect.addEventListener('change', function() {
+                const country = countrySelect.value;
+                const district = this.value;
+                
+                if (country && district) {
+                    updatePrayerTimesForLocation(country, district);
+                    updateCurrentLocationDisplay(country, district);
+                }
+            });
+            
+            // Save location
+            saveLocationBtn.addEventListener('click', function() {
+                const country = countrySelect.value;
+                const district = districtSelect.value;
+                
+                if (!country || !district) {
+                    alert('দয়া করে দেশ এবং জেলা নির্বাচন করুন।');
                     return;
                 }
-
-                navigator.geolocation.getCurrentPosition(
-                    async (position) => {
-                        try {
-                            const { latitude, longitude } = position.coords;
+                
+                const location = {
+                    country: country,
+                    district: district
+                };
+                
+                localStorage.setItem('zikraynLocation', JSON.stringify(location));
+                updateCurrentLocationDisplay(country, district);
+                updatePrayerTimesForLocation(country, district);
+                
+                alert('লোকেশন সফলভাবে সেভ করা হয়েছে!');
+            });
+            
+            // Auto detect location
+            autoDetectBtn.addEventListener('click', function() {
+                autoDetectBtn.disabled = true;
+                autoDetectBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ডিটেক্ট হচ্ছে...';
+                
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        function(position) {
+                            const latitude = position.coords.latitude;
+                            const longitude = position.coords.longitude;
                             
-                            // Reverse Geocoding API দিয়ে লোকেশনের নাম জানুন
-                            const locationResponse = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=bn`);
-                            const locationData = await locationResponse.json();
-                            
-                            // Aladhan API দিয়ে নামাজের সময় নিয়ে আসুন
-                            const prayerResponse = await fetch(`https://api.aladhan.com/v1/timings/${getFormattedDate()}?latitude=${latitude}&longitude=${longitude}&method=2`);
-                            const prayerData = await prayerResponse.json();
-                            
-                            if (prayerData.code === 200) {
-                                resolve({
-                                    latitude,
-                                    longitude,
-                                    city: locationData.city || locationData.locality,
-                                    country: locationData.countryName,
-                                    prayerTimes: prayerData.data.timings
+                            // Reverse geocoding to get location name
+                            getLocationName(latitude, longitude)
+                                .then(locationInfo => {
+                                    if (locationInfo.country && locationInfo.city) {
+                                        // Set the detected location
+                                        countrySelect.value = locationInfo.country;
+                                        updateDistrictOptions(locationInfo.country);
+                                        
+                                        // Try to find matching district
+                                        setTimeout(() => {
+                                            const districtOptions = Array.from(districtSelect.options);
+                                            const matchedDistrict = districtOptions.find(option => 
+                                                option.text.includes(locationInfo.city) || 
+                                                locationInfo.city.includes(option.text)
+                                            );
+                                            
+                                            if (matchedDistrict) {
+                                                districtSelect.value = matchedDistrict.value;
+                                            } else {
+                                                // If no exact match, use the first option
+                                                districtSelect.selectedIndex = 1;
+                                            }
+                                            
+                                            // Save the location
+                                            const location = {
+                                                country: locationInfo.country,
+                                                district: districtSelect.value
+                                            };
+                                            
+                                            localStorage.setItem('zikraynLocation', JSON.stringify(location));
+                                            updateCurrentLocationDisplay(location.country, location.district);
+                                            updatePrayerTimesForLocation(location.country, location.district);
+                                            
+                                            // Show success message
+                                            document.getElementById('locationStatus').style.display = 'block';
+                                            
+                                            alert('অটো লোকেশন সফলভাবে ডিটেক্ট করা হয়েছে!');
+                                        }, 500);
+                                    } else {
+                                        alert('লোকেশন ডিটেক্ট করা গেলেও সঠিক শহর চিহ্নিত করা যায়নি। দয়া করে ম্যানুয়ালি সিলেক্ট করুন।');
+                                    }
+                                    
+                                    autoDetectBtn.disabled = false;
+                                    autoDetectBtn.innerHTML = '<i class="fas fa-location-crosshairs"></i> অটো ডিটেক্ট';
+                                })
+                                .catch(error => {
+                                    console.error('Geocoding error:', error);
+                                    alert('লোকেশন ডিটেক্ট করতে সমস্যা হয়েছে। দয়া করে ম্যানুয়ালি সিলেক্ট করুন।');
+                                    autoDetectBtn.disabled = false;
+                                    autoDetectBtn.innerHTML = '<i class="fas fa-location-crosshairs"></i> অটো ডিটেক্ট';
                                 });
-                            } else {
-                                reject('নামাজের সময় লোড করতে সমস্যা হয়েছে');
-                            }
-                        } catch (error) {
-                            reject('লোকেশন ডেটা লোড করতে সমস্যা হয়েছে');
+                        },
+                        function(error) {
+                            console.error('Geolocation error:', error);
+                            alert('লোকেশন ডিটেক্ট করতে সমস্যা হয়েছে। দয়া করে ম্যানুয়ালি সিলেক্ট করুন।');
+                            autoDetectBtn.disabled = false;
+                            autoDetectBtn.innerHTML = '<i class="fas fa-location-crosshairs"></i> অটো ডিটেক্ট';
                         }
-                    },
-                    (error) => {
-                        let errorMessage = 'লোকেশন ডিটেক্ট করতে সমস্যা হয়েছে';
-                        switch(error.code) {
-                            case error.PERMISSION_DENIED:
-                                errorMessage = 'লোকেশন এক্সেস ডিনাই করা হয়েছে। দয়া করে ম্যানুয়ালি লোকেশন সিলেক্ট করুন।';
-                                break;
-                            case error.POSITION_UNAVAILABLE:
-                                errorMessage = 'লোকেশন তথ্য অনুপলব্ধ।';
-                                break;
-                            case error.TIMEOUT:
-                                errorMessage = 'লোকেশন রিকোয়েস্ট টাইমআউট হয়েছে।';
-                                break;
-                        }
-                        reject(errorMessage);
-                    },
-                    {
-                        enableHighAccuracy: true,
-                        timeout: 10000,
-                        maximumAge: 60000
-                    }
-                );
+                    );
+                } else {
+                    alert('আপনার ব্রাউজার জিওলোকেশন সাপোর্ট করে না। দয়া করে ম্যানুয়ালি সিলেক্ট করুন।');
+                    autoDetectBtn.disabled = false;
+                    autoDetectBtn.innerHTML = '<i class="fas fa-location-crosshairs"></i> অটো ডিটেক্ট';
+                }
             });
         }
 
-        // বর্তমান তারিখ ফরম্যাট করা
-        function getFormattedDate() {
-            const now = new Date();
-            const day = now.getDate();
-            const month = now.getMonth() + 1;
-            const year = now.getFullYear();
-            return `${day}-${month}-${year}`;
+        // Get location name from coordinates
+        function getLocationName(latitude, longitude) {
+            return new Promise((resolve, reject) => {
+                // Using OpenStreetMap Nominatim API for reverse geocoding
+                fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&accept-language=bn`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data && data.address) {
+                            const address = data.address;
+                            let country = '';
+                            let city = '';
+                            
+                            // Determine country
+                            if (address.country) {
+                                const countryName = address.country.toLowerCase();
+                                if (countryName.includes('bangladesh') || countryName.includes('বাংলাদেশ')) {
+                                    country = 'bangladesh';
+                                } else if (countryName.includes('india') || countryName.includes('ভারত')) {
+                                    country = 'india';
+                                } else if (countryName.includes('pakistan') || countryName.includes('পাকিস্তান')) {
+                                    country = 'pakistan';
+                                } else if (countryName.includes('saudi') || countryName.includes('সৌদি')) {
+                                    country = 'saudi';
+                                } else if (countryName.includes('uae') || countryName.includes('আমিরাত')) {
+                                    country = 'uae';
+                                }
+                            }
+                            
+                            // Determine city
+                            city = address.city || address.town || address.village || address.county || '';
+                            
+                            resolve({ country, city });
+                        } else {
+                            reject(new Error('Location data not found'));
+                        }
+                    })
+                    .catch(error => {
+                        reject(error);
+                    });
+            });
         }
 
-        // ২. অটো ডিটেকশন ফাংশনালিটি ইমপ্লিমেন্ট করুন
-        // অটো লোকেশন ডিটেক্ট বাটন ইভেন্ট লিসেনার
-        document.getElementById('autoDetectLocation').addEventListener('click', async function() {
-            const button = this;
-            const originalText = button.innerHTML;
+        function checkAutoLocationOnStartup() {
+            // Check if we should try auto location on startup
+            const savedLocation = localStorage.getItem('zikraynLocation');
+            const autoLocationEnabled = localStorage.getItem('zikraynAutoLocation') === 'true';
             
-            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ডিটেক্ট হচ্ছে...';
-            button.disabled = true;
-            
-            try {
-                const locationData = await getAutoLocation();
-                await updatePrayerTimesWithAutoLocation(locationData);
-                
-                // লোকেশন স্ট্যাটাস দেখান
-                document.getElementById('locationStatus').style.display = 'block';
-                
-                // লোকেশন ডিসপ্লে আপডেট করুন
-                document.getElementById('currentLocation').innerHTML = 
-                    `<i class="fas fa-location-dot"></i> ${locationData.city}, ${locationData.country} (অটো ডিটেক্ট)`;
-                    
-                // লোকেশন সিলেক্টরে মান সেট করুন (যদি ম্যাচ করে)
-                setLocationInSelectors(locationData);
-                
-            } catch (error) {
-                alert(error);
-            } finally {
-                button.innerHTML = originalText;
-                button.disabled = false;
+            if (!savedLocation && autoLocationEnabled && navigator.geolocation) {
+                // Try to get location on startup if no saved location
+                document.getElementById('autoDetectLocation').click();
             }
-        });
-
-        // অটো লোকেশন দিয়ে নামাজের সময় আপডেট
-        async function updatePrayerTimesWithAutoLocation(locationData) {
-            const timings = locationData.prayerTimes;
-            
-            // সময় ফরম্যাট করা
-            const formatTime = (time24) => {
-                const [hours, minutes] = time24.split(':');
-                const hour = parseInt(hours);
-                const ampm = hour >= 12 ? 'PM' : 'AM';
-                const hour12 = hour % 12 || 12;
-                return `${hour12}:${minutes} ${ampm}`;
-            };
-            
-            // DOM আপডেট
-            document.getElementById('fajrTime').textContent = formatTime(timings.Fajr);
-            document.getElementById('dhuhrTime').textContent = formatTime(timings.Dhuhr);
-            document.getElementById('asrTime').textContent = formatTime(timings.Asr);
-            document.getElementById('maghribTime').textContent = formatTime(timings.Maghrib);
-            document.getElementById('ishaTime').textContent = formatTime(timings.Isha);
-            
-            // লোকাল স্টোরেজে সেভ করুন
-            const prayerData = {
-                fajr: formatTime(timings.Fajr),
-                dhuhr: formatTime(timings.Dhuhr),
-                asr: formatTime(timings.Asr),
-                maghrib: formatTime(timings.Maghrib),
-                isha: formatTime(timings.Isha),
-                timestamp: new Date().getTime(),
-                autoDetected: true,
-                city: locationData.city,
-                country: locationData.country
-            };
-            
-            localStorage.setItem('zikraynAutoLocationPrayerTimes', JSON.stringify(prayerData));
         }
 
-        // সিলেক্টরে লোকেশন সেট করা
-        function setLocationInSelectors(locationData) {
-            // দেশ ম্যাপিং
-            const countryMap = {
-                'Bangladesh': 'bangladesh',
-                'India': 'india',
-                'Pakistan': 'pakistan',
-                'Saudi Arabia': 'saudi',
-                'United Arab Emirates': 'uae'
-            };
+        function updateDistrictOptions(country) {
+            const districtSelect = document.getElementById('districtSelect');
+            const districts = locationData[country]?.districts || [];
             
-            const country = countryMap[locationData.country];
-            if (country) {
-                document.getElementById('countrySelect').value = country;
-                updateDistrictOptions(country);
-                
-                // জেলা ম্যাপিং (যদি সম্ভব হয়)
-                const cityMap = {
-                    'Dhaka': 'ঢাকা',
-                    'Chittagong': 'চট্টগ্রাম',
-                    'Rajshahi': 'রাজশাহী',
-                    'Khulna': 'খুলনা',
-                    'Sylhet': 'সিলেট'
-                    // আরো শহর যোগ করুন
-                };
-                
-                const district = cityMap[locationData.city];
-                if (district) {
-                    document.getElementById('districtSelect').value = district;
-                }
+            districtSelect.innerHTML = '<option value="">জেলা নির্বাচন করুন</option>';
+            
+            districts.forEach(district => {
+                const option = document.createElement('option');
+                option.value = district;
+                option.textContent = district;
+                districtSelect.appendChild(option);
+            });
+        }
+
+        function updateCurrentLocationDisplay(country, district) {
+            const currentLocationDisplay = document.getElementById('currentLocation');
+            currentLocationDisplay.textContent = `${countryNames[country]}, ${district}`;
+        }
+
+        function updatePrayerTimes() {
+            const savedLocation = localStorage.getItem('zikraynLocation');
+            
+            if (savedLocation) {
+                const location = JSON.parse(savedLocation);
+                updatePrayerTimesForLocation(location.country, location.district);
+            } else {
+                // Default prayer times for Dhaka, Bangladesh
+                updatePrayerTimesForLocation('bangladesh', 'ঢাকা');
             }
+        }
+
+        // Firebase থেকে নামাজের সময় আপডেট করার ফাংশন
+        function updatePrayerTimesForLocation(country, district) {
+            const locationKey = `${country}_${district}`;
+            
+            // Firebase থেকে নামাজের সময় লোড করুন
+            prayerTimesCollection.doc(locationKey).get()
+                .then((doc) => {
+                    if (doc.exists) {
+                        const prayerTimes = doc.data();
+                        updatePrayerTimesDisplay(prayerTimes);
+                    } else {
+                        // Firebase-এ ডেটা না থাকলে API থেকে লোড করুন
+                        updatePrayerTimesFromAPI(country, district);
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error loading prayer times: ", error);
+                    // API থেকে লোড করুন
+                    updatePrayerTimesFromAPI(country, district);
+                });
         }
 
         // API থেকে নামাজের সময় আপডেট করার ফাংশন
@@ -2170,301 +2355,77 @@
                         return `${hour12}:${minutes} ${ampm}`;
                     };
                     
-                    // DOM আপডেট করুন
-                    document.getElementById('fajrTime').textContent = formatTime(timings.Fajr);
-                    document.getElementById('dhuhrTime').textContent = formatTime(timings.Dhuhr);
-                    document.getElementById('asrTime').textContent = formatTime(timings.Asr);
-                    document.getElementById('maghribTime').textContent = formatTime(timings.Maghrib);
-                    document.getElementById('ishaTime').textContent = formatTime(timings.Isha);
-                    
-                    // লোকাল স্টোরেজে সেভ করুন
-                    const prayerData = {
+                    const prayerTimes = {
                         fajr: formatTime(timings.Fajr),
                         dhuhr: formatTime(timings.Dhuhr),
                         asr: formatTime(timings.Asr),
                         maghrib: formatTime(timings.Maghrib),
-                        isha: formatTime(timings.Isha),
-                        timestamp: new Date().getTime()
+                        isha: formatTime(timings.Isha)
                     };
                     
-                    localStorage.setItem(`zikraynPrayerTimes_${country}_${city}`, JSON.stringify(prayerData));
+                    // DOM আপডেট করুন
+                    updatePrayerTimesDisplay(prayerTimes);
+                    
+                    // Firebase-এ সেভ করুন
+                    const locationKey = `${country}_${city}`;
+                    prayerTimesCollection.doc(locationKey).set({
+                        ...prayerTimes,
+                        country: country,
+                        district: city,
+                        countryName: countryNames[country],
+                        lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                    });
                 } else {
                     throw new Error('API থেকে ডেটা লোড করতে সমস্যা হয়েছে');
                 }
             } catch (error) {
                 console.error('Prayer times API error:', error);
-                
-                // API ব্যর্থ হলে পূর্বের স্ট্যাটিক ডেটা ব্যবহার করুন
-                const storageKey = `zikraynPrayerTimes_${country}_${city}`;
-                const storedData = localStorage.getItem(storageKey);
-                
-                if (storedData) {
-                    const prayerData = JSON.parse(storedData);
-                    document.getElementById('fajrTime').textContent = prayerData.fajr;
-                    document.getElementById('dhuhrTime').textContent = prayerData.dhuhr;
-                    document.getElementById('asrTime').textContent = prayerData.asr;
-                    document.getElementById('maghribTime').textContent = prayerData.maghrib;
-                    document.getElementById('ishaTime').textContent = prayerData.isha;
-                } else {
-                    // ডিফল্ট নামাজের সময়
-                    document.getElementById('fajrTime').textContent = "4:58 AM";
-                    document.getElementById('dhuhrTime').textContent = "11:44 AM";
-                    document.getElementById('asrTime').textContent = "3:37 PM";
-                    document.getElementById('maghribTime').textContent = "5:14 PM";
-                    document.getElementById('ishaTime').textContent = "6:31 PM";
-                }
-            }
-        }
-
-        // লোকেশন পরিবর্তন হলে নামাজের সময় আপডেট করুন
-        function updatePrayerTimesForLocation(country, district) {
-            // প্রথমে লোকাল স্টোরেজ চেক করুন (24 ঘন্টার মধ্যে হলে নতুন API কল করবে না)
-            const storageKey = `zikraynPrayerTimes_${country}_${district}`;
-            const storedData = localStorage.getItem(storageKey);
-            
-            if (storedData) {
-                const prayerData = JSON.parse(storedData);
-                const now = new Date().getTime();
-                const oneDay = 24 * 60 * 60 * 1000; // 24 ঘন্টা
-                
-                // যদি 24 ঘন্টার মধ্যে ডেটা সেভ করা থাকে, তাহলে সেটাই ব্যবহার করুন
-                if (now - prayerData.timestamp < oneDay) {
-                    document.getElementById('fajrTime').textContent = prayerData.fajr;
-                    document.getElementById('dhuhrTime').textContent = prayerData.dhuhr;
-                    document.getElementById('asrTime').textContent = prayerData.asr;
-                    document.getElementById('maghribTime').textContent = prayerData.maghrib;
-                    document.getElementById('ishaTime').textContent = prayerData.isha;
-                    return;
-                }
-            }
-            
-            // নতুন API কল করুন
-            updatePrayerTimesFromAPI(country, district);
-        }
-
-        // App initialization
-        document.addEventListener('DOMContentLoaded', function() {
-            // Show splash screen for 3 seconds
-            setTimeout(() => {
-                document.getElementById('splashScreen').style.display = 'none';
-                document.getElementById('appContainer').style.display = 'block';
-                initializeApp();
-            }, 3000);
-        });
-
-        function initializeApp() {
-            // Initialize slideshow
-            initSlideshow();
-            
-            // Initialize date and time
-            updateDateTime();
-            setInterval(updateDateTime, 1000);
-            
-            // Initialize location system
-            setupLocationSystem();
-            
-            // Initialize prayer times based on saved location
-            updatePrayerTimes();
-            
-            // অটো লোকেশন চেক করুন
-            checkAutoLocationOnStartup();
-            
-            // Initialize random hadith
-            loadRandomHadithFromFirebase();
-            
-            // Load waz and gojol from Firebase
-            loadWazFromFirebase();
-            loadGojolFromFirebase();
-            
-            // Load new data from Firebase
-            loadMasayelFromFirebase();
-            loadDuaFromFirebase();
-            loadTilawatFromFirebase();
-            loadSocialIconsFromFirebase();
-            
-            // Load Quran surahs
-            loadSurahs();
-            
-            // Set up real-time listeners
-            setupRealTimeWazListener();
-            setupRealTimeGojolListener();
-            setupRealTimeMasayelListener();
-            setupRealTimeDuaListener();
-            setupRealTimeTilawatListener();
-            setupRealTimeSocialIconsListener();
-            
-            // Set up navigation
-            setupNavigation();
-            
-            // Set up profile functionality
-            setupProfile();
-            
-            // Set up search functionality
-            setupSearch();
-        }
-
-        // অ্যাপ স্টার্টে অটো লোকেশন চেক
-        async function checkAutoLocationOnStartup() {
-            const savedAutoLocation = localStorage.getItem('zikraynAutoLocationPrayerTimes');
-            
-            if (savedAutoLocation) {
-                const prayerData = JSON.parse(savedAutoLocation);
-                const now = new Date().getTime();
-                const oneHour = 60 * 60 * 1000; // 1 ঘন্টা
-                
-                // যদি 1 ঘন্টার মধ্যে ডেটা থাকে, তাহলে সেটা ব্যবহার করুন
-                if (now - prayerData.timestamp < oneHour) {
-                    document.getElementById('fajrTime').textContent = prayerData.fajr;
-                    document.getElementById('dhuhrTime').textContent = prayerData.dhuhr;
-                    document.getElementById('asrTime').textContent = prayerData.asr;
-                    document.getElementById('maghribTime').textContent = prayerData.maghrib;
-                    document.getElementById('ishaTime').textContent = prayerData.isha;
-                    
-                    document.getElementById('currentLocation').innerHTML = 
-                        `<i class="fas fa-location-dot"></i> ${prayerData.city}, ${prayerData.country} (অটো ডিটেক্ট)`;
-                    
-                    document.getElementById('locationStatus').style.display = 'block';
-                    return;
-                }
-            }
-            
-            // যদি সেভড ডেটা না থাকে বা পুরানো হয়, তাহলে ম্যানুয়াল লোকেশন ব্যবহার করুন
-            updatePrayerTimes();
-        }
-
-        function initSlideshow() {
-            let currentSlide = 0;
-            const slides = document.querySelectorAll('.slide');
-            
-            setInterval(() => {
-                slides[currentSlide].classList.remove('active');
-                currentSlide = (currentSlide + 1) % slides.length;
-                slides[currentSlide].classList.add('active');
-            }, 4000);
-        }
-
-        function updateDateTime() {
-            const now = new Date();
-            
-            // English date
-            const englishDate = now.toLocaleDateString('en-US', { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-            });
-            document.getElementById('englishDate').textContent = englishDate;
-            
-            // Current time in 12-hour format
-            const currentTime = now.toLocaleTimeString('bn-BD', { 
-                hour: '2-digit', 
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: true 
-            });
-            document.getElementById('currentTime').textContent = currentTime;
-        }
-
-        function setupLocationSystem() {
-            const countrySelect = document.getElementById('countrySelect');
-            const districtSelect = document.getElementById('districtSelect');
-            const saveLocationBtn = document.getElementById('saveLocation');
-            const currentLocationDisplay = document.getElementById('currentLocation');
-            
-            // Load saved location if exists
-            const savedLocation = localStorage.getItem('zikraynLocation');
-            if (savedLocation) {
-                const location = JSON.parse(savedLocation);
-                countrySelect.value = location.country;
-                updateDistrictOptions(location.country);
-                districtSelect.value = location.district;
-                updateCurrentLocationDisplay(location.country, location.district);
-                updatePrayerTimesForLocation(location.country, location.district);
-            }
-            
-            // Country selection change
-            countrySelect.addEventListener('change', function() {
-                const country = this.value;
-                if (country) {
-                    districtSelect.disabled = false;
-                    updateDistrictOptions(country);
-                } else {
-                    districtSelect.disabled = true;
-                    districtSelect.innerHTML = '<option value="">জেলা নির্বাচন করুন</option>';
-                }
-            });
-            
-            // District selection change - auto update prayer times
-            districtSelect.addEventListener('change', function() {
-                const country = countrySelect.value;
-                const district = this.value;
-                
-                if (country && district) {
-                    updatePrayerTimesForLocation(country, district);
-                    updateCurrentLocationDisplay(country, district);
-                }
-            });
-            
-            // Save location
-            saveLocationBtn.addEventListener('click', function() {
-                const country = countrySelect.value;
-                const district = districtSelect.value;
-                
-                if (!country || !district) {
-                    alert('দয়া করে দেশ এবং জেলা নির্বাচন করুন।');
-                    return;
-                }
-                
-                const location = {
-                    country: country,
-                    district: district
+                // ডিফল্ট নামাজের সময়
+                const defaultPrayerTimes = {
+                    fajr: "4:58 AM",
+                    dhuhr: "11:44 AM",
+                    asr: "3:37 PM",
+                    maghrib: "5:14 PM",
+                    isha: "6:31 PM"
                 };
-                
-                localStorage.setItem('zikraynLocation', JSON.stringify(location));
-                updateCurrentLocationDisplay(country, district);
-                updatePrayerTimesForLocation(country, district);
-                
-                alert('লোকেশন সফলভাবে সেভ করা হয়েছে!');
-            });
+                updatePrayerTimesDisplay(defaultPrayerTimes);
+            }
         }
 
-        function updateDistrictOptions(country) {
-            const districtSelect = document.getElementById('districtSelect');
-            const districts = locationData[country]?.districts || [];
-            
-            districtSelect.innerHTML = '<option value="">জেলা নির্বাচন করুন</option>';
-            
-            districts.forEach(district => {
-                const option = document.createElement('option');
-                option.value = district;
-                option.textContent = district;
-                districtSelect.appendChild(option);
-            });
+        // নামাজের সময় ডিসপ্লে আপডেট করুন
+        function updatePrayerTimesDisplay(prayerTimes) {
+            document.getElementById('fajrTime').textContent = prayerTimes.fajr || "--:--";
+            document.getElementById('dhuhrTime').textContent = prayerTimes.dhuhr || "--:--";
+            document.getElementById('asrTime').textContent = prayerTimes.asr || "--:--";
+            document.getElementById('maghribTime').textContent = prayerTimes.maghrib || "--:--";
+            document.getElementById('ishaTime').textContent = prayerTimes.isha || "--:--";
         }
 
-        function updateCurrentLocationDisplay(country, district) {
-            const currentLocationDisplay = document.getElementById('currentLocation');
-            const countryNames = {
-                bangladesh: "বাংলাদেশ",
-                india: "ভারত",
-                pakistan: "পাকিস্তান",
-                saudi: "সৌদি আরব",
-                uae: "সংযুক্ত আরব আমিরাত"
-            };
-            
-            currentLocationDisplay.textContent = `${countryNames[country]}, ${district}`;
-        }
-
-        function updatePrayerTimes() {
+        // Real-time listener for prayer times
+        function setupRealTimePrayerTimesListener() {
             const savedLocation = localStorage.getItem('zikraynLocation');
-            
             if (savedLocation) {
                 const location = JSON.parse(savedLocation);
-                updatePrayerTimesForLocation(location.country, location.district);
-            } else {
-                // Default prayer times for Dhaka, Bangladesh
-                updatePrayerTimesForLocation('bangladesh', 'ঢাকা');
+                const locationKey = `${location.country}_${location.district}`;
+                
+                prayerTimesCollection.doc(locationKey).onSnapshot((doc) => {
+                    if (doc.exists) {
+                        const prayerTimes = doc.data();
+                        updatePrayerTimesDisplay(prayerTimes);
+                    }
+                });
             }
+        }
+
+        // Real-time listener for date settings
+        function setupRealTimeDateSettingsListener() {
+            dateSettingsCollection.doc('current').onSnapshot((doc) => {
+                if (doc.exists) {
+                    const dateSettings = doc.data();
+                    document.getElementById('banglaDate').textContent = dateSettings.banglaDate || "৩০ কার্তিক, ১৪৩২";
+                    document.getElementById('arabicDate').textContent = dateSettings.hijriDate || "২৩ জুমাদাল উলা, ১৪৪৭";
+                }
+            });
         }
 
         // Quran Functions
