@@ -164,6 +164,57 @@
             display: block;
         }
 
+        /* Recently Viewed Section */
+        .recently-viewed {
+            margin: 20px 0;
+        }
+
+        .recently-viewed-title {
+            font-size: 1.2rem;
+            color: var(--accent);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .recently-viewed-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            overflow-x: auto;
+            padding: 10px 0;
+        }
+
+        .recent-item {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-width: 120px;
+        }
+
+        .recent-item:hover {
+            transform: translateY(-2px);
+            background: rgba(255,255,255,0.05);
+        }
+
+        .recent-thumbnail {
+            width: 100%;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .recent-title {
+            font-size: 0.8rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
         /* Splash Screen */
         .splash-screen {
             position: fixed;
@@ -1149,8 +1200,8 @@
             font-weight: bold;
         }
 
-        /* New Pages Styles - Masayel, Dua, Tilawat */
-        .masayel-container, .dua-container, .tilawat-container {
+        /* New Pages Styles - Masayel, Dua, Tilawat, Cartoon */
+        .masayel-container, .dua-container, .tilawat-container, .cartoon-container {
             max-width: 100%;
             margin: 0 auto;
         }
@@ -1253,7 +1304,7 @@
             line-height: 1.5;
         }
 
-        .tilawat-grid {
+        .tilawat-grid, .cartoon-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 15px;
@@ -1261,7 +1312,7 @@
         }
 
         @media (min-width: 768px) {
-            .tilawat-grid {
+            .tilawat-grid, .cartoon-grid {
                 grid-template-columns: repeat(3, 1fr);
                 gap: 25px;
                 margin-top: 30px;
@@ -1269,13 +1320,13 @@
         }
 
         @media (min-width: 480px) and (max-width: 767px) {
-            .tilawat-grid {
+            .tilawat-grid, .cartoon-grid {
                 grid-template-columns: repeat(2, 1fr);
                 gap: 20px;
             }
         }
 
-        .tilawat-item {
+        .tilawat-item, .cartoon-item {
             background: var(--card-bg);
             border-radius: 15px;
             overflow: hidden;
@@ -1285,24 +1336,24 @@
             border: 1px solid rgba(255,255,255,0.05);
         }
 
-        .tilawat-item:hover {
+        .tilawat-item:hover, .cartoon-item:hover {
             transform: translateY(-5px);
             box-shadow: 0 8px 20px rgba(0,0,0,0.3);
         }
 
-        .tilawat-thumbnail {
+        .tilawat-thumbnail, .cartoon-thumbnail {
             width: 100%;
             height: 120px;
             object-fit: cover;
         }
 
         @media (min-width: 768px) {
-            .tilawat-thumbnail {
+            .tilawat-thumbnail, .cartoon-thumbnail {
                 height: 160px;
             }
         }
 
-        .tilawat-title {
+        .tilawat-title, .cartoon-title {
             padding: 15px;
             font-size: 0.9rem;
             text-align: center;
@@ -1313,7 +1364,7 @@
         }
 
         @media (min-width: 768px) {
-            .tilawat-title {
+            .tilawat-title, .cartoon-title {
                 padding: 20px;
                 font-size: 1rem;
                 height: 70px;
@@ -1397,6 +1448,39 @@
             background: #e6c44d;
         }
 
+        /* Pagination Styles */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+            gap: 10px;
+        }
+
+        .pagination-btn {
+            padding: 8px 15px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 5px;
+            color: var(--light);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .pagination-btn:hover {
+            background: rgba(255,255,255,0.15);
+        }
+
+        .pagination-btn.active {
+            background: var(--accent);
+            color: var(--dark);
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
         /* Mobile Responsive */
         @media (max-width: 480px) {
             .app-container {
@@ -1444,6 +1528,10 @@
             
             .page-buttons {
                 grid-template-columns: 1fr;
+            }
+            
+            .recently-viewed-grid {
+                grid-template-columns: repeat(3, 1fr);
             }
         }
     </style>
@@ -1603,6 +1691,10 @@
                         <i class="fas fa-microphone"></i>
                         <span>তিলাওয়াত</span>
                     </button>
+                    <button class="page-btn" data-page="cartoon">
+                        <i class="fas fa-video"></i>
+                        <span>ইসলামিক কার্টুন</span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -1645,8 +1737,19 @@
             <!-- Search Result Message -->
             <div class="search-result-message" id="wazSearchResult"></div>
 
+            <!-- Recently Viewed Section -->
+            <div class="recently-viewed" id="wazRecentlyViewed" style="display: none;">
+                <h3 class="recently-viewed-title">সাম্প্রতিক দেখা ওয়াজ</h3>
+                <div class="recently-viewed-grid" id="wazRecentGrid">
+                    <!-- Recently viewed waz will be populated here -->
+                </div>
+            </div>
+
             <div class="recent-waz">
-                <h3 class="section-title">সাম্প্রতিক ওয়াজ</h3>
+                <h3 class="section-title">সকল ওয়াজ</h3>
+                <div class="pagination" id="wazPagination">
+                    <!-- Pagination buttons will be added here -->
+                </div>
                 <div class="video-grid" id="wazGrid">
                     <!-- Waz items will be populated from Firebase -->
                 </div>
@@ -1668,8 +1771,19 @@
             <!-- Search Result Message -->
             <div class="search-result-message" id="gojolSearchResult"></div>
 
+            <!-- Recently Viewed Section -->
+            <div class="recently-viewed" id="gojolRecentlyViewed" style="display: none;">
+                <h3 class="recently-viewed-title">সাম্প্রতিক দেখা গজল</h3>
+                <div class="recently-viewed-grid" id="gojolRecentGrid">
+                    <!-- Recently viewed gojol will be populated here -->
+                </div>
+            </div>
+
             <div class="recent-gojol">
-                <h3 class="section-title">গজল সমগ্র</h3>
+                <h3 class="section-title">সকল গজল</h3>
+                <div class="pagination" id="gojolPagination">
+                    <!-- Pagination buttons will be added here -->
+                </div>
                 <div class="video-grid" id="gojolGrid">
                     <!-- Gojol items will be populated from Firebase -->
                 </div>
@@ -1749,6 +1863,9 @@
                     <button class="category-btn" data-category="অন্যান্য">অন্যান্য</button>
                 </div>
 
+                <div class="pagination" id="masayelPagination">
+                    <!-- Pagination buttons will be added here -->
+                </div>
                 <div class="masayel-grid" id="masayelGrid">
                     <!-- Masayel items will be populated from Firebase -->
                 </div>
@@ -1772,6 +1889,9 @@
 
             <div class="dua-container">
                 <h3 class="section-title">দোয়া সমগ্র</h3>
+                <div class="pagination" id="duaPagination">
+                    <!-- Pagination buttons will be added here -->
+                </div>
                 <div class="dua-grid" id="duaGrid">
                     <!-- Dua items will be populated from Firebase -->
                 </div>
@@ -1793,10 +1913,55 @@
             <!-- Search Result Message -->
             <div class="search-result-message" id="tilawatSearchResult"></div>
 
+            <!-- Recently Viewed Section -->
+            <div class="recently-viewed" id="tilawatRecentlyViewed" style="display: none;">
+                <h3 class="recently-viewed-title">সাম্প্রতিক দেখা তিলাওয়াত</h3>
+                <div class="recently-viewed-grid" id="tilawatRecentGrid">
+                    <!-- Recently viewed tilawat will be populated here -->
+                </div>
+            </div>
+
             <div class="tilawat-container">
                 <h3 class="section-title">কুরআন তিলাওয়াত</h3>
+                <div class="pagination" id="tilawatPagination">
+                    <!-- Pagination buttons will be added here -->
+                </div>
                 <div class="tilawat-grid" id="tilawatGrid">
                     <!-- Tilawat items will be populated from Firebase -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Cartoon Page -->
+        <div class="page" id="cartoonPage">
+            <header class="islamic-header">
+                <div class="app-title">
+                    <h1>Zikrayn</h1>
+                </div>
+                <div class="search-container">
+                    <input type="text" placeholder="কার্টুন খুঁজুন..." class="search-bar" id="cartoonSearch">
+                    <button class="search-btn"><i class="fas fa-search"></i></button>
+                </div>
+            </header>
+
+            <!-- Search Result Message -->
+            <div class="search-result-message" id="cartoonSearchResult"></div>
+
+            <!-- Recently Viewed Section -->
+            <div class="recently-viewed" id="cartoonRecentlyViewed" style="display: none;">
+                <h3 class="recently-viewed-title">সাম্প্রতিক দেখা কার্টুন</h3>
+                <div class="recently-viewed-grid" id="cartoonRecentGrid">
+                    <!-- Recently viewed cartoon will be populated here -->
+                </div>
+            </div>
+
+            <div class="cartoon-container">
+                <h3 class="section-title">ইসলামিক কার্টুন</h3>
+                <div class="pagination" id="cartoonPagination">
+                    <!-- Pagination buttons will be added here -->
+                </div>
+                <div class="cartoon-grid" id="cartoonGrid">
+                    <!-- Cartoon items will be populated from Firebase -->
                 </div>
             </div>
         </div>
@@ -1871,10 +2036,14 @@
         const masayelCollection = db.collection('masayel');
         const duaCollection = db.collection('dua');
         const tilawatCollection = db.collection('tilawat');
+        const cartoonCollection = db.collection('cartoon');
         const socialIconsCollection = db.collection('socialIcons');
         const searchLogCollection = db.collection('searchLogs');
         const prayerTimesCollection = db.collection('prayerTimes');
         const dateSettingsCollection = db.collection('dateSettings');
+
+        // Pagination settings
+        const ITEMS_PER_PAGE = 30;
 
         // Sample data for initial setup
         const sampleHadiths = [
@@ -1904,15 +2073,25 @@
             { title: "রমজানের গজল", videoUrl: "https://www.youtube.com/watch?v=hij456", keywords: ["রমজান", "গজল", "ইবাদত"] }
         ];
 
+        // Sample Cartoon data
+        const sampleCartoon = [
+            { title: "ইসলামিক কার্টুন - পর্ব ১", videoUrl: "https://www.youtube.com/watch?v=xyz123", keywords: ["ইসলামিক", "কার্টুন", "পর্ব ১"] },
+            { title: "ইসলামিক কার্টুন - পর্ব ২", videoUrl: "https://www.youtube.com/watch?v=uvw456", keywords: ["ইসলামিক", "কার্টুন", "পর্ব ২"] },
+            { title: "ইসলামিক কার্টুন - পর্ব ৩", videoUrl: "https://www.youtube.com/watch?v=rst789", keywords: ["ইসলামিক", "কার্টুন", "পর্ব ৩"] },
+            { title: "ইসলামিক কার্টুন - পর্ব ৪", videoUrl: "https://www.youtube.com/watch?v=opq012", keywords: ["ইসলামিক", "কার্টুন", "পর্ব ৪"] },
+            { title: "ইসলামিক কার্টুন - পর্ব ৫", videoUrl: "https://www.youtube.com/watch?v=lmn345", keywords: ["ইসলামিক", "কার্টুন", "পর্ব ৫"] },
+            { title: "ইসলামিক কার্টুন - পর্ব ৬", videoUrl: "https://www.youtube.com/watch?v=ijk678", keywords: ["ইসলামিক", "কার্টুন", "পর্ব ৬"] }
+        ];
+
         // Quran Data - All 114 Surahs
         const surahData = [
             { number: 1, arabic: "الفاتحة", name: "সূরা আল-ফাতিহা", ayat: 7, page: 1 },
             { number: 2, arabic: "البقرة", name: "সূরা আল-বাকারা", ayat: 286, page: 2 },
             { number: 3, arabic: "آل عمران", name: "সূরা আলে-ইমরান", ayat: 200, page: 50 },
-            { number: 4, arabic: "النساء", name: "সূরা আন-নিসا", ayat: 176, page: 77 },
+            { number: 4, arabic: "النساء", name: "সূরা আন-নিসা", ayat: 176, page: 77 },
             { number: 5, arabic: "المائدة", name: "সূরা আল-মায়িদাহ", ayat: 120, page: 106 },
             { number: 6, arabic: "الأنعام", name: "সূরা আল-আন'আম", ayat: 165, page: 128 },
-            { number: 7, arabic: "الأعراف", name: "সূরা আল-আ'রাফ", ayat: 206, page: 151 },
+            { number: 7, arabic: "الأعراف", name: "সূরা আল-আ'রاف", ayat: 206, page: 151 },
             { number: 8, arabic: "الأنفال", name: "সূরা আল-আনফাল", ayat: 75, page: 177 },
             { number: 9, arabic: "التوبة", name: "সূরা আত-তাওবাহ", ayat: 129, page: 187 },
             { number: 10, arabic: "يونس", name: "সূরা ইউনুস", ayat: 109, page: 208 },
@@ -1981,17 +2160,21 @@
             loadRandomHadithFromFirebase();
             
             // Load waz and gojol from Firebase
-            loadWazFromFirebase();
-            loadGojolFromFirebase();
+            loadWazFromFirebase(1);
+            loadGojolFromFirebase(1);
+            loadCartoonFromFirebase(1);
             
             // Load new data from Firebase
-            loadMasayelFromFirebase();
-            loadDuaFromFirebase();
-            loadTilawatFromFirebase();
+            loadMasayelFromFirebase(1);
+            loadDuaFromFirebase(1);
+            loadTilawatFromFirebase(1);
             loadSocialIconsFromFirebase();
             
             // Load Quran surahs
             loadSurahs();
+            
+            // Load recently viewed videos
+            loadRecentlyViewed();
             
             // Set up real-time listeners
             setupRealTimeWazListener();
@@ -1999,6 +2182,7 @@
             setupRealTimeMasayelListener();
             setupRealTimeDuaListener();
             setupRealTimeTilawatListener();
+            setupRealTimeCartoonListener();
             setupRealTimeSocialIconsListener();
             setupRealTimePrayerTimesListener();
             setupRealTimeDateSettingsListener();
@@ -2453,12 +2637,14 @@
             });
         }
 
-        // Firebase Functions for User App
-        function loadWazFromFirebase() {
+        // Firebase Functions for User App with Pagination
+        function loadWazFromFirebase(page = 1) {
             const wazGrid = document.getElementById('wazGrid');
             wazGrid.innerHTML = '<p style="text-align:center; padding:20px; color: var(--accent);">লোড হচ্ছে...</p>';
             
-            wazCollection.orderBy('timestamp', 'desc').limit(12).get()
+            wazCollection.orderBy('timestamp', 'desc')
+                .limit(ITEMS_PER_PAGE)
+                .get()
                 .then((querySnapshot) => {
                     wazGrid.innerHTML = '';
                     
@@ -2474,6 +2660,9 @@
                         const waz = doc.data();
                         createVideoItem(wazGrid, waz, 'waz');
                     });
+                    
+                    // Setup pagination
+                    setupPagination('waz', page);
                 })
                 .catch((error) => {
                     wazGrid.innerHTML = '<p style="text-align:center; padding:20px; color: #ff6b6b;">লোড করতে সমস্যা হচ্ছে</p>';
@@ -2481,11 +2670,13 @@
                 });
         }
 
-        function loadGojolFromFirebase() {
+        function loadGojolFromFirebase(page = 1) {
             const gojolGrid = document.getElementById('gojolGrid');
             gojolGrid.innerHTML = '<p style="text-align:center; padding:20px; color: var(--accent);">লোড হচ্ছে...</p>';
             
-            gojolCollection.orderBy('timestamp', 'desc').limit(12).get()
+            gojolCollection.orderBy('timestamp', 'desc')
+                .limit(ITEMS_PER_PAGE)
+                .get()
                 .then((querySnapshot) => {
                     gojolGrid.innerHTML = '';
                     
@@ -2501,6 +2692,9 @@
                         const gojol = doc.data();
                         createVideoItem(gojolGrid, gojol, 'gojol');
                     });
+                    
+                    // Setup pagination
+                    setupPagination('gojol', page);
                 })
                 .catch((error) => {
                     gojolGrid.innerHTML = '<p style="text-align:center; padding:20px; color: #ff6b6b;">লোড করতে সমস্যা হচ্ছে</p>';
@@ -2508,12 +2702,47 @@
                 });
         }
 
-        // Load Masayel from Firebase
-        function loadMasayelFromFirebase() {
+        // Load Cartoon from Firebase with Pagination
+        function loadCartoonFromFirebase(page = 1) {
+            const cartoonGrid = document.getElementById('cartoonGrid');
+            cartoonGrid.innerHTML = '<p style="text-align:center; padding:20px; color: var(--accent);">লোড হচ্ছে...</p>';
+            
+            cartoonCollection.orderBy('timestamp', 'desc')
+                .limit(ITEMS_PER_PAGE)
+                .get()
+                .then((querySnapshot) => {
+                    cartoonGrid.innerHTML = '';
+                    
+                    if (querySnapshot.empty) {
+                        // If no data in Firebase, use sample data
+                        sampleCartoon.forEach(cartoon => {
+                            createVideoItem(cartoonGrid, cartoon, 'cartoon');
+                        });
+                        return;
+                    }
+                    
+                    querySnapshot.forEach((doc) => {
+                        const cartoon = doc.data();
+                        createVideoItem(cartoonGrid, cartoon, 'cartoon');
+                    });
+                    
+                    // Setup pagination
+                    setupPagination('cartoon', page);
+                })
+                .catch((error) => {
+                    cartoonGrid.innerHTML = '<p style="text-align:center; padding:20px; color: #ff6b6b;">লোড করতে সমস্যা হচ্ছে</p>';
+                    console.error("Error loading cartoon: ", error);
+                });
+        }
+
+        // Load Masayel from Firebase with Pagination
+        function loadMasayelFromFirebase(page = 1) {
             const masayelGrid = document.getElementById('masayelGrid');
             masayelGrid.innerHTML = '<p style="text-align:center; padding:20px; color: var(--accent);">লোড হচ্ছে...</p>';
             
-            masayelCollection.orderBy('timestamp', 'desc').get()
+            masayelCollection.orderBy('timestamp', 'desc')
+                .limit(ITEMS_PER_PAGE)
+                .get()
                 .then((querySnapshot) => {
                     masayelGrid.innerHTML = '';
                     
@@ -2526,6 +2755,9 @@
                         const masayel = doc.data();
                         createMasayelItem(masayelGrid, masayel);
                     });
+                    
+                    // Setup pagination
+                    setupPagination('masayel', page);
                 })
                 .catch((error) => {
                     masayelGrid.innerHTML = '<p style="text-align:center; padding:20px; color: #ff6b6b;">লোড করতে সমস্যা হচ্ছে</p>';
@@ -2533,12 +2765,14 @@
                 });
         }
 
-        // Load Dua from Firebase
-        function loadDuaFromFirebase() {
+        // Load Dua from Firebase with Pagination
+        function loadDuaFromFirebase(page = 1) {
             const duaGrid = document.getElementById('duaGrid');
             duaGrid.innerHTML = '<p style="text-align:center; padding:20px; color: var(--accent);">লোড হচ্ছে...</p>';
             
-            duaCollection.orderBy('timestamp', 'desc').get()
+            duaCollection.orderBy('timestamp', 'desc')
+                .limit(ITEMS_PER_PAGE)
+                .get()
                 .then((querySnapshot) => {
                     duaGrid.innerHTML = '';
                     
@@ -2551,6 +2785,9 @@
                         const dua = doc.data();
                         createDuaItem(duaGrid, dua);
                     });
+                    
+                    // Setup pagination
+                    setupPagination('dua', page);
                 })
                 .catch((error) => {
                     duaGrid.innerHTML = '<p style="text-align:center; padding:20px; color: #ff6b6b;">লোড করতে সমস্যা হচ্ছে</p>';
@@ -2558,12 +2795,14 @@
                 });
         }
 
-        // Load Tilawat from Firebase
-        function loadTilawatFromFirebase() {
+        // Load Tilawat from Firebase with Pagination
+        function loadTilawatFromFirebase(page = 1) {
             const tilawatGrid = document.getElementById('tilawatGrid');
             tilawatGrid.innerHTML = '<p style="text-align:center; padding:20px; color: var(--accent);">লোড হচ্ছে...</p>';
             
-            tilawatCollection.orderBy('timestamp', 'desc').limit(12).get()
+            tilawatCollection.orderBy('timestamp', 'desc')
+                .limit(ITEMS_PER_PAGE)
+                .get()
                 .then((querySnapshot) => {
                     tilawatGrid.innerHTML = '';
                     
@@ -2574,8 +2813,11 @@
                     
                     querySnapshot.forEach((doc) => {
                         const tilawat = doc.data();
-                        createTilawatItem(tilawatGrid, tilawat);
+                        createVideoItem(tilawatGrid, tilawat, 'tilawat');
                     });
+                    
+                    // Setup pagination
+                    setupPagination('tilawat', page);
                 })
                 .catch((error) => {
                     tilawatGrid.innerHTML = '<p style="text-align:center; padding:20px; color: #ff6b6b;">লোড করতে সমস্যা হচ্ছে</p>';
@@ -2617,6 +2859,91 @@
                 });
         }
 
+        // Setup Pagination
+        function setupPagination(type, currentPage) {
+            let collection;
+            let paginationContainer;
+            
+            if (type === 'waz') {
+                collection = wazCollection;
+                paginationContainer = document.getElementById('wazPagination');
+            } else if (type === 'gojol') {
+                collection = gojolCollection;
+                paginationContainer = document.getElementById('gojolPagination');
+            } else if (type === 'masayel') {
+                collection = masayelCollection;
+                paginationContainer = document.getElementById('masayelPagination');
+            } else if (type === 'dua') {
+                collection = duaCollection;
+                paginationContainer = document.getElementById('duaPagination');
+            } else if (type === 'tilawat') {
+                collection = tilawatCollection;
+                paginationContainer = document.getElementById('tilawatPagination');
+            } else if (type === 'cartoon') {
+                collection = cartoonCollection;
+                paginationContainer = document.getElementById('cartoonPagination');
+            }
+            
+            // Get total count
+            collection.get().then((querySnapshot) => {
+                const totalItems = querySnapshot.size;
+                const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+                
+                // Clear pagination container
+                paginationContainer.innerHTML = '';
+                
+                // Previous button
+                const prevButton = document.createElement('button');
+                prevButton.className = 'pagination-btn';
+                prevButton.innerHTML = '<i class="fas fa-chevron-left"></i>';
+                prevButton.disabled = currentPage === 1;
+                prevButton.addEventListener('click', () => {
+                    if (currentPage > 1) {
+                        if (type === 'waz') loadWazFromFirebase(currentPage - 1);
+                        else if (type === 'gojol') loadGojolFromFirebase(currentPage - 1);
+                        else if (type === 'masayel') loadMasayelFromFirebase(currentPage - 1);
+                        else if (type === 'dua') loadDuaFromFirebase(currentPage - 1);
+                        else if (type === 'tilawat') loadTilawatFromFirebase(currentPage - 1);
+                        else if (type === 'cartoon') loadCartoonFromFirebase(currentPage - 1);
+                    }
+                });
+                paginationContainer.appendChild(prevButton);
+                
+                // Page numbers
+                for (let i = 1; i <= totalPages; i++) {
+                    const pageButton = document.createElement('button');
+                    pageButton.className = `pagination-btn ${i === currentPage ? 'active' : ''}`;
+                    pageButton.textContent = i;
+                    pageButton.addEventListener('click', () => {
+                        if (type === 'waz') loadWazFromFirebase(i);
+                        else if (type === 'gojol') loadGojolFromFirebase(i);
+                        else if (type === 'masayel') loadMasayelFromFirebase(i);
+                        else if (type === 'dua') loadDuaFromFirebase(i);
+                        else if (type === 'tilawat') loadTilawatFromFirebase(i);
+                        else if (type === 'cartoon') loadCartoonFromFirebase(i);
+                    });
+                    paginationContainer.appendChild(pageButton);
+                }
+                
+                // Next button
+                const nextButton = document.createElement('button');
+                nextButton.className = 'pagination-btn';
+                nextButton.innerHTML = '<i class="fas fa-chevron-right"></i>';
+                nextButton.disabled = currentPage === totalPages;
+                nextButton.addEventListener('click', () => {
+                    if (currentPage < totalPages) {
+                        if (type === 'waz') loadWazFromFirebase(currentPage + 1);
+                        else if (type === 'gojol') loadGojolFromFirebase(currentPage + 1);
+                        else if (type === 'masayel') loadMasayelFromFirebase(currentPage + 1);
+                        else if (type === 'dua') loadDuaFromFirebase(currentPage + 1);
+                        else if (type === 'tilawat') loadTilawatFromFirebase(currentPage + 1);
+                        else if (type === 'cartoon') loadCartoonFromFirebase(currentPage + 1);
+                    }
+                });
+                paginationContainer.appendChild(nextButton);
+            });
+        }
+
         function createVideoItem(container, item, type) {
             const videoItem = document.createElement('div');
             videoItem.className = 'video-item';
@@ -2632,7 +2959,10 @@
                 <div class="video-title">${item.title}</div>
             `;
             
-            videoItem.addEventListener('click', () => playVideo(item.videoUrl, item.title));
+            videoItem.addEventListener('click', () => {
+                playVideo(item.videoUrl, item.title);
+                addToRecentlyViewed(item, type);
+            });
             container.appendChild(videoItem);
         }
 
@@ -2667,25 +2997,6 @@
             `;
             
             container.appendChild(duaItem);
-        }
-
-        // Create Tilawat Item
-        function createTilawatItem(container, tilawat) {
-            const tilawatItem = document.createElement('div');
-            tilawatItem.className = 'tilawat-item';
-            tilawatItem.setAttribute('data-title', tilawat.title.toLowerCase());
-            
-            // Generate thumbnail URL from YouTube video ID
-            const videoId = getYouTubeId(tilawat.videoUrl);
-            const thumbnailUrl = tilawat.thumbnail || `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-            
-            tilawatItem.innerHTML = `
-                <img src="${thumbnailUrl}" class="tilawat-thumbnail" alt="${tilawat.title}" onerror="this.src='https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80'">
-                <div class="tilawat-title">${tilawat.title}</div>
-            `;
-            
-            tilawatItem.addEventListener('click', () => playVideo(tilawat.videoUrl, tilawat.title));
-            container.appendChild(tilawatItem);
         }
 
         // Create Social Icon
@@ -2736,7 +3047,8 @@
 
         // Real-time listeners for instant updates
         function setupRealTimeWazListener() {
-            wazCollection.orderBy('timestamp', 'desc').limit(12)
+            wazCollection.orderBy('timestamp', 'desc')
+                .limit(ITEMS_PER_PAGE)
                 .onSnapshot((querySnapshot) => {
                     const wazGrid = document.getElementById('wazGrid');
                     wazGrid.innerHTML = '';
@@ -2759,7 +3071,8 @@
         }
 
         function setupRealTimeGojolListener() {
-            gojolCollection.orderBy('timestamp', 'desc').limit(12)
+            gojolCollection.orderBy('timestamp', 'desc')
+                .limit(ITEMS_PER_PAGE)
                 .onSnapshot((querySnapshot) => {
                     const gojolGrid = document.getElementById('gojolGrid');
                     gojolGrid.innerHTML = '';
@@ -2784,6 +3097,7 @@
         // Real-time listeners for new collections
         function setupRealTimeMasayelListener() {
             masayelCollection.orderBy('timestamp', 'desc')
+                .limit(ITEMS_PER_PAGE)
                 .onSnapshot((querySnapshot) => {
                     const masayelGrid = document.getElementById('masayelGrid');
                     masayelGrid.innerHTML = '';
@@ -2804,6 +3118,7 @@
 
         function setupRealTimeDuaListener() {
             duaCollection.orderBy('timestamp', 'desc')
+                .limit(ITEMS_PER_PAGE)
                 .onSnapshot((querySnapshot) => {
                     const duaGrid = document.getElementById('duaGrid');
                     duaGrid.innerHTML = '';
@@ -2823,7 +3138,8 @@
         }
 
         function setupRealTimeTilawatListener() {
-            tilawatCollection.orderBy('timestamp', 'desc').limit(12)
+            tilawatCollection.orderBy('timestamp', 'desc')
+                .limit(ITEMS_PER_PAGE)
                 .onSnapshot((querySnapshot) => {
                     const tilawatGrid = document.getElementById('tilawatGrid');
                     tilawatGrid.innerHTML = '';
@@ -2835,10 +3151,34 @@
                     
                     querySnapshot.forEach((doc) => {
                         const tilawat = doc.data();
-                        createTilawatItem(tilawatGrid, tilawat);
+                        createVideoItem(tilawatGrid, tilawat, 'tilawat');
                     });
                 }, (error) => {
                     console.error("Real-time tilawat listener error: ", error);
+                });
+        }
+
+        function setupRealTimeCartoonListener() {
+            cartoonCollection.orderBy('timestamp', 'desc')
+                .limit(ITEMS_PER_PAGE)
+                .onSnapshot((querySnapshot) => {
+                    const cartoonGrid = document.getElementById('cartoonGrid');
+                    cartoonGrid.innerHTML = '';
+                    
+                    if (querySnapshot.empty) {
+                        // If no data in Firebase, use sample data
+                        sampleCartoon.forEach(cartoon => {
+                            createVideoItem(cartoonGrid, cartoon, 'cartoon');
+                        });
+                        return;
+                    }
+                    
+                    querySnapshot.forEach((doc) => {
+                        const cartoon = doc.data();
+                        createVideoItem(cartoonGrid, cartoon, 'cartoon');
+                    });
+                }, (error) => {
+                    console.error("Real-time cartoon listener error: ", error);
                 });
         }
 
@@ -2903,6 +3243,79 @@
             document.getElementById('masayelModalDescription').textContent = masayel.description;
             document.getElementById('masayelModal').classList.add('active');
             document.body.style.overflow = 'hidden';
+        }
+
+        // Recently Viewed Videos
+        function loadRecentlyViewed() {
+            const recentlyViewed = JSON.parse(localStorage.getItem('zikraynRecentlyViewed') || '{}');
+            
+            // Load recently viewed for each type
+            loadRecentlyViewedForType('waz', recentlyViewed);
+            loadRecentlyViewedForType('gojol', recentlyViewed);
+            loadRecentlyViewedForType('tilawat', recentlyViewed);
+            loadRecentlyViewedForType('cartoon', recentlyViewed);
+        }
+
+        function loadRecentlyViewedForType(type, recentlyViewed) {
+            const recentGrid = document.getElementById(`${type}RecentGrid`);
+            const recentlyViewedSection = document.getElementById(`${type}RecentlyViewed`);
+            
+            if (!recentlyViewed[type] || recentlyViewed[type].length === 0) {
+                recentlyViewedSection.style.display = 'none';
+                return;
+            }
+            
+            // Show the section
+            recentlyViewedSection.style.display = 'block';
+            
+            // Clear the grid
+            recentGrid.innerHTML = '';
+            
+            // Get the 5 most recent items
+            const recentItems = recentlyViewed[type].slice(0, 5);
+            
+            recentItems.forEach(item => {
+                const recentItem = document.createElement('div');
+                recentItem.className = 'recent-item';
+                
+                const videoId = getYouTubeId(item.videoUrl);
+                const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+                
+                recentItem.innerHTML = `
+                    <img src="${thumbnailUrl}" class="recent-thumbnail" alt="${item.title}" onerror="this.src='https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80'">
+                    <div class="recent-title">${item.title}</div>
+                `;
+                
+                recentItem.addEventListener('click', () => {
+                    playVideo(item.videoUrl, item.title);
+                });
+                
+                recentGrid.appendChild(recentItem);
+            });
+        }
+
+        function addToRecentlyViewed(item, type) {
+            const recentlyViewed = JSON.parse(localStorage.getItem('zikraynRecentlyViewed') || '{}');
+            
+            if (!recentlyViewed[type]) {
+                recentlyViewed[type] = [];
+            }
+            
+            // Remove if already exists
+            recentlyViewed[type] = recentlyViewed[type].filter(i => i.videoUrl !== item.videoUrl);
+            
+            // Add to the beginning
+            recentlyViewed[type].unshift(item);
+            
+            // Keep only the 5 most recent
+            if (recentlyViewed[type].length > 5) {
+                recentlyViewed[type] = recentlyViewed[type].slice(0, 5);
+            }
+            
+            localStorage.setItem('zikraynRecentlyViewed', JSON.stringify(recentlyViewed));
+            
+            // Update the display
+            loadRecentlyViewedForType(type, recentlyViewed);
         }
 
         function setupNavigation() {
@@ -3117,6 +3530,14 @@
                 }
             });
             
+            // Cartoon search
+            document.querySelector('#cartoonSearch + .search-btn').addEventListener('click', function() {
+                const query = document.getElementById('cartoonSearch').value;
+                if (query.trim()) {
+                    searchCartoon(query);
+                }
+            });
+            
             // Enter key support for search
             const searchInputs = document.querySelectorAll('.search-bar');
             searchInputs.forEach(input => {
@@ -3210,6 +3631,21 @@
                     const searchResult = document.getElementById('tilawatSearchResult');
                     
                     tilawatItems.forEach(item => {
+                        item.style.display = 'block';
+                    });
+                    
+                    searchResult.classList.remove('show');
+                }
+            });
+            
+            // Clear search when input is empty for Cartoon
+            document.getElementById('cartoonSearch').addEventListener('input', function() {
+                if (this.value.trim() === '') {
+                    const cartoonGrid = document.getElementById('cartoonGrid');
+                    const cartoonItems = cartoonGrid.querySelectorAll('.cartoon-item');
+                    const searchResult = document.getElementById('cartoonSearchResult');
+                    
+                    cartoonItems.forEach(item => {
                         item.style.display = 'block';
                     });
                     
@@ -3395,6 +3831,37 @@
                 logSearchQuery(query, 'tilawat');
             } else {
                 searchResult.textContent = `"${query}" এর জন্য ${foundItems} টি তিলাওয়াত পাওয়া গেছে।`;
+                searchResult.classList.add('show');
+            }
+        }
+
+        function searchCartoon(query) {
+            const cartoonGrid = document.getElementById('cartoonGrid');
+            const searchResult = document.getElementById('cartoonSearchResult');
+            const cartoonItems = cartoonGrid.querySelectorAll('.cartoon-item');
+            
+            let foundItems = 0;
+            
+            cartoonItems.forEach(item => {
+                const title = item.getAttribute('data-title');
+                const keywords = item.getAttribute('data-keywords');
+                
+                if (title.includes(query.toLowerCase()) || keywords.includes(query.toLowerCase())) {
+                    item.style.display = 'block';
+                    foundItems++;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            
+            if (foundItems === 0) {
+                searchResult.textContent = `"${query}" এর জন্য কোনো কার্টুন পাওয়া যায়নি।`;
+                searchResult.classList.add('show');
+                
+                // Log the search query to Firebase
+                logSearchQuery(query, 'cartoon');
+            } else {
+                searchResult.textContent = `"${query}" এর জন্য ${foundItems} টি কার্টুন পাওয়া গেছে।`;
                 searchResult.classList.add('show');
             }
         }
