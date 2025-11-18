@@ -580,6 +580,8 @@
             background: rgba(255,255,255,0.05);
             border-radius: 15px;
             transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
         }
 
         /* Desktop Prayer Item */
@@ -594,6 +596,19 @@
         .prayer-item:hover {
             background: rgba(255,255,255,0.08);
             transform: translateY(-2px);
+        }
+
+        /* নামাজের সময় হাইলাইট করার স্টাইল */
+        .prayer-item.active {
+            background: rgba(212, 175, 55, 0.2) !important;
+            border: 1px solid var(--accent) !important;
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3) !important;
+        }
+        
+        .prayer-item.next {
+            background: rgba(13, 139, 13, 0.1) !important;
+            border: 1px solid var(--secondary) !important;
         }
 
         .prayer-name {
@@ -611,6 +626,38 @@
 
         .prayer-time {
             font-weight: bold;
+        }
+
+        /* নামাজের সময় শেষ হওয়ার জন্য কাউন্টডাউন স্টাইল */
+        .prayer-countdown {
+            font-size: 0.8rem;
+            color: var(--accent);
+            margin-top: 5px;
+            font-weight: bold;
+        }
+        
+        /* নামাজের সময় প্রোগ্রেস বার */
+        .prayer-progress {
+            width: 100%;
+            height: 4px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 2px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+        
+        .prayer-progress-bar {
+            height: 100%;
+            background: var(--accent);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+        
+        /* নামাজের সময় ডিউরেশন */
+        .prayer-duration {
+            font-size: 0.7rem;
+            color: #aaa;
+            margin-top: 3px;
         }
 
         /* Hadith Section */
@@ -2091,7 +2138,7 @@
             { number: 4, arabic: "النساء", name: "সূরা আন-নিসা", ayat: 176, page: 77 },
             { number: 5, arabic: "المائدة", name: "সূরা আল-মায়িদাহ", ayat: 120, page: 106 },
             { number: 6, arabic: "الأنعام", name: "সূরা আল-আন'আম", ayat: 165, page: 128 },
-            { number: 7, arabic: "الأعراف", name: "সূরা আল-আ'রاف", ayat: 206, page: 151 },
+            { number: 7, arabic: "الأعراف", name: "সূরা আল-আ'রাফ", ayat: 206, page: 151 },
             { number: 8, arabic: "الأنفال", name: "সূরা আল-আনফাল", ayat: 75, page: 177 },
             { number: 9, arabic: "التوبة", name: "সূরা আত-তাওবাহ", ayat: 129, page: 187 },
             { number: 10, arabic: "يونس", name: "সূরা ইউনুস", ayat: 109, page: 208 },
@@ -2195,6 +2242,10 @@
             
             // Set up search functionality
             setupSearch();
+            
+            // নতুন ফিচারগুলো ইনিশিয়ালাইজেশন
+            startPrayerTimeHighlighting();
+            updatePrayerDurations();
         }
 
         function initSlideshow() {
@@ -2455,16 +2506,21 @@
             }
         }
 
-        // Firebase থেকে নামাজের সময় আপডেট করার ফাংশন
+        // Firebase থেকে নামাজের সময় লোড করা
         function updatePrayerTimesForLocation(country, district) {
             const locationKey = `${country}_${district}`;
             
-            // Firebase থেকে নামাজের সময় লোড করুন
             prayerTimesCollection.doc(locationKey).get()
                 .then((doc) => {
                     if (doc.exists) {
                         const prayerTimes = doc.data();
                         updatePrayerTimesDisplay(prayerTimes);
+                        
+                        // নামাজের ডিউরেশন আপডেট করুন
+                        updatePrayerDurations(prayerTimes);
+                        
+                        // সক্রিয় নামাজ হাইলাইটিং শুরু করুন
+                        highlightCurrentPrayer();
                     } else {
                         // Firebase-এ ডেটা না থাকলে API থেকে লোড করুন
                         updatePrayerTimesFromAPI(country, district);
@@ -2475,6 +2531,242 @@
                     // API থেকে লোড করুন
                     updatePrayerTimesFromAPI(country, district);
                 });
+        }
+
+        // নামাজের সময় ডিসপ্লে আপডেট
+        function updatePrayerTimesDisplay(prayerTimes) {
+            document.getElementById('fajrTime').textContent = prayerTimes.fajr || "--:--";
+            document.getElementById('dhuhrTime').textContent = prayerTimes.dhuhr || "--:--";
+            document.getElementById('asrTime').textContent = prayerTimes.asr || "--:--";
+            document.getElementById('maghribTime').textContent = prayerTimes.maghrib || "--:--";
+            document.getElementById('ishaTime').textContent = prayerTimes.isha || "--:--";
+            
+            // নামাজের ডিউরেশন আপডেট
+            updatePrayerDurations(prayerTimes);
+        }
+
+        // নামাজের ডিউরেশন আপডেট করার ফাংশন
+        function updatePrayerDurations(prayerTimes = null) {
+            const prayers = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
+            const prayerElements = {
+                'fajr': document.getElementById('fajrTime'),
+                'dhuhr': document.getElementById('dhuhrTime'),
+                'asr': document.getElementById('asrTime'),
+                'maghrib': document.getElementById('maghribTime'),
+                'isha': document.getElementById('ishaTime')
+            };
+            
+            // প্রতিটি নামাজের আইটেমে ডিউরেশন যোগ করুন
+            prayers.forEach(prayer => {
+                const prayerItem = prayerElements[prayer].closest('.prayer-item');
+                let durationElement = prayerItem.querySelector('.prayer-duration');
+                
+                if (!durationElement) {
+                    durationElement = document.createElement('div');
+                    durationElement.className = 'prayer-duration';
+                    prayerItem.appendChild(durationElement);
+                }
+                
+                // ডিফল্ট ডিউরেশন সেট করুন (মিনিটে)
+                const durations = {
+                    'fajr': 30,   // ফজর: ৩০ মিনিট
+                    'dhuhr': 120, // জোহর: ২ ঘন্টা
+                    'asr': 120,   // আসর: ২ ঘন্টা
+                    'maghrib': 30, // মাগরিব: ৩০ মিনিট
+                    'isha': 120   // ইশা: ২ ঘন্টা
+                };
+                
+                durationElement.textContent = `${durations[prayer]} মিনিট`;
+            });
+        }
+
+        // সক্রিয় নামাজ হাইলাইটিং
+        function startPrayerTimeHighlighting() {
+            // প্রতি মিনিটে চেক করুন
+            setInterval(() => {
+                highlightCurrentPrayer();
+                updatePrayerCountdowns();
+            }, 60000); // 60000ms = 1 minute
+            
+            // প্রথমবারের মতো হাইলাইট করুন
+            highlightCurrentPrayer();
+            updatePrayerCountdowns();
+        }
+
+        // বর্তমান নামাজ হাইলাইট করুন
+        function highlightCurrentPrayer() {
+            const now = new Date();
+            const currentTime = now.getHours() * 60 + now.getMinutes(); // মিনিটে বর্তমান সময়
+            
+            // নামাজের সময়গুলো সংগ্রহ করুন
+            const prayerTimes = getCurrentPrayerTimes();
+            if (!prayerTimes) return;
+            
+            const prayers = [
+                { name: 'fajr', time: prayerTimes.fajr, element: document.getElementById('fajrTime').closest('.prayer-item') },
+                { name: 'dhuhr', time: prayerTimes.dhuhr, element: document.getElementById('dhuhrTime').closest('.prayer-item') },
+                { name: 'asr', time: prayerTimes.asr, element: document.getElementById('asrTime').closest('.prayer-item') },
+                { name: 'maghrib', time: prayerTimes.maghrib, element: document.getElementById('maghribTime').closest('.prayer-item') },
+                { name: 'isha', time: prayerTimes.isha, element: document.getElementById('ishaTime').closest('.prayer-item') }
+            ];
+            
+            // সকল নামাজ থেকে active ক্লাস সরান
+            prayers.forEach(prayer => {
+                if (prayer.element) {
+                    prayer.element.classList.remove('active', 'next');
+                    
+                    // কাউন্টডাউন এলিমেন্ট সরান
+                    let countdownElement = prayer.element.querySelector('.prayer-countdown');
+                    if (countdownElement) {
+                        countdownElement.remove();
+                    }
+                    
+                    // প্রোগ্রেস বার সরান
+                    let progressElement = prayer.element.querySelector('.prayer-progress');
+                    if (progressElement) {
+                        progressElement.remove();
+                    }
+                }
+            });
+            
+            // বর্তমান এবং পরবর্তী নামাজ খুঁজে বের করুন
+            let currentPrayer = null;
+            let nextPrayer = null;
+            
+            for (let i = 0; i < prayers.length; i++) {
+                const prayerTime = convertTimeToMinutes(prayers[i].time);
+                
+                if (prayerTime > currentTime) {
+                    nextPrayer = prayers[i];
+                    break;
+                }
+                currentPrayer = prayers[i];
+            }
+            
+            // যদি পরবর্তী নামাজ না পাওয়া যায় (ইশার পর ফজর পর্যন্ত)
+            if (!nextPrayer) {
+                nextPrayer = prayers[0]; // ফজর
+            }
+            
+            // বর্তমান নামাজ হাইলাইট করুন
+            if (currentPrayer && currentPrayer.element) {
+                currentPrayer.element.classList.add('active');
+                
+                // প্রোগ্রেস বার যোগ করুন
+                const progressContainer = document.createElement('div');
+                progressContainer.className = 'prayer-progress';
+                
+                const progressBar = document.createElement('div');
+                progressBar.className = 'prayer-progress-bar';
+                
+                // বর্তমান নামাজের শেষ সময় বের করুন
+                const currentPrayerEndTime = convertTimeToMinutes(nextPrayer.time);
+                const progress = ((currentTime - convertTimeToMinutes(currentPrayer.time)) / 
+                                (currentPrayerEndTime - convertTimeToMinutes(currentPrayer.time))) * 100;
+                
+                progressBar.style.width = `${Math.min(progress, 100)}%`;
+                progressContainer.appendChild(progressBar);
+                currentPrayer.element.appendChild(progressContainer);
+            }
+            
+            // পরবর্তী নামাজ হাইলাইট করুন
+            if (nextPrayer && nextPrayer.element) {
+                nextPrayer.element.classList.add('next');
+                
+                // কাউন্টডাউন যোগ করুন
+                const countdownElement = document.createElement('div');
+                countdownElement.className = 'prayer-countdown';
+                nextPrayer.element.appendChild(countdownElement);
+            }
+        }
+
+        // নামাজের কাউন্টডাউন আপডেট করুন
+        function updatePrayerCountdowns() {
+            const now = new Date();
+            const currentTime = now.getHours() * 60 + now.getMinutes();
+            
+            const prayerTimes = getCurrentPrayerTimes();
+            if (!prayerTimes) return;
+            
+            const prayers = [
+                { name: 'fajr', time: prayerTimes.fajr },
+                { name: 'dhuhr', time: prayerTimes.dhuhr },
+                { name: 'asr', time: prayerTimes.asr },
+                { name: 'maghrib', time: prayerTimes.maghrib },
+                { name: 'isha', time: prayerTimes.isha }
+            ];
+            
+            // পরবর্তী নামাজ খুঁজে বের করুন
+            let nextPrayer = null;
+            
+            for (let i = 0; i < prayers.length; i++) {
+                const prayerTime = convertTimeToMinutes(prayers[i].time);
+                
+                if (prayerTime > currentTime) {
+                    nextPrayer = prayers[i];
+                    break;
+                }
+            }
+            
+            // যদি পরবর্তী নামাজ না পাওয়া যায় (ইশার পর ফজর পর্যন্ত)
+            if (!nextPrayer) {
+                nextPrayer = prayers[0]; // ফজর
+            }
+            
+            // কাউন্টডাউন আপডেট করুন
+            const nextPrayerTime = convertTimeToMinutes(nextPrayer.time);
+            let timeRemaining = nextPrayerTime - currentTime;
+            
+            // যদি পরবর্তী দিনের নামাজ হয়
+            if (timeRemaining < 0) {
+                timeRemaining += 24 * 60; // 24 ঘন্টা যোগ করুন
+            }
+            
+            const hours = Math.floor(timeRemaining / 60);
+            const minutes = timeRemaining % 60;
+            
+            // কাউন্টডাউন এলিমেন্ট আপডেট করুন
+            const countdownElements = document.querySelectorAll('.prayer-countdown');
+            countdownElements.forEach(element => {
+                if (hours > 0) {
+                    element.textContent = `${hours} ঘন্টা ${minutes} মিনিট`;
+                } else {
+                    element.textContent = `${minutes} মিনিট`;
+                }
+            });
+        }
+
+        // সাহায্যকারী ফাংশন: সময় স্ট্রিংকে মিনিটে রূপান্তর করুন
+        function convertTimeToMinutes(timeStr) {
+            if (!timeStr || timeStr === "--:--") return 0;
+            
+            try {
+                // সময় ফরম্যাট: "HH:MM AM/PM"
+                const [timePart, period] = timeStr.split(' ');
+                let [hours, minutes] = timePart.split(':').map(Number);
+                
+                if (period === 'PM' && hours !== 12) {
+                    hours += 12;
+                } else if (period === 'AM' && hours === 12) {
+                    hours = 0;
+                }
+                
+                return hours * 60 + minutes;
+            } catch (error) {
+                console.error('Time conversion error:', error);
+                return 0;
+            }
+        }
+
+        // সাহায্যকারী ফাংশন: বর্তমান নামাজের সময়গুলো পান
+        function getCurrentPrayerTimes() {
+            return {
+                fajr: document.getElementById('fajrTime').textContent,
+                dhuhr: document.getElementById('dhuhrTime').textContent,
+                asr: document.getElementById('asrTime').textContent,
+                maghrib: document.getElementById('maghribTime').textContent,
+                isha: document.getElementById('ishaTime').textContent
+            };
         }
 
         // API থেকে নামাজের সময় আপডেট করার ফাংশন
@@ -2576,15 +2868,6 @@
             }
         }
 
-        // নামাজের সময় ডিসপ্লে আপডেট করুন
-        function updatePrayerTimesDisplay(prayerTimes) {
-            document.getElementById('fajrTime').textContent = prayerTimes.fajr || "--:--";
-            document.getElementById('dhuhrTime').textContent = prayerTimes.dhuhr || "--:--";
-            document.getElementById('asrTime').textContent = prayerTimes.asr || "--:--";
-            document.getElementById('maghribTime').textContent = prayerTimes.maghrib || "--:--";
-            document.getElementById('ishaTime').textContent = prayerTimes.isha || "--:--";
-        }
-
         // Real-time listener for prayer times
         function setupRealTimePrayerTimesListener() {
             const savedLocation = localStorage.getItem('zikraynLocation');
@@ -2596,6 +2879,12 @@
                     if (doc.exists) {
                         const prayerTimes = doc.data();
                         updatePrayerTimesDisplay(prayerTimes);
+                        
+                        // নামাজের ডিউরেশন আপডেট করুন
+                        updatePrayerDurations(prayerTimes);
+                        
+                        // সক্রিয় নামাজ হাইলাইটিং আপডেট করুন
+                        highlightCurrentPrayer();
                     }
                 });
             }
