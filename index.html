@@ -1889,6 +1889,19 @@
 
             <div class="dua-container">
                 <h3 class="section-title">দোয়া সমগ্র</h3>
+                
+                <!-- Dua Categories -->
+                <div class="masayel-categories" id="duaCategories">
+                    <button class="category-btn active" data-category="all">সব</button>
+                    <button class="category-btn" data-category="সকাল-সন্ধ্যা">সকাল-সন্ধ্যা</button>
+                    <button class="category-btn" data-category="নামাজ">নামাজ</button>
+                    <button class="category-btn" data-category="রোজা">রোজা</button>
+                    <button class="category-btn" data-category="খাওয়া-দাওয়া">খাওয়া-দাওয়া</button>
+                    <button class="category-btn" data-category="ঘুম">ঘুম</button>
+                    <button class="category-btn" data-category="বিপদ-আপদ">বিপদ-আপদ</button>
+                    <button class="category-btn" data-category="অন্যান্য">অন্যান্য</button>
+                </div>
+
                 <div class="pagination" id="duaPagination">
                     <!-- Pagination buttons will be added here -->
                 </div>
@@ -1986,6 +1999,26 @@
             </div>
         </div>
 
+        <!-- Masayel Question Modal -->
+        <div class="masayel-modal" id="masayelQuestionModal">
+            <div class="masayel-modal-content">
+                <button class="close-masayel-modal" id="closeMasayelQuestionModal"><i class="fas fa-times"></i></button>
+                <h3 class="masayel-modal-title">মাসায়েল জিজ্ঞাসা করুন</h3>
+                <div class="form-group" style="margin-top: 20px;">
+                    <label for="userQuestion">আপনার প্রশ্ন লিখুন</label>
+                    <textarea id="userQuestion" placeholder="আপনার মাসায়েল সম্পর্কিত প্রশ্নটি এখানে বিস্তারিত লিখুন..." style="width: 100%; min-height: 150px; padding: 12px; border-radius: 10px; background: rgba(255,255,255,0.1); color: white; border: none;"></textarea>
+                </div>
+                <div class="form-actions" style="margin-top: 20px; display: flex; gap: 10px;">
+                    <button class="btn btn-primary" id="sendQuestionBtn" style="padding: 12px 20px; background: var(--accent); color: var(--dark); border: none; border-radius: 10px; cursor: pointer; font-weight: bold;">
+                        <i class="fas fa-paper-plane"></i> প্রশ্ন পাঠান
+                    </button>
+                    <button class="btn btn-secondary" id="cancelQuestionBtn" style="padding: 12px 20px; background: rgba(255,255,255,0.1); color: white; border: none; border-radius: 10px; cursor: pointer;">
+                        বাতিল করুন
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Updated Footer Navigation -->
         <footer class="main-footer">
             <div class="nav-icons">
@@ -2041,6 +2074,8 @@
         const searchLogCollection = db.collection('searchLogs');
         const prayerTimesCollection = db.collection('prayerTimes');
         const dateSettingsCollection = db.collection('dateSettings');
+        const questionsCollection = db.collection('questions');
+        const repliesCollection = db.collection('replies');
 
         // Pagination settings
         const ITEMS_PER_PAGE = 30;
@@ -2233,6 +2268,9 @@
             
             // Set up search functionality
             setupSearch();
+            
+            // Set up Masayel question functionality
+            setupMasayelQuestion();
         }
 
         function initSlideshow() {
@@ -3078,6 +3116,7 @@
             const duaItem = document.createElement('div');
             duaItem.className = 'dua-item';
             duaItem.setAttribute('data-title', dua.title.toLowerCase());
+            duaItem.setAttribute('data-category', dua.category || 'all');
             
             duaItem.innerHTML = `
                 <div class="dua-title">${dua.title}</div>
@@ -3491,6 +3530,28 @@
                     // Filter masayel items
                     const masayelItems = document.querySelectorAll('.masayel-item');
                     masayelItems.forEach(item => {
+                        if (category === 'all' || item.getAttribute('data-category') === category) {
+                            item.style.display = 'block';
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                });
+            });
+            
+            // Dua category filtering
+            const duaCategoryButtons = document.querySelectorAll('#duaCategories .category-btn');
+            duaCategoryButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const category = button.getAttribute('data-category');
+                    
+                    // Update active category button
+                    duaCategoryButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    
+                    // Filter dua items
+                    const duaItems = document.querySelectorAll('.dua-item');
+                    duaItems.forEach(item => {
                         if (category === 'all' || item.getAttribute('data-category') === category) {
                             item.style.display = 'block';
                         } else {
@@ -3970,6 +4031,86 @@
                 .catch((error) => {
                     console.error("Error logging search query: ", error);
                 });
+        }
+
+        // Setup Masayel Question Functionality
+        function setupMasayelQuestion() {
+            // Add "মাসায়েল জিজ্ঞাসা করুন" button to masayel page
+            const masayelContainer = document.querySelector('.masayel-container');
+            const questionButton = document.createElement('button');
+            questionButton.id = 'masayelQuestionBtn';
+            questionButton.className = 'btn btn-primary';
+            questionButton.style.margin = '20px auto';
+            questionButton.style.display = 'block';
+            questionButton.style.padding = '12px 25px';
+            questionButton.innerHTML = '<i class="fas fa-question-circle"></i> মাসায়েল জিজ্ঞাসা করুন';
+            
+            // Insert the button after the categories
+            const categories = document.getElementById('masayelCategories');
+            categories.parentNode.insertBefore(questionButton, categories.nextSibling);
+            
+            // Add event listener to the question button
+            questionButton.addEventListener('click', function() {
+                document.getElementById('masayelQuestionModal').classList.add('active');
+                document.body.style.overflow = 'hidden';
+            });
+            
+            // Close question modal
+            document.getElementById('closeMasayelQuestionModal').addEventListener('click', function() {
+                document.getElementById('masayelQuestionModal').classList.remove('active');
+                document.body.style.overflow = 'auto';
+            });
+            
+            // Cancel question button
+            document.getElementById('cancelQuestionBtn').addEventListener('click', function() {
+                document.getElementById('masayelQuestionModal').classList.remove('active');
+                document.body.style.overflow = 'auto';
+            });
+            
+            // Send question button
+            document.getElementById('sendQuestionBtn').addEventListener('click', function() {
+                const questionText = document.getElementById('userQuestion').value.trim();
+                
+                if (!questionText) {
+                    alert('দয়া করে আপনার প্রশ্নটি লিখুন।');
+                    return;
+                }
+                
+                // Get user profile data
+                const savedProfile = localStorage.getItem('zikraynProfile');
+                let userData = {};
+                
+                if (savedProfile) {
+                    userData = JSON.parse(savedProfile);
+                }
+                
+                // Save question to Firebase
+                questionsCollection.add({
+                    question: questionText,
+                    userName: userData.name || 'অজানা ব্যবহারকারী',
+                    userMobile: userData.mobile || '',
+                    userEmail: userData.email || '',
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    status: 'pending' // pending, answered
+                })
+                .then(() => {
+                    alert('আপনার প্রশ্নটি সফলভাবে জমা দেওয়া হয়েছে! আমরা শীঘ্রই উত্তর দেব।');
+                    document.getElementById('userQuestion').value = '';
+                    document.getElementById('masayelQuestionModal').classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                })
+                .catch((error) => {
+                    alert('প্রশ্ন জমা দিতে সমস্যা হয়েছে: ' + error.message);
+                });
+            });
+            
+            // Close question modal when clicking outside
+            document.getElementById('masayelQuestionModal').addEventListener('click', function(e) {
+                if (e.target.id === 'masayelQuestionModal') {
+                    document.getElementById('masayelQuestionModal').classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                }
+            });
         }
     </script>
 </body>
