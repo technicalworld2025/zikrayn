@@ -233,6 +233,69 @@
             gap: 10px;
         }
 
+        /* Additional styles for enhanced notifications */
+        .notification-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--card-bg);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            border-left: 4px solid var(--accent);
+            z-index: 3000;
+            max-width: 300px;
+            cursor: pointer;
+            animation: slideInRight 0.3s ease;
+        }
+        
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes slideOutRight {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+        
+        /* Enhanced notification modal */
+        .notification-modal-content {
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        
+        .notification-modal-body {
+            white-space: pre-line;
+            line-height: 1.6;
+        }
+        
+        /* Question answer styling */
+        .question-answer {
+            background: rgba(255,255,255,0.05);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+        
+        .question-answer-title {
+            font-weight: bold;
+            color: var(--accent);
+            margin-bottom: 10px;
+        }
+        
+        .question-answer-content {
+            line-height: 1.6;
+        }
+        
+        .question-answer-meta {
+            font-size: 0.8rem;
+            color: #aaa;
+            margin-top: 10px;
+            text-align: right;
+        }
+
         /* Responsive Styles for User App */
         @media (max-width: 767px) {
             .notification-dropdown {
@@ -1645,37 +1708,9 @@
             background: #e6c44d;
         }
 
-        /* Pagination Styles */
+        /* Remove pagination styles since we're removing pagination */
         .pagination {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-top: 20px;
-            gap: 10px;
-        }
-
-        .pagination-btn {
-            padding: 8px 15px;
-            background: rgba(255,255,255,0.1);
-            border: none;
-            border-radius: 5px;
-            color: var(--light);
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .pagination-btn:hover {
-            background: rgba(255,255,255,0.15);
-        }
-
-        .pagination-btn.active {
-            background: var(--accent);
-            color: var(--dark);
-        }
-
-        .pagination-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
+            display: none;
         }
 
         /* Mobile Responsive */
@@ -1961,9 +1996,6 @@
 
             <div class="recent-waz">
                 <h3 class="section-title">সকল ওয়াজ</h3>
-                <div class="pagination" id="wazPagination">
-                    <!-- Pagination buttons will be added here -->
-                </div>
                 <div class="video-grid" id="wazGrid">
                     <!-- Waz items will be populated from Firebase -->
                 </div>
@@ -1995,9 +2027,6 @@
 
             <div class="recent-gojol">
                 <h3 class="section-title">সকল গজল</h3>
-                <div class="pagination" id="gojolPagination">
-                    <!-- Pagination buttons will be added here -->
-                </div>
                 <div class="video-grid" id="gojolGrid">
                     <!-- Gojol items will be populated from Firebase -->
                 </div>
@@ -2077,9 +2106,6 @@
                     <button class="category-btn" data-category="অন্যান্য">অন্যান্য</button>
                 </div>
 
-                <div class="pagination" id="masayelPagination">
-                    <!-- Pagination buttons will be added here -->
-                </div>
                 <div class="masayel-grid" id="masayelGrid">
                     <!-- Masayel items will be populated from Firebase -->
                 </div>
@@ -2116,9 +2142,6 @@
                     <button class="category-btn" data-category="অন্যান্য">অন্যান্য</button>
                 </div>
 
-                <div class="pagination" id="duaPagination">
-                    <!-- Pagination buttons will be added here -->
-                </div>
                 <div class="dua-grid" id="duaGrid">
                     <!-- Dua items will be populated from Firebase -->
                 </div>
@@ -2150,9 +2173,6 @@
 
             <div class="tilawat-container">
                 <h3 class="section-title">কুরআন তিলাওয়াত</h3>
-                <div class="pagination" id="tilawatPagination">
-                    <!-- Pagination buttons will be added here -->
-                </div>
                 <div class="tilawat-grid" id="tilawatGrid">
                     <!-- Tilawat items will be populated from Firebase -->
                 </div>
@@ -2184,9 +2204,6 @@
 
             <div class="cartoon-container">
                 <h3 class="section-title">ইসলামিক কার্টুন</h3>
-                <div class="pagination" id="cartoonPagination">
-                    <!-- Pagination buttons will be added here -->
-                </div>
                 <div class="cartoon-grid" id="cartoonGrid">
                     <!-- Cartoon items will be populated from Firebase -->
                 </div>
@@ -2306,8 +2323,8 @@
         const notificationsCollection = db.collection('notifications');
         const userNotificationsCollection = db.collection('userNotifications');
 
-        // Pagination settings
-        const ITEMS_PER_PAGE = 30;
+        // Remove pagination limit - load all content
+        const ITEMS_PER_PAGE = 1000; // Large number to effectively disable pagination
 
         // Sample data for initial setup
         const sampleHadiths = [
@@ -2450,12 +2467,12 @@
             updatePrayerTimes();
             checkAutoLocationOnStartup();
             loadRandomHadithFromFirebase();
-            loadWazFromFirebase(1);
-            loadGojolFromFirebase(1);
-            loadCartoonFromFirebase(1);
-            loadMasayelFromFirebase(1);
-            loadDuaFromFirebase(1);
-            loadTilawatFromFirebase(1);
+            loadWazFromFirebase(); // No page parameter needed
+            loadGojolFromFirebase(); // No page parameter needed
+            loadCartoonFromFirebase(); // No page parameter needed
+            loadMasayelFromFirebase(); // No page parameter needed
+            loadDuaFromFirebase(); // No page parameter needed
+            loadTilawatFromFirebase(); // No page parameter needed
             loadSocialIconsFromFirebase();
             loadSurahs();
             loadRecentlyViewed();
@@ -2475,6 +2492,9 @@
             
             // Initialize notification system for user app
             initializeUserNotificationSystem();
+            
+            // Set up real-time listener for admin notices and question replies
+            setupGeneralNotificationsListener();
         }
 
         // Initialize User Notification System
@@ -2619,21 +2639,6 @@
             // Create toast element
             const toast = document.createElement('div');
             toast.className = 'notification-toast';
-            toast.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: var(--card-bg);
-                color: white;
-                padding: 15px 20px;
-                border-radius: 10px;
-                box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-                border-left: 4px solid var(--accent);
-                z-index: 3000;
-                max-width: 300px;
-                cursor: pointer;
-                animation: slideInRight 0.3s ease;
-            `;
             
             toast.innerHTML = `
                 <div style="font-weight: bold; margin-bottom: 5px; color: var(--accent);">${notification.title || 'নতুন নোটিশ'}</div>
@@ -2680,46 +2685,72 @@
         // Show user notification details in modal
         function showUserNotificationDetails(notification) {
             document.getElementById('notificationModalTitle').textContent = notification.title || 'নোটিশ';
-            document.getElementById('notificationModalBody').textContent = notification.message;
+            
+            // If it's a question answer notification, show the answer
+            if (notification.relatedQuestionId) {
+                showQuestionAnswer(notification.relatedQuestionId, notification);
+            } else {
+                // Regular notice
+                document.getElementById('notificationModalBody').innerHTML = `
+                    <div class="notification-modal-body">${notification.message}</div>
+                `;
+            }
+            
             document.getElementById('notificationModal').classList.add('active');
             document.body.style.overflow = 'hidden';
             
             // Close dropdown
             document.getElementById('notificationDropdown').classList.remove('active');
-            
-            // If it's a question answer notification, show the answer
-            if (notification.relatedQuestionId) {
-                showQuestionAnswer(notification.relatedQuestionId);
-            }
         }
 
         // Show question answer when notification is clicked
-        function showQuestionAnswer(questionId) {
+        function showQuestionAnswer(questionId, notification) {
             // Find the reply for this question
             repliesCollection.where('questionId', '==', questionId)
                 .orderBy('timestamp', 'desc')
                 .limit(1)
                 .get()
                 .then((querySnapshot) => {
+                    let modalBody = '';
+                    
                     if (!querySnapshot.empty) {
                         querySnapshot.forEach((doc) => {
                             const reply = doc.data();
-                            document.getElementById('notificationModalBody').innerHTML = `
-                                <div style="margin-bottom: 15px;">
-                                    <strong>আপনার প্রশ্নের উত্তর:</strong>
-                                </div>
-                                <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px;">
-                                    ${reply.answer}
-                                </div>
-                                <div style="margin-top: 10px; font-size: 0.9rem; color: #aaa;">
-                                    উত্তরদাতা: ${reply.answeredBy}
+                            modalBody = `
+                                <div class="notification-modal-body">
+                                    <div class="question-answer">
+                                        <div class="question-answer-title">আপনার প্রশ্নের উত্তর:</div>
+                                        <div class="question-answer-content">${reply.answer}</div>
+                                        <div class="question-answer-meta">উত্তরদাতা: ${reply.answeredBy}</div>
+                                    </div>
                                 </div>
                             `;
                         });
+                    } else {
+                        modalBody = `
+                            <div class="notification-modal-body">
+                                <div class="question-answer">
+                                    <div class="question-answer-title">আপনার প্রশ্ন:</div>
+                                    <div class="question-answer-content">${notification.message}</div>
+                                    <div class="question-answer-meta">এই প্রশ্নের উত্তর এখনও দেওয়া হয়নি</div>
+                                </div>
+                            </div>
+                        `;
                     }
+                    
+                    document.getElementById('notificationModalBody').innerHTML = modalBody;
                 })
                 .catch((error) => {
                     console.error("Error loading reply: ", error);
+                    document.getElementById('notificationModalBody').innerHTML = `
+                        <div class="notification-modal-body">
+                            <div class="question-answer">
+                                <div class="question-answer-title">আপনার প্রশ্ন:</div>
+                                <div class="question-answer-content">${notification.message}</div>
+                                <div class="question-answer-meta">উত্তর লোড করতে সমস্যা হয়েছে</div>
+                            </div>
+                        </div>
+                    `;
                 });
         }
 
@@ -2807,7 +2838,7 @@
                                             sourceId: change.doc.id,
                                             title: notification.title,
                                             message: notification.message,
-                                            type: notification.type,
+                                            type: 'notice',
                                             timestamp: notification.timestamp,
                                             read: false
                                         });
@@ -2821,10 +2852,229 @@
                 }, (error) => {
                     console.error("Real-time general notifications listener error: ", error);
                 });
+            
+            // Also listen for question replies
+            repliesCollection.orderBy('timestamp', 'desc')
+                .limit(10)
+                .onSnapshot((querySnapshot) => {
+                    const userId = getUserId();
+                    
+                    querySnapshot.docChanges().forEach((change) => {
+                        if (change.type === 'added') {
+                            const reply = change.doc.data();
+                            
+                            // Check if this is a reply to a question asked by this user
+                            questionsCollection.doc(reply.questionId).get()
+                                .then((questionDoc) => {
+                                    if (questionDoc.exists) {
+                                        const question = questionDoc.data();
+                                        
+                                        // Check if this user asked the question
+                                        // For now, we'll assume all questions are from this user
+                                        // In a real app, you'd have user authentication
+                                        
+                                        // Check if this reply notification already exists
+                                        userNotificationsCollection.where('userId', '==', userId)
+                                            .where('relatedQuestionId', '==', reply.questionId)
+                                            .get()
+                                            .then((querySnapshot) => {
+                                                if (querySnapshot.empty) {
+                                                    // Add to user notifications
+                                                    userNotificationsCollection.add({
+                                                        userId: userId,
+                                                        relatedQuestionId: reply.questionId,
+                                                        title: 'আপনার প্রশ্নের উত্তর',
+                                                        message: question.question,
+                                                        type: 'question_reply',
+                                                        timestamp: reply.timestamp,
+                                                        read: false
+                                                    });
+                                                }
+                                            })
+                                            .catch((error) => {
+                                                console.error("Error checking existing reply notification: ", error);
+                                            });
+                                    }
+                                })
+                                .catch((error) => {
+                                    console.error("Error getting question: ", error);
+                                });
+                        }
+                    });
+                }, (error) => {
+                    console.error("Real-time replies listener error: ", error);
+                });
         }
 
-        // Initialize general notifications listener
-        setupGeneralNotificationsListener();
+        // Modified Firebase Functions without Pagination
+        function loadWazFromFirebase() {
+            const wazGrid = document.getElementById('wazGrid');
+            wazGrid.innerHTML = '<p style="text-align:center; padding:20px; color: var(--accent);">লোড হচ্ছে...</p>';
+            
+            wazCollection.orderBy('timestamp', 'desc')
+                .limit(ITEMS_PER_PAGE) // Large limit to effectively disable pagination
+                .get()
+                .then((querySnapshot) => {
+                    wazGrid.innerHTML = '';
+                    
+                    if (querySnapshot.empty) {
+                        // If no data in Firebase, use sample data
+                        sampleWaz.forEach(waz => {
+                            createVideoItem(wazGrid, waz, 'waz');
+                        });
+                        return;
+                    }
+                    
+                    querySnapshot.forEach((doc) => {
+                        const waz = doc.data();
+                        createVideoItem(wazGrid, waz, 'waz');
+                    });
+                })
+                .catch((error) => {
+                    wazGrid.innerHTML = '<p style="text-align:center; padding:20px; color: #ff6b6b;">লোড করতে সমস্যা হচ্ছে</p>';
+                    console.error("Error loading waz: ", error);
+                });
+        }
+
+        function loadGojolFromFirebase() {
+            const gojolGrid = document.getElementById('gojolGrid');
+            gojolGrid.innerHTML = '<p style="text-align:center; padding:20px; color: var(--accent);">লোড হচ্ছে...</p>';
+            
+            gojolCollection.orderBy('timestamp', 'desc')
+                .limit(ITEMS_PER_PAGE)
+                .get()
+                .then((querySnapshot) => {
+                    gojolGrid.innerHTML = '';
+                    
+                    if (querySnapshot.empty) {
+                        // If no data in Firebase, use sample data
+                        sampleGojol.forEach(gojol => {
+                            createVideoItem(gojolGrid, gojol, 'gojol');
+                        });
+                        return;
+                    }
+                    
+                    querySnapshot.forEach((doc) => {
+                        const gojol = doc.data();
+                        createVideoItem(gojolGrid, gojol, 'gojol');
+                    });
+                })
+                .catch((error) => {
+                    gojolGrid.innerHTML = '<p style="text-align:center; padding:20px; color: #ff6b6b;">লোড করতে সমস্যা হচ্ছে</p>';
+                    console.error("Error loading gojol: ", error);
+                });
+        }
+
+        // Load Cartoon from Firebase without Pagination
+        function loadCartoonFromFirebase() {
+            const cartoonGrid = document.getElementById('cartoonGrid');
+            cartoonGrid.innerHTML = '<p style="text-align:center; padding:20px; color: var(--accent);">লোড হচ্ছে...</p>';
+            
+            cartoonCollection.orderBy('timestamp', 'desc')
+                .limit(ITEMS_PER_PAGE)
+                .get()
+                .then((querySnapshot) => {
+                    cartoonGrid.innerHTML = '';
+                    
+                    if (querySnapshot.empty) {
+                        // If no data in Firebase, use sample data
+                        sampleCartoon.forEach(cartoon => {
+                            createVideoItem(cartoonGrid, cartoon, 'cartoon');
+                        });
+                        return;
+                    }
+                    
+                    querySnapshot.forEach((doc) => {
+                        const cartoon = doc.data();
+                        createVideoItem(cartoonGrid, cartoon, 'cartoon');
+                    });
+                })
+                .catch((error) => {
+                    cartoonGrid.innerHTML = '<p style="text-align:center; padding:20px; color: #ff6b6b;">লোড করতে সমস্যা হচ্ছে</p>';
+                    console.error("Error loading cartoon: ", error);
+                });
+        }
+
+        // Load Masayel from Firebase without Pagination
+        function loadMasayelFromFirebase() {
+            const masayelGrid = document.getElementById('masayelGrid');
+            masayelGrid.innerHTML = '<p style="text-align:center; padding:20px; color: var(--accent);">লোড হচ্ছে...</p>';
+            
+            masayelCollection.orderBy('timestamp', 'desc')
+                .limit(ITEMS_PER_PAGE)
+                .get()
+                .then((querySnapshot) => {
+                    masayelGrid.innerHTML = '';
+                    
+                    if (querySnapshot.empty) {
+                        masayelGrid.innerHTML = '<p style="text-align:center; padding:20px; color: #aaa;">কোনো মাসায়েল পাওয়া যায়নি</p>';
+                        return;
+                    }
+                    
+                    querySnapshot.forEach((doc) => {
+                        const masayel = doc.data();
+                        createMasayelItem(masayelGrid, masayel);
+                    });
+                })
+                .catch((error) => {
+                    masayelGrid.innerHTML = '<p style="text-align:center; padding:20px; color: #ff6b6b;">লোড করতে সমস্যা হচ্ছে</p>';
+                    console.error("Error loading masayel: ", error);
+                });
+        }
+
+        // Load Dua from Firebase without Pagination
+        function loadDuaFromFirebase() {
+            const duaGrid = document.getElementById('duaGrid');
+            duaGrid.innerHTML = '<p style="text-align:center; padding:20px; color: var(--accent);">লোড হচ্ছে...</p>';
+            
+            duaCollection.orderBy('timestamp', 'desc')
+                .limit(ITEMS_PER_PAGE)
+                .get()
+                .then((querySnapshot) => {
+                    duaGrid.innerHTML = '';
+                    
+                    if (querySnapshot.empty) {
+                        duaGrid.innerHTML = '<p style="text-align:center; padding:20px; color: #aaa;">কোনো দোয়া পাওয়া যায়নি</p>';
+                        return;
+                    }
+                    
+                    querySnapshot.forEach((doc) => {
+                        const dua = doc.data();
+                        createDuaItem(duaGrid, dua);
+                    });
+                })
+                .catch((error) => {
+                    duaGrid.innerHTML = '<p style="text-align:center; padding:20px; color: #ff6b6b;">লোড করতে সমস্যা হচ্ছে</p>';
+                    console.error("Error loading dua: ", error);
+                });
+        }
+
+        // Load Tilawat from Firebase without Pagination
+        function loadTilawatFromFirebase() {
+            const tilawatGrid = document.getElementById('tilawatGrid');
+            tilawatGrid.innerHTML = '<p style="text-align:center; padding:20px; color: var(--accent);">লোড হচ্ছে...</p>';
+            
+            tilawatCollection.orderBy('timestamp', 'desc')
+                .limit(ITEMS_PER_PAGE)
+                .get()
+                .then((querySnapshot) => {
+                    tilawatGrid.innerHTML = '';
+                    
+                    if (querySnapshot.empty) {
+                        tilawatGrid.innerHTML = '<p style="text-align:center; padding:20px; color: #aaa;">কোনো তিলাওয়াত পাওয়া যায়নি</p>';
+                        return;
+                    }
+                    
+                    querySnapshot.forEach((doc) => {
+                        const tilawat = doc.data();
+                        createVideoItem(tilawatGrid, tilawat, 'tilawat');
+                    });
+                })
+                .catch((error) => {
+                    tilawatGrid.innerHTML = '<p style="text-align:center; padding:20px; color: #ff6b6b;">লোড করতে সমস্যা হচ্ছে</p>';
+                    console.error("Error loading tilawat: ", error);
+                });
+        }
 
         // All other existing functions remain the same
         function initSlideshow() {
@@ -3319,194 +3569,6 @@
             });
         }
 
-        // Firebase Functions for User App with Pagination
-        function loadWazFromFirebase(page = 1) {
-            const wazGrid = document.getElementById('wazGrid');
-            wazGrid.innerHTML = '<p style="text-align:center; padding:20px; color: var(--accent);">লোড হচ্ছে...</p>';
-            
-            wazCollection.orderBy('timestamp', 'desc')
-                .limit(ITEMS_PER_PAGE)
-                .get()
-                .then((querySnapshot) => {
-                    wazGrid.innerHTML = '';
-                    
-                    if (querySnapshot.empty) {
-                        // If no data in Firebase, use sample data
-                        sampleWaz.forEach(waz => {
-                            createVideoItem(wazGrid, waz, 'waz');
-                        });
-                        return;
-                    }
-                    
-                    querySnapshot.forEach((doc) => {
-                        const waz = doc.data();
-                        createVideoItem(wazGrid, waz, 'waz');
-                    });
-                    
-                    // Setup pagination
-                    setupPagination('waz', page);
-                })
-                .catch((error) => {
-                    wazGrid.innerHTML = '<p style="text-align:center; padding:20px; color: #ff6b6b;">লোড করতে সমস্যা হচ্ছে</p>';
-                    console.error("Error loading waz: ", error);
-                });
-        }
-
-        function loadGojolFromFirebase(page = 1) {
-            const gojolGrid = document.getElementById('gojolGrid');
-            gojolGrid.innerHTML = '<p style="text-align:center; padding:20px; color: var(--accent);">লোড হচ্ছে...</p>';
-            
-            gojolCollection.orderBy('timestamp', 'desc')
-                .limit(ITEMS_PER_PAGE)
-                .get()
-                .then((querySnapshot) => {
-                    gojolGrid.innerHTML = '';
-                    
-                    if (querySnapshot.empty) {
-                        // If no data in Firebase, use sample data
-                        sampleGojol.forEach(gojol => {
-                            createVideoItem(gojolGrid, gojol, 'gojol');
-                        });
-                        return;
-                    }
-                    
-                    querySnapshot.forEach((doc) => {
-                        const gojol = doc.data();
-                        createVideoItem(gojolGrid, gojol, 'gojol');
-                    });
-                    
-                    // Setup pagination
-                    setupPagination('gojol', page);
-                })
-                .catch((error) => {
-                    gojolGrid.innerHTML = '<p style="text-align:center; padding:20px; color: #ff6b6b;">লোড করতে সমস্যা হচ্ছে</p>';
-                    console.error("Error loading gojol: ", error);
-                });
-        }
-
-        // Load Cartoon from Firebase with Pagination
-        function loadCartoonFromFirebase(page = 1) {
-            const cartoonGrid = document.getElementById('cartoonGrid');
-            cartoonGrid.innerHTML = '<p style="text-align:center; padding:20px; color: var(--accent);">লোড হচ্ছে...</p>';
-            
-            cartoonCollection.orderBy('timestamp', 'desc')
-                .limit(ITEMS_PER_PAGE)
-                .get()
-                .then((querySnapshot) => {
-                    cartoonGrid.innerHTML = '';
-                    
-                    if (querySnapshot.empty) {
-                        // If no data in Firebase, use sample data
-                        sampleCartoon.forEach(cartoon => {
-                            createVideoItem(cartoonGrid, cartoon, 'cartoon');
-                        });
-                        return;
-                    }
-                    
-                    querySnapshot.forEach((doc) => {
-                        const cartoon = doc.data();
-                        createVideoItem(cartoonGrid, cartoon, 'cartoon');
-                    });
-                    
-                    // Setup pagination
-                    setupPagination('cartoon', page);
-                })
-                .catch((error) => {
-                    cartoonGrid.innerHTML = '<p style="text-align:center; padding:20px; color: #ff6b6b;">লোড করতে সমস্যা হচ্ছে</p>';
-                    console.error("Error loading cartoon: ", error);
-                });
-        }
-
-        // Load Masayel from Firebase with Pagination
-        function loadMasayelFromFirebase(page = 1) {
-            const masayelGrid = document.getElementById('masayelGrid');
-            masayelGrid.innerHTML = '<p style="text-align:center; padding:20px; color: var(--accent);">লোড হচ্ছে...</p>';
-            
-            masayelCollection.orderBy('timestamp', 'desc')
-                .limit(ITEMS_PER_PAGE)
-                .get()
-                .then((querySnapshot) => {
-                    masayelGrid.innerHTML = '';
-                    
-                    if (querySnapshot.empty) {
-                        masayelGrid.innerHTML = '<p style="text-align:center; padding:20px; color: #aaa;">কোনো মাসায়েল পাওয়া যায়নি</p>';
-                        return;
-                    }
-                    
-                    querySnapshot.forEach((doc) => {
-                        const masayel = doc.data();
-                        createMasayelItem(masayelGrid, masayel);
-                    });
-                    
-                    // Setup pagination
-                    setupPagination('masayel', page);
-                })
-                .catch((error) => {
-                    masayelGrid.innerHTML = '<p style="text-align:center; padding:20px; color: #ff6b6b;">লোড করতে সমস্যা হচ্ছে</p>';
-                    console.error("Error loading masayel: ", error);
-                });
-        }
-
-        // Load Dua from Firebase with Pagination
-        function loadDuaFromFirebase(page = 1) {
-            const duaGrid = document.getElementById('duaGrid');
-            duaGrid.innerHTML = '<p style="text-align:center; padding:20px; color: var(--accent);">লোড হচ্ছে...</p>';
-            
-            duaCollection.orderBy('timestamp', 'desc')
-                .limit(ITEMS_PER_PAGE)
-                .get()
-                .then((querySnapshot) => {
-                    duaGrid.innerHTML = '';
-                    
-                    if (querySnapshot.empty) {
-                        duaGrid.innerHTML = '<p style="text-align:center; padding:20px; color: #aaa;">কোনো দোয়া পাওয়া যায়নি</p>';
-                        return;
-                    }
-                    
-                    querySnapshot.forEach((doc) => {
-                        const dua = doc.data();
-                        createDuaItem(duaGrid, dua);
-                    });
-                    
-                    // Setup pagination
-                    setupPagination('dua', page);
-                })
-                .catch((error) => {
-                    duaGrid.innerHTML = '<p style="text-align:center; padding:20px; color: #ff6b6b;">লোড করতে সমস্যা হচ্ছে</p>';
-                    console.error("Error loading dua: ", error);
-                });
-        }
-
-        // Load Tilawat from Firebase with Pagination
-        function loadTilawatFromFirebase(page = 1) {
-            const tilawatGrid = document.getElementById('tilawatGrid');
-            tilawatGrid.innerHTML = '<p style="text-align:center; padding:20px; color: var(--accent);">লোড হচ্ছে...</p>';
-            
-            tilawatCollection.orderBy('timestamp', 'desc')
-                .limit(ITEMS_PER_PAGE)
-                .get()
-                .then((querySnapshot) => {
-                    tilawatGrid.innerHTML = '';
-                    
-                    if (querySnapshot.empty) {
-                        tilawatGrid.innerHTML = '<p style="text-align:center; padding:20px; color: #aaa;">কোনো তিলাওয়াত পাওয়া যায়নি</p>';
-                        return;
-                    }
-                    
-                    querySnapshot.forEach((doc) => {
-                        const tilawat = doc.data();
-                        createVideoItem(tilawatGrid, tilawat, 'tilawat');
-                    });
-                    
-                    // Setup pagination
-                    setupPagination('tilawat', page);
-                })
-                .catch((error) => {
-                    tilawatGrid.innerHTML = '<p style="text-align:center; padding:20px; color: #ff6b6b;">লোড করতে সমস্যা হচ্ছে</p>';
-                    console.error("Error loading tilawat: ", error);
-                });
-        }
-
         // Load Social Icons from Firebase
         function loadSocialIconsFromFirebase() {
             const socialLinks = document.getElementById('socialLinks');
@@ -3539,91 +3601,6 @@
                 .catch((error) => {
                     console.error("Error loading social icons: ", error);
                 });
-        }
-
-        // Setup Pagination
-        function setupPagination(type, currentPage) {
-            let collection;
-            let paginationContainer;
-            
-            if (type === 'waz') {
-                collection = wazCollection;
-                paginationContainer = document.getElementById('wazPagination');
-            } else if (type === 'gojol') {
-                collection = gojolCollection;
-                paginationContainer = document.getElementById('gojolPagination');
-            } else if (type === 'masayel') {
-                collection = masayelCollection;
-                paginationContainer = document.getElementById('masayelPagination');
-            } else if (type === 'dua') {
-                collection = duaCollection;
-                paginationContainer = document.getElementById('duaPagination');
-            } else if (type === 'tilawat') {
-                collection = tilawatCollection;
-                paginationContainer = document.getElementById('tilawatPagination');
-            } else if (type === 'cartoon') {
-                collection = cartoonCollection;
-                paginationContainer = document.getElementById('cartoonPagination');
-            }
-            
-            // Get total count
-            collection.get().then((querySnapshot) => {
-                const totalItems = querySnapshot.size;
-                const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
-                
-                // Clear pagination container
-                paginationContainer.innerHTML = '';
-                
-                // Previous button
-                const prevButton = document.createElement('button');
-                prevButton.className = 'pagination-btn';
-                prevButton.innerHTML = '<i class="fas fa-chevron-left"></i>';
-                prevButton.disabled = currentPage === 1;
-                prevButton.addEventListener('click', () => {
-                    if (currentPage > 1) {
-                        if (type === 'waz') loadWazFromFirebase(currentPage - 1);
-                        else if (type === 'gojol') loadGojolFromFirebase(currentPage - 1);
-                        else if (type === 'masayel') loadMasayelFromFirebase(currentPage - 1);
-                        else if (type === 'dua') loadDuaFromFirebase(currentPage - 1);
-                        else if (type === 'tilawat') loadTilawatFromFirebase(currentPage - 1);
-                        else if (type === 'cartoon') loadCartoonFromFirebase(currentPage - 1);
-                    }
-                });
-                paginationContainer.appendChild(prevButton);
-                
-                // Page numbers
-                for (let i = 1; i <= totalPages; i++) {
-                    const pageButton = document.createElement('button');
-                    pageButton.className = `pagination-btn ${i === currentPage ? 'active' : ''}`;
-                    pageButton.textContent = i;
-                    pageButton.addEventListener('click', () => {
-                        if (type === 'waz') loadWazFromFirebase(i);
-                        else if (type === 'gojol') loadGojolFromFirebase(i);
-                        else if (type === 'masayel') loadMasayelFromFirebase(i);
-                        else if (type === 'dua') loadDuaFromFirebase(i);
-                        else if (type === 'tilawat') loadTilawatFromFirebase(i);
-                        else if (type === 'cartoon') loadCartoonFromFirebase(i);
-                    });
-                    paginationContainer.appendChild(pageButton);
-                }
-                
-                // Next button
-                const nextButton = document.createElement('button');
-                nextButton.className = 'pagination-btn';
-                nextButton.innerHTML = '<i class="fas fa-chevron-right"></i>';
-                nextButton.disabled = currentPage === totalPages;
-                nextButton.addEventListener('click', () => {
-                    if (currentPage < totalPages) {
-                        if (type === 'waz') loadWazFromFirebase(currentPage + 1);
-                        else if (type === 'gojol') loadGojolFromFirebase(currentPage + 1);
-                        else if (type === 'masayel') loadMasayelFromFirebase(currentPage + 1);
-                        else if (type === 'dua') loadDuaFromFirebase(currentPage + 1);
-                        else if (type === 'tilawat') loadTilawatFromFirebase(currentPage + 1);
-                        else if (type === 'cartoon') loadCartoonFromFirebase(currentPage + 1);
-                    }
-                });
-                paginationContainer.appendChild(nextButton);
-            });
         }
 
         function createVideoItem(container, item, type) {
