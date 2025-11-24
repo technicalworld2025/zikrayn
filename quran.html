@@ -785,9 +785,10 @@
             
             // Use placeholder image - replace with actual Quran page images
             pageElement.innerHTML = `
-                <img src="https://via.placeholder.com/800x1200/1a5e1a/ffffff?text=Quran+Page+${pageNumber}" alt="কুরআন পাতা ${pageNumber}">
-                <div class="quran-page-info">পাতা: ${pageNumber} | ${currentItem.name}</div>
-            `;
+        <img src="quran-pages/page-${pageNumber}.jpg" alt="কুরআন পাতা ${pageNumber}">
+        <div class="quran-page-info">পাতা: ${pageNumber} | ${currentItem.name}</div>
+    `;
+}
             
             modalBody.appendChild(pageElement);
             
