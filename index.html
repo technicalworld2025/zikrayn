@@ -475,6 +475,71 @@
             overflow: hidden;
         }
 
+        /* New styles for compact page buttons */
+        .compact-page-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .compact-page-btn {
+            background: var(--card-bg);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--light);
+            padding: 12px 8px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 5px;
+        }
+
+        .compact-page-btn:hover {
+            background: rgba(255,255,255,0.08);
+            transform: translateY(-2px);
+        }
+
+        .compact-page-btn i {
+            font-size: 1.2rem;
+            color: var(--accent);
+        }
+
+        .compact-page-btn span {
+            font-size: 0.75rem;
+            font-weight: bold;
+            line-height: 1.2;
+        }
+
+        /* Desktop styles for compact buttons */
+        @media (min-width: 768px) {
+            .compact-page-buttons {
+                gap: 15px;
+                margin: 20px 0;
+            }
+            
+            .compact-page-btn {
+                padding: 15px 10px;
+            }
+            
+            .compact-page-btn i {
+                font-size: 1.4rem;
+            }
+            
+            .compact-page-btn span {
+                font-size: 0.8rem;
+            }
+        }
+
+        /* Hide the original additional pages section */
+        .additional-pages {
+            display: none;
+        }
+
         /* Splash Screen */
         .splash-screen {
             position: fixed;
@@ -1969,6 +2034,23 @@
             .recently-viewed-grid {
                 grid-template-columns: repeat(3, 1fr);
             }
+            
+            .compact-page-buttons {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+            
+            .compact-page-btn {
+                padding: 10px 5px;
+            }
+            
+            .compact-page-btn i {
+                font-size: 1rem;
+            }
+            
+            .compact-page-btn span {
+                font-size: 0.7rem;
+            }
         }
 
         /* YouTube-Style Video Player Page */
@@ -2372,6 +2454,26 @@
                 </div>
             </div>
 
+            <!-- Compact Page Buttons - Moved below slideshow -->
+            <div class="compact-page-buttons">
+                <button class="compact-page-btn" data-page="masayel">
+                    <i class="fas fa-question-circle"></i>
+                    <span>মাসায়েল</span>
+                </button>
+                <button class="compact-page-btn" data-page="dua">
+                    <i class="fas fa-hands-praying"></i>
+                    <span>দোয়া</span>
+                </button>
+                <button class="compact-page-btn" data-page="tilawat">
+                    <i class="fas fa-microphone"></i>
+                    <span>তিলাওয়াত</span>
+                </button>
+                <button class="compact-page-btn" data-page="cartoon">
+                    <i class="fas fa-video"></i>
+                    <span>ইসলামিক কার্টুন</span>
+                </button>
+            </div>
+
             <div class="time-display">
                 <div class="date-row">
                     <div class="date-item">
@@ -2464,27 +2566,9 @@
                 <p class="hadith-text" id="randomHadith">লোড হচ্ছে...</p>
             </div>
 
-            <!-- Additional Pages Section -->
+            <!-- Original Additional Pages Section - Now Hidden -->
             <div class="additional-pages">
-                <h3 class="section-title">অন্যান্য সেকশন</h3>
-                <div class="page-buttons">
-                    <button class="page-btn" data-page="masayel">
-                        <i class="fas fa-question-circle"></i>
-                        <span>মাসায়েল</span>
-                    </button>
-                    <button class="page-btn" data-page="dua">
-                        <i class="fas fa-hands-praying"></i>
-                        <span>দোয়া</span>
-                    </button>
-                    <button class="page-btn" data-page="tilawat">
-                        <i class="fas fa-microphone"></i>
-                        <span>তিলাওয়াত</span>
-                    </button>
-                    <button class="page-btn" data-page="cartoon">
-                        <i class="fas fa-video"></i>
-                        <span>ইসলামিক কার্টুন</span>
-                    </button>
-                </div>
+                <!-- This section is hidden with CSS -->
             </div>
         </div>
 
@@ -3117,6 +3201,10 @@
         let currentQuranItem = null;
         let currentPageIndex = 0;
 
+        // Track previous page for back navigation
+        let previousPage = 'home';
+        let currentPage = 'home';
+
         // App initialization
         document.addEventListener('DOMContentLoaded', function() {
             // Show splash screen for 3 seconds
@@ -3416,8 +3504,17 @@
                 iframe.src = '';
             }
             
-            // Show home page
-            document.getElementById('homePage').classList.add('active');
+            // Show previous page instead of always home page
+            document.getElementById(`${previousPage}Page`).classList.add('active');
+            
+            // Update navigation button
+            const navButtons = document.querySelectorAll('.nav-btn');
+            navButtons.forEach(btn => {
+                if (btn.getAttribute('data-page') === previousPage) {
+                    navButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                }
+            });
             
             // Restore body scrolling
             document.body.style.overflow = 'auto';
@@ -5172,12 +5269,16 @@
         function setupNavigation() {
             const navButtons = document.querySelectorAll('.nav-btn');
             const pages = document.querySelectorAll('.page');
-            const pageButtons = document.querySelectorAll('.page-btn');
+            const pageButtons = document.querySelectorAll('.page-btn, .compact-page-btn');
             
             // Main navigation
             navButtons.forEach(button => {
                 button.addEventListener('click', () => {
                     const targetPage = button.getAttribute('data-page');
+                    
+                    // Update previous page
+                    previousPage = currentPage;
+                    currentPage = targetPage;
                     
                     // Update active button
                     navButtons.forEach(btn => btn.classList.remove('active'));
@@ -5192,31 +5293,40 @@
                 });
             });
             
-            // Additional page buttons
+            // Additional page buttons (including compact buttons)
             pageButtons.forEach(button => {
                 button.addEventListener('click', () => {
                     const targetPage = button.getAttribute('data-page');
+                    
+                    // Update previous page
+                    previousPage = currentPage;
+                    currentPage = targetPage;
                     
                     // Show target page
                     pages.forEach(page => page.classList.remove('active'));
                     document.getElementById(`${targetPage}Page`).classList.add('active');
                     
-                    // Update navigation button
-                    navButtons.forEach(btn => btn.classList.remove('active'));
+                    // Update navigation button if it's a main nav page
+                    navButtons.forEach(btn => {
+                        if (btn.getAttribute('data-page') === targetPage) {
+                            navButtons.forEach(b => b.classList.remove('active'));
+                            btn.classList.add('active');
+                        }
+                    });
                     
                     // Scroll to top when changing pages
                     window.scrollTo(0, 0);
                 });
             });
             
-            // Close video popup
+            // Close video popup - Modified to return to previous page
             document.getElementById('closeVideo').addEventListener('click', () => {
                 document.getElementById('videoPopup').classList.remove('active');
                 document.getElementById('videoPlayer').innerHTML = '';
                 document.body.style.overflow = 'auto'; // Restore scrolling
             });
             
-            // Close popup when clicking outside
+            // Close popup when clicking outside - Modified to return to previous page
             document.getElementById('videoPopup').addEventListener('click', (e) => {
                 if (e.target.id === 'videoPopup') {
                     document.getElementById('videoPopup').classList.remove('active');
@@ -5225,18 +5335,23 @@
                 }
             });
             
-            // Close masayel modal
+            // Close masayel modal - Modified to return to previous page
             document.getElementById('closeMasayelModal').addEventListener('click', () => {
                 document.getElementById('masayelModal').classList.remove('active');
                 document.body.style.overflow = 'auto';
             });
             
-            // Close masayel modal when clicking outside
+            // Close masayel modal when clicking outside - Modified to return to previous page
             document.getElementById('masayelModal').addEventListener('click', (e) => {
                 if (e.target.id === 'masayelModal') {
                     document.getElementById('masayelModal').classList.remove('active');
                     document.body.style.overflow = 'auto';
                 }
+            });
+            
+            // Modified back button for YouTube-style video player
+            document.getElementById('backFromVideoPlayer').addEventListener('click', function() {
+                closeVideoPlayer();
             });
             
             // Masayel category filtering
