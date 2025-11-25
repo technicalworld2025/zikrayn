@@ -1970,6 +1970,342 @@
                 grid-template-columns: repeat(3, 1fr);
             }
         }
+
+        /* YouTube-Style Video Player Page */
+        .video-player-page {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--dark);
+            z-index: 2000;
+            overflow-y: auto;
+        }
+
+        .video-player-page.active {
+            display: block;
+        }
+
+        .video-player-header {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: var(--card-bg);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: var(--light);
+            font-size: 1.5rem;
+            margin-right: 15px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .video-player-title {
+            font-size: 1.1rem;
+            color: var(--light);
+            font-weight: bold;
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .video-player-container {
+            width: 100%;
+            max-width: 100%;
+            background: #000;
+            position: relative;
+        }
+
+        .video-player {
+            width: 100%;
+            height: 0;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            position: relative;
+        }
+
+        .video-player iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .video-player-controls {
+            padding: 15px;
+            background: var(--card-bg);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .video-actions {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 15px;
+        }
+
+        .video-action-btn {
+            background: none;
+            border: none;
+            color: var(--light);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .video-action-btn:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .video-action-btn i {
+            font-size: 1.3rem;
+        }
+
+        .video-action-btn span {
+            font-size: 0.8rem;
+        }
+
+        .video-info {
+            padding: 15px;
+            background: var(--card-bg);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .video-channel-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .channel-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+        }
+
+        .channel-avatar i {
+            font-size: 1.5rem;
+            color: var(--dark);
+        }
+
+        .channel-details {
+            flex: 1;
+        }
+
+        .channel-name {
+            font-weight: bold;
+            color: var(--light);
+            margin-bottom: 5px;
+        }
+
+        .channel-subscribers {
+            font-size: 0.8rem;
+            color: #aaa;
+        }
+
+        .subscribe-btn {
+            background: var(--accent);
+            color: var(--dark);
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .subscribe-btn:hover {
+            background: #e6c44d;
+        }
+
+        .video-description {
+            color: var(--light);
+            line-height: 1.5;
+            font-size: 0.9rem;
+        }
+
+        .related-videos {
+            padding: 15px;
+            background: var(--card-bg);
+        }
+
+        .related-videos-title {
+            font-size: 1.2rem;
+            color: var(--light);
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .related-videos-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .related-video-item {
+            display: flex;
+            gap: 10px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .related-video-item:hover {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .related-video-thumbnail {
+            width: 120px;
+            height: 70px;
+            border-radius: 8px;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .related-video-details {
+            flex: 1;
+        }
+
+        .related-video-title {
+            font-size: 0.9rem;
+            color: var(--light);
+            margin-bottom: 5px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .related-video-channel {
+            font-size: 0.8rem;
+            color: #aaa;
+        }
+
+        /* Double tap controls */
+        .double-tap-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .double-tap-overlay.active {
+            display: flex;
+        }
+
+        .double-tap-indicator {
+            width: 80px;
+            height: 80px;
+            background: rgba(0,0,0,0.7);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .double-tap-left {
+            position: absolute;
+            left: 20%;
+            transform: translateX(-50%);
+        }
+
+        .double-tap-right {
+            position: absolute;
+            right: 20%;
+            transform: translateX(50%);
+        }
+
+        /* Fullscreen styles */
+        .video-player-page.fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 3000;
+        }
+
+        .video-player-page.fullscreen .video-player-container {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .video-player-page.fullscreen .video-player {
+            flex: 1;
+            padding-bottom: 0;
+        }
+
+        .video-player-page.fullscreen .video-player-controls,
+        .video-player-page.fullscreen .video-info,
+        .video-player-page.fullscreen .related-videos {
+            display: none;
+        }
+
+        .video-player-page.fullscreen .video-player-header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 10;
+        }
+
+        /* Responsive styles for video player */
+        @media (min-width: 768px) {
+            .video-player-page {
+                padding: 20px;
+            }
+            
+            .video-player-container {
+                max-width: 800px;
+                margin: 0 auto;
+                border-radius: 15px;
+                overflow: hidden;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            }
+            
+            .related-videos {
+                max-width: 800px;
+                margin: 0 auto;
+                border-radius: 0 0 15px 15px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -2023,7 +2359,7 @@
 
             <div class="slideshow-container">
                 <div class="slideshow">
-                    <img src="https://i.postimg.cc/PxRBb167/opulent-golden-throne-room-with-intricate-architectural-details-photo.jpg" class="slide active">
+                    <img src="https://i.postimg.cc/fy01b6Nx/A-crystal-ball-with-Arabic-calligraphy-resting-on-a-beach-at-sunset-reflecting-on-the-water-with-a-b.jpg" class="slide active">
                     <img src="https://i.postimg.cc/HsrNZzms/Grid-Art-20251113-102115295.jpg" class="slide">
                     <img src="https://i.postimg.cc/Kz7MyYKy/images-9.jpg" class="slide">
                     <img src="https://i.postimg.cc/xT1bWn9X/desktop-wallpaper-islamic-islam-jumma-black-allah.jpg" class="slide">
@@ -2503,6 +2839,80 @@
             </div>
         </div>
 
+        <!-- YouTube-Style Video Player Page -->
+        <div class="video-player-page" id="videoPlayerPage">
+            <div class="video-player-header">
+                <button class="back-btn" id="backFromVideoPlayer">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <div class="video-player-title" id="videoPlayerTitle">ভিডিও শিরোনাম</div>
+            </div>
+            
+            <div class="video-player-container">
+                <div class="video-player" id="youtubePlayer">
+                    <!-- YouTube iframe will be inserted here -->
+                </div>
+                
+                <!-- Double tap overlay for seeking -->
+                <div class="double-tap-overlay double-tap-left" id="doubleTapLeft">
+                    <div class="double-tap-indicator">
+                        <i class="fas fa-backward"></i>
+                    </div>
+                </div>
+                
+                <div class="double-tap-overlay double-tap-right" id="doubleTapRight">
+                    <div class="double-tap-indicator">
+                        <i class="fas fa-forward"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="video-player-controls">
+                <div class="video-actions">
+                    <button class="video-action-btn" id="likeBtn">
+                        <i class="far fa-thumbs-up"></i>
+                        <span id="likeCount">0</span>
+                    </button>
+                    <button class="video-action-btn" id="dislikeBtn">
+                        <i class="far fa-thumbs-down"></i>
+                        <span id="dislikeCount">0</span>
+                    </button>
+                    <button class="video-action-btn" id="shareBtn">
+                        <i class="fas fa-share"></i>
+                        <span>শেয়ার</span>
+                    </button>
+                    <button class="video-action-btn" id="fullscreenBtn">
+                        <i class="fas fa-expand"></i>
+                        <span>ফুলস্ক্রিন</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="video-info">
+                <div class="video-channel-info">
+                    <div class="channel-avatar">
+                        <i class="fas fa-mosque"></i>
+                    </div>
+                    <div class="channel-details">
+                        <div class="channel-name" id="channelName">Zikrayn ইসলামিক গাইড</div>
+                        <div class="channel-subscribers" id="subscriberCount">193K subscribers</div>
+                    </div>
+                    <button class="subscribe-btn" id="subscribeBtn">সাবস্ক্রাইব</button>
+                </div>
+                
+                <div class="video-description" id="videoDescription">
+                    ভিডিওর বর্ণনা এখানে দেখানো হবে।
+                </div>
+            </div>
+            
+            <div class="related-videos">
+                <h3 class="related-videos-title">সম্পর্কিত ভিডিও</h3>
+                <div class="related-videos-list" id="relatedVideosList">
+                    <!-- Related videos will be populated here -->
+                </div>
+            </div>
+        </div>
+
         <!-- Updated Footer Navigation -->
         <footer class="main-footer">
             <div class="nav-icons">
@@ -2759,6 +3169,343 @@
             // Quran functions
             setupQuranCategories();
             setupQuranReader();
+            
+            // YouTube-style video player functions
+            initializeYouTubeStylePlayer();
+        }
+
+        // YouTube-Style Video Player Functions
+        function initializeYouTubeStylePlayer() {
+            const backFromVideoPlayerBtn = document.getElementById('backFromVideoPlayer');
+            const likeBtn = document.getElementById('likeBtn');
+            const dislikeBtn = document.getElementById('dislikeBtn');
+            const shareBtn = document.getElementById('shareBtn');
+            const fullscreenBtn = document.getElementById('fullscreenBtn');
+            const subscribeBtn = document.getElementById('subscribeBtn');
+            const videoPlayerContainer = document.querySelector('.video-player-container');
+            const doubleTapLeft = document.getElementById('doubleTapLeft');
+            const doubleTapRight = document.getElementById('doubleTapRight');
+            
+            // Back button functionality
+            backFromVideoPlayerBtn.addEventListener('click', function() {
+                closeVideoPlayer();
+            });
+            
+            // Like button functionality
+            likeBtn.addEventListener('click', function() {
+                const likeCount = document.getElementById('likeCount');
+                const currentLikes = parseInt(likeCount.textContent) || 0;
+                likeCount.textContent = currentLikes + 1;
+                
+                // Toggle active state
+                if (likeBtn.classList.contains('active')) {
+                    likeBtn.classList.remove('active');
+                    likeBtn.innerHTML = '<i class="far fa-thumbs-up"></i><span id="likeCount">' + (currentLikes - 1) + '</span>';
+                } else {
+                    likeBtn.classList.add('active');
+                    likeBtn.innerHTML = '<i class="fas fa-thumbs-up"></i><span id="likeCount">' + (currentLikes + 1) + '</span>';
+                    
+                    // If dislike is active, remove it
+                    if (dislikeBtn.classList.contains('active')) {
+                        dislikeBtn.classList.remove('active');
+                        const dislikeCount = document.getElementById('dislikeCount');
+                        const currentDislikes = parseInt(dislikeCount.textContent) || 0;
+                        dislikeBtn.innerHTML = '<i class="far fa-thumbs-down"></i><span id="dislikeCount">' + (currentDislikes - 1) + '</span>';
+                    }
+                }
+            });
+            
+            // Dislike button functionality
+            dislikeBtn.addEventListener('click', function() {
+                const dislikeCount = document.getElementById('dislikeCount');
+                const currentDislikes = parseInt(dislikeCount.textContent) || 0;
+                dislikeCount.textContent = currentDislikes + 1;
+                
+                // Toggle active state
+                if (dislikeBtn.classList.contains('active')) {
+                    dislikeBtn.classList.remove('active');
+                    dislikeBtn.innerHTML = '<i class="far fa-thumbs-down"></i><span id="dislikeCount">' + (currentDislikes - 1) + '</span>';
+                } else {
+                    dislikeBtn.classList.add('active');
+                    dislikeBtn.innerHTML = '<i class="fas fa-thumbs-down"></i><span id="dislikeCount">' + (currentDislikes + 1) + '</span>';
+                    
+                    // If like is active, remove it
+                    if (likeBtn.classList.contains('active')) {
+                        likeBtn.classList.remove('active');
+                        const likeCount = document.getElementById('likeCount');
+                        const currentLikes = parseInt(likeCount.textContent) || 0;
+                        likeBtn.innerHTML = '<i class="far fa-thumbs-up"></i><span id="likeCount">' + (currentLikes - 1) + '</span>';
+                    }
+                }
+            });
+            
+            // Share button functionality
+            shareBtn.addEventListener('click', function() {
+                const videoUrl = window.location.href;
+                if (navigator.share) {
+                    navigator.share({
+                        title: document.getElementById('videoPlayerTitle').textContent,
+                        text: 'Zikrayn অ্যাপে এই ভিডিওটি দেখুন',
+                        url: videoUrl,
+                    })
+                    .then(() => console.log('Successful share'))
+                    .catch((error) => console.log('Error sharing', error));
+                } else {
+                    // Fallback for browsers that don't support Web Share API
+                    navigator.clipboard.writeText(videoUrl).then(function() {
+                        alert('ভিডিও লিঙ্ক কপি করা হয়েছে!');
+                    }, function(err) {
+                        console.error('Could not copy text: ', err);
+                    });
+                }
+            });
+            
+            // Fullscreen button functionality
+            fullscreenBtn.addEventListener('click', function() {
+                const videoPlayerPage = document.getElementById('videoPlayerPage');
+                
+                if (!document.fullscreenElement) {
+                    if (videoPlayerPage.requestFullscreen) {
+                        videoPlayerPage.requestFullscreen();
+                    } else if (videoPlayerPage.webkitRequestFullscreen) {
+                        videoPlayerPage.webkitRequestFullscreen();
+                    } else if (videoPlayerPage.msRequestFullscreen) {
+                        videoPlayerPage.msRequestFullscreen();
+                    }
+                    
+                    videoPlayerPage.classList.add('fullscreen');
+                    fullscreenBtn.innerHTML = '<i class="fas fa-compress"></i><span>ফুলস্ক্রিন বন্ধ</span>';
+                } else {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    } else if (document.webkitExitFullscreen) {
+                        document.webkitExitFullscreen();
+                    } else if (document.msExitFullscreen) {
+                        document.msExitFullscreen();
+                    }
+                    
+                    videoPlayerPage.classList.remove('fullscreen');
+                    fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i><span>ফুলস্ক্রিন</span>';
+                }
+            });
+            
+            // Subscribe button functionality
+            subscribeBtn.addEventListener('click', function() {
+                if (subscribeBtn.textContent === 'সাবস্ক্রাইব') {
+                    subscribeBtn.textContent = 'সাবস্ক্রাইব করা হয়েছে';
+                    subscribeBtn.style.background = '#aaa';
+                } else {
+                    subscribeBtn.textContent = 'সাবস্ক্রাইব';
+                    subscribeBtn.style.background = 'var(--accent)';
+                }
+            });
+            
+            // Double tap seeking functionality
+            let lastTap = 0;
+            let tapTimeout;
+            
+            videoPlayerContainer.addEventListener('click', function(e) {
+                const currentTime = new Date().getTime();
+                const tapLength = currentTime - lastTap;
+                
+                clearTimeout(tapTimeout);
+                
+                if (tapLength < 500 && tapLength > 0) {
+                    // Double tap detected
+                    const rect = videoPlayerContainer.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const width = rect.width;
+                    
+                    if (x < width / 2) {
+                        // Left side - seek backward
+                        showDoubleTapIndicator('left');
+                        seekVideo(-10);
+                    } else {
+                        // Right side - seek forward
+                        showDoubleTapIndicator('right');
+                        seekVideo(10);
+                    }
+                    
+                    lastTap = 0;
+                } else {
+                    lastTap = currentTime;
+                }
+            });
+            
+            // Exit fullscreen when ESC key is pressed
+            document.addEventListener('fullscreenchange', exitHandler);
+            document.addEventListener('webkitfullscreenchange', exitHandler);
+            document.addEventListener('mozfullscreenchange', exitHandler);
+            document.addEventListener('MSFullscreenChange', exitHandler);
+            
+            function exitHandler() {
+                if (!document.fullscreenElement && 
+                    !document.webkitFullscreenElement && 
+                    !document.mozFullScreenElement &&
+                    !document.msFullscreenElement) {
+                    const videoPlayerPage = document.getElementById('videoPlayerPage');
+                    videoPlayerPage.classList.remove('fullscreen');
+                    fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i><span>ফুলস্ক্রিন</span>';
+                }
+            }
+        }
+        
+        function showDoubleTapIndicator(side) {
+            const indicator = side === 'left' ? document.getElementById('doubleTapLeft') : document.getElementById('doubleTapRight');
+            
+            indicator.classList.add('active');
+            
+            setTimeout(() => {
+                indicator.classList.remove('active');
+            }, 500);
+        }
+        
+        function seekVideo(seconds) {
+            // This function would control the video player's current time
+            // Since we're using YouTube iframe, we can't directly control it from outside
+            // In a real implementation, you would use the YouTube Player API
+            console.log(`Seeking ${seconds} seconds`);
+        }
+        
+        function openYouTubeStyleVideoPlayer(videoUrl, videoTitle, videoDescription) {
+            // Hide all other pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // Show video player page
+            const videoPlayerPage = document.getElementById('videoPlayerPage');
+            videoPlayerPage.classList.add('active');
+            
+            // Set video title and description
+            document.getElementById('videoPlayerTitle').textContent = videoTitle;
+            document.getElementById('videoDescription').textContent = videoDescription || 'এই ভিডিওর কোনো বর্ণনা নেই।';
+            
+            // Load YouTube iframe
+            const videoPlayer = document.getElementById('youtubePlayer');
+            const videoId = getYouTubeId(videoUrl);
+            
+            if (videoId) {
+                videoPlayer.innerHTML = `
+                    <iframe 
+                        src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&enablejsapi=1" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        allowfullscreen
+                        id="youtubePlayerIframe">
+                    </iframe>
+                `;
+                
+                // Load related videos
+                loadRelatedVideos(videoId, videoTitle);
+            } else {
+                alert('ভিডিও লোড করতে সমস্যা হচ্ছে। দয়া করে ভিডিও লিঙ্ক চেক করুন।');
+            }
+            
+            // Prevent body scrolling
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeVideoPlayer() {
+            // Hide video player page
+            const videoPlayerPage = document.getElementById('videoPlayerPage');
+            videoPlayerPage.classList.remove('active');
+            
+            // Stop video
+            const iframe = document.getElementById('youtubePlayerIframe');
+            if (iframe) {
+                iframe.src = '';
+            }
+            
+            // Show home page
+            document.getElementById('homePage').classList.add('active');
+            
+            // Restore body scrolling
+            document.body.style.overflow = 'auto';
+        }
+        
+        function loadRelatedVideos(videoId, currentVideoTitle) {
+            const relatedVideosList = document.getElementById('relatedVideosList');
+            relatedVideosList.innerHTML = '';
+            
+            // In a real app, you would fetch related videos from an API
+            // For now, we'll use sample data
+            const sampleRelatedVideos = [
+                {
+                    title: 'ইসলামিক শিক্ষা - পর্ব ১',
+                    channel: 'Zikrayn ইসলামিক গাইড',
+                    thumbnail: 'https://img.youtube.com/vi/abc123/hqdefault.jpg',
+                    videoUrl: 'https://www.youtube.com/watch?v=abc123'
+                },
+                {
+                    title: 'কুরআন তিলাওয়াত - সূরা ইয়াসিন',
+                    channel: 'Zikrayn ইসলামিক গাইড',
+                    thumbnail: 'https://img.youtube.com/vi/def456/hqdefault.jpg',
+                    videoUrl: 'https://www.youtube.com/watch?v=def456'
+                },
+                {
+                    title: 'রমজানের ফজিলত',
+                    channel: 'Zikrayn ইসলামিক গাইড',
+                    thumbnail: 'https://img.youtube.com/vi=ghi789/hqdefault.jpg',
+                    videoUrl: 'https://www.youtube.com/watch?v=ghi789'
+                },
+                {
+                    title: 'নামাজের গুরুত্ব',
+                    channel: 'Zikrayn ইসলামিক গাইড',
+                    thumbnail: 'https://img.youtube.com/vi=jkl012/hqdefault.jpg',
+                    videoUrl: 'https://www.youtube.com/watch?v=jkl012'
+                },
+                {
+                    title: 'ইসলামিক গজল - আল্লাহর রহমত',
+                    channel: 'Zikrayn ইসলামিক গাইড',
+                    thumbnail: 'https://img.youtube.com/vi=mno345/hqdefault.jpg',
+                    videoUrl: 'https://www.youtube.com/watch?v=mno345'
+                },
+                {
+                    title: 'হাদিস শরীফ - পর্ব ২',
+                    channel: 'Zikrayn ইসলামিক গাইড',
+                    thumbnail: 'https://img.youtube.com/vi=pqr678/hqdefault.jpg',
+                    videoUrl: 'https://www.youtube.com/watch?v=pqr678'
+                },
+                {
+                    title: 'ইসলামিক কার্টুন - শিশুদের জন্য',
+                    channel: 'Zikrayn ইসলামিক গাইড',
+                    thumbnail: 'https://img.youtube.com/vi=stu901/hqdefault.jpg',
+                    videoUrl: 'https://www.youtube.com/watch?v=stu901'
+                },
+                {
+                    title: 'দোয়া ও জিকির',
+                    channel: 'Zikrayn ইসলামিক গাইড',
+                    thumbnail: 'https://img.youtube.com/vi=vwx234/hqdefault.jpg',
+                    videoUrl: 'https://www.youtube.com/watch?v=vwx234'
+                }
+            ];
+            
+            sampleRelatedVideos.forEach(video => {
+                if (video.title !== currentVideoTitle) {
+                    const relatedVideoItem = document.createElement('div');
+                    relatedVideoItem.className = 'related-video-item';
+                    
+                    relatedVideoItem.innerHTML = `
+                        <img src="${video.thumbnail}" class="related-video-thumbnail" alt="${video.title}">
+                        <div class="related-video-details">
+                            <div class="related-video-title">${video.title}</div>
+                            <div class="related-video-channel">${video.channel}</div>
+                        </div>
+                    `;
+                    
+                    relatedVideoItem.addEventListener('click', function() {
+                        openYouTubeStyleVideoPlayer(video.videoUrl, video.title, 'সম্পর্কিত ভিডিও');
+                    });
+                    
+                    relatedVideosList.appendChild(relatedVideoItem);
+                }
+            });
+        }
+        
+        // Update the playVideo function to use the new YouTube-style player
+        function playVideo(videoUrl, title) {
+            openYouTubeStyleVideoPlayer(videoUrl, title, 'এই ভিডিওটি Zikrayn ইসলামিক গাইড থেকে প্রদর্শিত হচ্ছে।');
+            addToRecentlyViewed({videoUrl: videoUrl, title: title}, 'waz');
         }
 
         // Quran Functions
@@ -4338,28 +5085,6 @@
                 }, (error) => {
                     console.error("Real-time social icons listener error: ", error);
                 });
-        }
-
-        function playVideo(videoUrl, title) {
-            const videoPopup = document.getElementById('videoPopup');
-            const videoPlayer = document.getElementById('videoPlayer');
-            
-            const videoId = getYouTubeId(videoUrl);
-            if (!videoId) {
-                alert('ভিডিও লোড করতে সমস্যা হচ্ছে। দয়া করে ভিডিও লিঙ্ক চেক করুন।');
-                return;
-            }
-            
-            videoPlayer.innerHTML = `
-                <iframe 
-                    src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                    allowfullscreen>
-                </iframe>
-            `;
-            
-            videoPopup.classList.add('active');
-            document.body.style.overflow = 'hidden'; // Prevent background scrolling
         }
 
         // Open Masayel Detail Modal
