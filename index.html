@@ -2242,6 +2242,27 @@
             color: var(--light);
             margin-bottom: 15px;
             font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .collection-name {
+            font-size: 0.9rem;
+            color: var(--accent);
+            background: rgba(212, 175, 55, 0.1);
+            padding: 5px 10px;
+            border-radius: 15px;
+        }
+        
+        .video-navigation-info {
+            text-align: center;
+            padding: 10px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            color: #aaa;
         }
 
         .related-videos-list {
@@ -2990,9 +3011,15 @@
             </div>
             
             <div class="related-videos">
-                <h3 class="related-videos-title">সম্পর্কিত ভিডিও</h3>
+                <h3 class="related-videos-title">
+                    <span>আরও ভিডিও</span>
+                    <span class="collection-name" id="collectionName">ওয়াজ</span>
+                </h3>
+                <div class="video-navigation-info" id="videoNavigationInfo">
+                    বর্তমান ভিডিও: <span id="currentVideoPosition">1</span> / <span id="totalVideosCount">8</span>
+                </div>
                 <div class="related-videos-list" id="relatedVideosList">
-                    <!-- Related videos will be populated here -->
+                    <!-- Previous 8 videos will be populated here -->
                 </div>
             </div>
         </div>
@@ -3205,6 +3232,11 @@
         let previousPage = 'home';
         let currentPage = 'home';
 
+        // Global variables to track current video context
+        let currentVideoType = '';
+        let currentVideoIndex = 0;
+        let currentVideoList = [];
+
         // App initialization
         document.addEventListener('DOMContentLoaded', function() {
             // Show splash screen for 3 seconds
@@ -3224,12 +3256,12 @@
             updatePrayerTimes();
             checkAutoLocationOnStartup();
             loadRandomHadithFromFirebase();
-            loadWazFromFirebase(); // No page parameter needed
-            loadGojolFromFirebase(); // No page parameter needed
-            loadCartoonFromFirebase(); // No page parameter needed
-            loadMasayelFromFirebase(); // No page parameter needed
-            loadDuaFromFirebase(); // No page parameter needed
-            loadTilawatFromFirebase(); // No page parameter needed
+            loadWazFromFirebase();
+            loadGojolFromFirebase();
+            loadCartoonFromFirebase();
+            loadMasayelFromFirebase();
+            loadDuaFromFirebase();
+            loadTilawatFromFirebase();
             loadSocialIconsFromFirebase();
             loadSurahs();
             loadParas();
@@ -3455,7 +3487,8 @@
             console.log(`Seeking ${seconds} seconds`);
         }
         
-        function openYouTubeStyleVideoPlayer(videoUrl, videoTitle, videoDescription) {
+        // Update the openYouTubeStyleVideoPlayer function
+        function openYouTubeStyleVideoPlayer(videoUrl, videoTitle, videoDescription, videoType, videoIndex, videoList) {
             // Hide all other pages
             document.querySelectorAll('.page').forEach(page => {
                 page.classList.remove('active');
@@ -3468,6 +3501,20 @@
             // Set video title and description
             document.getElementById('videoPlayerTitle').textContent = videoTitle;
             document.getElementById('videoDescription').textContent = videoDescription || 'এই ভিডিওর কোনো বর্ণনা নেই।';
+            
+            // Store current video context
+            currentVideoType = videoType;
+            currentVideoIndex = videoIndex;
+            currentVideoList = videoList;
+            
+            // Set collection name
+            const collectionNames = {
+                'waz': 'ওয়াজ',
+                'gojol': 'গজল',
+                'tilawat': 'তিলাওয়াত',
+                'cartoon': 'ইসলামিক কার্টুন'
+            };
+            document.getElementById('collectionName').textContent = collectionNames[videoType] || 'ভিডিও';
             
             // Load YouTube iframe
             const videoPlayer = document.getElementById('youtubePlayer');
@@ -3483,14 +3530,71 @@
                     </iframe>
                 `;
                 
-                // Load related videos
-                loadRelatedVideos(videoId, videoTitle);
+                // Load previous 8 videos
+                loadPreviousVideos(videoType, videoIndex, videoList);
             } else {
                 alert('ভিডিও লোড করতে সমস্যা হচ্ছে। দয়া করে ভিডিও লিঙ্ক চেক করুন।');
             }
             
             // Prevent body scrolling
             document.body.style.overflow = 'hidden';
+        }
+        
+        // Function to load previous 8 videos
+        function loadPreviousVideos(videoType, currentIndex, videoList) {
+            const relatedVideosList = document.getElementById('relatedVideosList');
+            relatedVideosList.innerHTML = '';
+            
+            // Calculate the range of videos to show (previous 8)
+            const startIndex = Math.max(0, currentIndex - 8);
+            const endIndex = currentIndex;
+            
+            // Update navigation info
+            document.getElementById('currentVideoPosition').textContent = currentIndex + 1;
+            document.getElementById('totalVideosCount').textContent = videoList.length;
+            
+            // If there are no previous videos
+            if (startIndex === currentIndex) {
+                relatedVideosList.innerHTML = `
+                    <div style="text-align: center; padding: 20px; color: #aaa;">
+                        <i class="fas fa-info-circle" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                        <div>এই ভিডিওর আগে আর কোনো ভিডিও নেই</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Show previous videos
+            for (let i = startIndex; i < endIndex; i++) {
+                const video = videoList[i];
+                const videoId = getYouTubeId(video.videoUrl);
+                const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+                
+                const relatedVideoItem = document.createElement('div');
+                relatedVideoItem.className = 'related-video-item';
+                
+                relatedVideoItem.innerHTML = `
+                    <img src="${thumbnailUrl}" class="related-video-thumbnail" alt="${video.title}" onerror="this.src='https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80'">
+                    <div class="related-video-details">
+                        <div class="related-video-title">${video.title}</div>
+                        <div class="related-video-channel">Zikrayn ইসলামিক গাইড</div>
+                    </div>
+                `;
+                
+                // Add click event to play the selected video
+                relatedVideoItem.addEventListener('click', function() {
+                    openYouTubeStyleVideoPlayer(
+                        video.videoUrl, 
+                        video.title, 
+                        'Zikrayn ইসলামিক গাইড থেকে প্রদর্শিত হচ্ছে', 
+                        videoType, 
+                        i, 
+                        videoList
+                    );
+                });
+                
+                relatedVideosList.appendChild(relatedVideoItem);
+            }
         }
         
         function closeVideoPlayer() {
@@ -3520,89 +3624,17 @@
             document.body.style.overflow = 'auto';
         }
         
-        function loadRelatedVideos(videoId, currentVideoTitle) {
-            const relatedVideosList = document.getElementById('relatedVideosList');
-            relatedVideosList.innerHTML = '';
-            
-            // In a real app, you would fetch related videos from an API
-            // For now, we'll use sample data
-            const sampleRelatedVideos = [
-                {
-                    title: 'ইসলামিক শিক্ষা - পর্ব ১',
-                    channel: 'Zikrayn ইসলামিক গাইড',
-                    thumbnail: 'https://img.youtube.com/vi/abc123/hqdefault.jpg',
-                    videoUrl: 'https://www.youtube.com/watch?v=abc123'
-                },
-                {
-                    title: 'কুরআন তিলাওয়াত - সূরা ইয়াসিন',
-                    channel: 'Zikrayn ইসলামিক গাইড',
-                    thumbnail: 'https://img.youtube.com/vi/def456/hqdefault.jpg',
-                    videoUrl: 'https://www.youtube.com/watch?v=def456'
-                },
-                {
-                    title: 'রমজানের ফজিলত',
-                    channel: 'Zikrayn ইসলামিক গাইড',
-                    thumbnail: 'https://img.youtube.com/vi=ghi789/hqdefault.jpg',
-                    videoUrl: 'https://www.youtube.com/watch?v=ghi789'
-                },
-                {
-                    title: 'নামাজের গুরুত্ব',
-                    channel: 'Zikrayn ইসলামিক গাইড',
-                    thumbnail: 'https://img.youtube.com/vi=jkl012/hqdefault.jpg',
-                    videoUrl: 'https://www.youtube.com/watch?v=jkl012'
-                },
-                {
-                    title: 'ইসলামিক গজল - আল্লাহর রহমত',
-                    channel: 'Zikrayn ইসলামিক গাইড',
-                    thumbnail: 'https://img.youtube.com/vi=mno345/hqdefault.jpg',
-                    videoUrl: 'https://www.youtube.com/watch?v=mno345'
-                },
-                {
-                    title: 'হাদিস শরীফ - পর্ব ২',
-                    channel: 'Zikrayn ইসলামিক গাইড',
-                    thumbnail: 'https://img.youtube.com/vi=pqr678/hqdefault.jpg',
-                    videoUrl: 'https://www.youtube.com/watch?v=pqr678'
-                },
-                {
-                    title: 'ইসলামিক কার্টুন - শিশুদের জন্য',
-                    channel: 'Zikrayn ইসলামিক গাইড',
-                    thumbnail: 'https://img.youtube.com/vi=stu901/hqdefault.jpg',
-                    videoUrl: 'https://www.youtube.com/watch?v=stu901'
-                },
-                {
-                    title: 'দোয়া ও জিকির',
-                    channel: 'Zikrayn ইসলামিক গাইড',
-                    thumbnail: 'https://img.youtube.com/vi=vwx234/hqdefault.jpg',
-                    videoUrl: 'https://www.youtube.com/watch?v=vwx234'
-                }
-            ];
-            
-            sampleRelatedVideos.forEach(video => {
-                if (video.title !== currentVideoTitle) {
-                    const relatedVideoItem = document.createElement('div');
-                    relatedVideoItem.className = 'related-video-item';
-                    
-                    relatedVideoItem.innerHTML = `
-                        <img src="${video.thumbnail}" class="related-video-thumbnail" alt="${video.title}">
-                        <div class="related-video-details">
-                            <div class="related-video-title">${video.title}</div>
-                            <div class="related-video-channel">${video.channel}</div>
-                        </div>
-                    `;
-                    
-                    relatedVideoItem.addEventListener('click', function() {
-                        openYouTubeStyleVideoPlayer(video.videoUrl, video.title, 'সম্পর্কিত ভিডিও');
-                    });
-                    
-                    relatedVideosList.appendChild(relatedVideoItem);
-                }
-            });
-        }
-        
-        // Update the playVideo function to use the new YouTube-style player
-        function playVideo(videoUrl, title) {
-            openYouTubeStyleVideoPlayer(videoUrl, title, 'এই ভিডিওটি Zikrayn ইসলামিক গাইড থেকে প্রদর্শিত হচ্ছে।');
-            addToRecentlyViewed({videoUrl: videoUrl, title: title}, 'waz');
+        // Update the playVideo function to pass the necessary parameters
+        function playVideo(videoUrl, title, videoType, videoIndex, videoList) {
+            openYouTubeStyleVideoPlayer(
+                videoUrl, 
+                title, 
+                'Zikrayn ইসলামিক গাইড থেকে প্রদর্শিত হচ্ছে', 
+                videoType, 
+                videoIndex, 
+                videoList
+            );
+            addToRecentlyViewed({videoUrl: videoUrl, title: title}, videoType);
         }
 
         // Quran Functions
@@ -4254,15 +4286,19 @@
                     
                     if (querySnapshot.empty) {
                         // If no data in Firebase, use sample data
-                        sampleWaz.forEach(waz => {
-                            createVideoItem(wazGrid, waz, 'waz');
+                        sampleWaz.forEach((waz, index) => {
+                            createVideoItem(wazGrid, waz, 'waz', index, sampleWaz);
                         });
                         return;
                     }
                     
+                    const wazList = [];
                     querySnapshot.forEach((doc) => {
-                        const waz = doc.data();
-                        createVideoItem(wazGrid, waz, 'waz');
+                        wazList.push(doc.data());
+                    });
+                    
+                    wazList.forEach((waz, index) => {
+                        createVideoItem(wazGrid, waz, 'waz', index, wazList);
                     });
                 })
                 .catch((error) => {
@@ -4283,15 +4319,19 @@
                     
                     if (querySnapshot.empty) {
                         // If no data in Firebase, use sample data
-                        sampleGojol.forEach(gojol => {
-                            createVideoItem(gojolGrid, gojol, 'gojol');
+                        sampleGojol.forEach((gojol, index) => {
+                            createVideoItem(gojolGrid, gojol, 'gojol', index, sampleGojol);
                         });
                         return;
                     }
                     
+                    const gojolList = [];
                     querySnapshot.forEach((doc) => {
-                        const gojol = doc.data();
-                        createVideoItem(gojolGrid, gojol, 'gojol');
+                        gojolList.push(doc.data());
+                    });
+                    
+                    gojolList.forEach((gojol, index) => {
+                        createVideoItem(gojolGrid, gojol, 'gojol', index, gojolList);
                     });
                 })
                 .catch((error) => {
@@ -4313,15 +4353,19 @@
                     
                     if (querySnapshot.empty) {
                         // If no data in Firebase, use sample data
-                        sampleCartoon.forEach(cartoon => {
-                            createVideoItem(cartoonGrid, cartoon, 'cartoon');
+                        sampleCartoon.forEach((cartoon, index) => {
+                            createVideoItem(cartoonGrid, cartoon, 'cartoon', index, sampleCartoon);
                         });
                         return;
                     }
                     
+                    const cartoonList = [];
                     querySnapshot.forEach((doc) => {
-                        const cartoon = doc.data();
-                        createVideoItem(cartoonGrid, cartoon, 'cartoon');
+                        cartoonList.push(doc.data());
+                    });
+                    
+                    cartoonList.forEach((cartoon, index) => {
+                        createVideoItem(cartoonGrid, cartoon, 'cartoon', index, cartoonList);
                     });
                 })
                 .catch((error) => {
@@ -4400,9 +4444,13 @@
                         return;
                     }
                     
+                    const tilawatList = [];
                     querySnapshot.forEach((doc) => {
-                        const tilawat = doc.data();
-                        createVideoItem(tilawatGrid, tilawat, 'tilawat');
+                        tilawatList.push(doc.data());
+                    });
+                    
+                    tilawatList.forEach((tilawat, index) => {
+                        createVideoItem(tilawatGrid, tilawat, 'tilawat', index, tilawatList);
                     });
                 })
                 .catch((error) => {
@@ -4913,7 +4961,8 @@
                 });
         }
 
-        function createVideoItem(container, item, type) {
+        // Update the video item creation to pass the full context
+        function createVideoItem(container, item, type, index, itemList) {
             const videoItem = document.createElement('div');
             videoItem.className = 'video-item';
             videoItem.setAttribute('data-title', item.title.toLowerCase());
@@ -4929,7 +4978,7 @@
             `;
             
             videoItem.addEventListener('click', () => {
-                playVideo(item.videoUrl, item.title);
+                playVideo(item.videoUrl, item.title, type, index, itemList);
                 addToRecentlyViewed(item, type);
             });
             container.appendChild(videoItem);
@@ -5025,15 +5074,19 @@
                     
                     if (querySnapshot.empty) {
                         // If no data in Firebase, use sample data
-                        sampleWaz.forEach(waz => {
-                            createVideoItem(wazGrid, waz, 'waz');
+                        sampleWaz.forEach((waz, index) => {
+                            createVideoItem(wazGrid, waz, 'waz', index, sampleWaz);
                         });
                         return;
                     }
                     
+                    const wazList = [];
                     querySnapshot.forEach((doc) => {
-                        const waz = doc.data();
-                        createVideoItem(wazGrid, waz, 'waz');
+                        wazList.push(doc.data());
+                    });
+                    
+                    wazList.forEach((waz, index) => {
+                        createVideoItem(wazGrid, waz, 'waz', index, wazList);
                     });
                 }, (error) => {
                     console.error("Real-time waz listener error: ", error);
@@ -5049,15 +5102,19 @@
                     
                     if (querySnapshot.empty) {
                         // If no data in Firebase, use sample data
-                        sampleGojol.forEach(gojol => {
-                            createVideoItem(gojolGrid, gojol, 'gojol');
+                        sampleGojol.forEach((gojol, index) => {
+                            createVideoItem(gojolGrid, gojol, 'gojol', index, sampleGojol);
                         });
                         return;
                     }
                     
+                    const gojolList = [];
                     querySnapshot.forEach((doc) => {
-                        const gojol = doc.data();
-                        createVideoItem(gojolGrid, gojol, 'gojol');
+                        gojolList.push(doc.data());
+                    });
+                    
+                    gojolList.forEach((gojol, index) => {
+                        createVideoItem(gojolGrid, gojol, 'gojol', index, gojolList);
                     });
                 }, (error) => {
                     console.error("Real-time gojol listener error: ", error);
@@ -5119,9 +5176,13 @@
                         return;
                     }
                     
+                    const tilawatList = [];
                     querySnapshot.forEach((doc) => {
-                        const tilawat = doc.data();
-                        createVideoItem(tilawatGrid, tilawat, 'tilawat');
+                        tilawatList.push(doc.data());
+                    });
+                    
+                    tilawatList.forEach((tilawat, index) => {
+                        createVideoItem(tilawatGrid, tilawat, 'tilawat', index, tilawatList);
                     });
                 }, (error) => {
                     console.error("Real-time tilawat listener error: ", error);
@@ -5137,15 +5198,19 @@
                     
                     if (querySnapshot.empty) {
                         // If no data in Firebase, use sample data
-                        sampleCartoon.forEach(cartoon => {
-                            createVideoItem(cartoonGrid, cartoon, 'cartoon');
+                        sampleCartoon.forEach((cartoon, index) => {
+                            createVideoItem(cartoonGrid, cartoon, 'cartoon', index, sampleCartoon);
                         });
                         return;
                     }
                     
+                    const cartoonList = [];
                     querySnapshot.forEach((doc) => {
-                        const cartoon = doc.data();
-                        createVideoItem(cartoonGrid, cartoon, 'cartoon');
+                        cartoonList.push(doc.data());
+                    });
+                    
+                    cartoonList.forEach((cartoon, index) => {
+                        createVideoItem(cartoonGrid, cartoon, 'cartoon', index, cartoonList);
                     });
                 }, (error) => {
                     console.error("Real-time cartoon listener error: ", error);
