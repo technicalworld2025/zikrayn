@@ -320,6 +320,61 @@
             }
         }
 
+        /* Back Button Styles for Compact Pages */
+        .compact-page-header {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: rgba(30, 30, 30, 0.8);
+            border-radius: 15px;
+            margin: 15px 0 10px 0;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.05);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+        }
+
+        .compact-page-back-btn {
+            background: none;
+            border: none;
+            color: var(--light);
+            font-size: 1.3rem;
+            margin-right: 15px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+
+        .compact-page-back-btn:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .compact-page-title {
+            font-size: 1.2rem;
+            color: var(--accent);
+            font-weight: bold;
+            flex: 1;
+            text-align: center;
+            font-family: 'Times New Roman', serif;
+        }
+
+        /* Show compact header only on mobile, show regular header on desktop */
+        @media (min-width: 768px) {
+            .compact-page-header {
+                display: none;
+            }
+            
+            .islamic-header {
+                display: flex;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .compact-page-header {
+                display: flex;
+            }
+        }
+
         /* Compact Location Selector */
         .location-selector {
             background: var(--card-bg);
@@ -2736,6 +2791,14 @@
         <!-- Additional Pages -->
         <!-- Masayel Page -->
         <div class="page" id="masayelPage">
+            <!-- Compact Page Header with Back Button -->
+            <header class="compact-page-header">
+                <button class="compact-page-back-btn" data-back="home">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <div class="compact-page-title">ইসলামিক মাসায়েল</div>
+            </header>
+            
             <header class="islamic-header">
                 <div class="app-title">
                     <h1>Zikrayn</h1>
@@ -2772,6 +2835,14 @@
 
         <!-- Dua Page -->
         <div class="page" id="duaPage">
+            <!-- Compact Page Header with Back Button -->
+            <header class="compact-page-header">
+                <button class="compact-page-back-btn" data-back="home">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <div class="compact-page-title">দোয়া সমগ্র</div>
+            </header>
+            
             <header class="islamic-header">
                 <div class="app-title">
                     <h1>Zikrayn</h1>
@@ -2808,6 +2879,14 @@
 
         <!-- Tilawat Page -->
         <div class="page" id="tilawatPage">
+            <!-- Compact Page Header with Back Button -->
+            <header class="compact-page-header">
+                <button class="compact-page-back-btn" data-back="home">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <div class="compact-page-title">কুরআন তিলাওয়াত</div>
+            </header>
+            
             <header class="islamic-header">
                 <div class="app-title">
                     <h1>Zikrayn</h1>
@@ -2839,6 +2918,14 @@
 
         <!-- Cartoon Page -->
         <div class="page" id="cartoonPage">
+            <!-- Compact Page Header with Back Button -->
+            <header class="compact-page-header">
+                <button class="compact-page-back-btn" data-back="home">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <div class="compact-page-title">ইসলামিক কার্টুন</div>
+            </header>
+            
             <header class="islamic-header">
                 <div class="app-title">
                     <h1>Zikrayn</h1>
@@ -5460,6 +5547,36 @@
                             item.style.display = 'none';
                         }
                     });
+                });
+            });
+            
+            // Back button functionality for compact pages
+            const backButtons = document.querySelectorAll('.compact-page-back-btn');
+            backButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const backTo = this.getAttribute('data-back');
+                    
+                    // Update previous page
+                    previousPage = currentPage;
+                    currentPage = backTo;
+                    
+                    // Hide current page and show home page
+                    document.querySelectorAll('.page').forEach(page => {
+                        page.classList.remove('active');
+                    });
+                    document.getElementById(`${backTo}Page`).classList.add('active');
+                    
+                    // Update navigation button
+                    const navButtons = document.querySelectorAll('.nav-btn');
+                    navButtons.forEach(btn => {
+                        if (btn.getAttribute('data-page') === backTo) {
+                            navButtons.forEach(b => b.classList.remove('active'));
+                            btn.classList.add('active');
+                        }
+                    });
+                    
+                    // Scroll to top when going back
+                    window.scrollTo(0, 0);
                 });
             });
         }
