@@ -3034,8 +3034,9 @@
         <!-- YouTube-Style Video Player Page -->
         <div class="video-player-page" id="videoPlayerPage">
             <div class="video-player-header">
-                <button class="back-btn" id="backFromVideoPlayer">
-                    <i class="fas fa-arrow-left"></i>
+                <!-- Cross icon instead of back arrow -->
+                <button class="close-btn" id="closeVideoPlayer">
+                    <i class="fas fa-times"></i>
                 </button>
                 <div class="video-player-title" id="videoPlayerTitle">ভিডিও শিরোনাম</div>
             </div>
@@ -3383,7 +3384,7 @@
 
         // YouTube-Style Video Player Functions
         function initializeYouTubeStylePlayer() {
-            const backFromVideoPlayerBtn = document.getElementById('backFromVideoPlayer');
+            const closeVideoPlayerBtn = document.getElementById('closeVideoPlayer');
             const likeBtn = document.getElementById('likeBtn');
             const dislikeBtn = document.getElementById('dislikeBtn');
             const shareBtn = document.getElementById('shareBtn');
@@ -3393,8 +3394,8 @@
             const doubleTapLeft = document.getElementById('doubleTapLeft');
             const doubleTapRight = document.getElementById('doubleTapRight');
             
-            // Back button functionality
-            backFromVideoPlayerBtn.addEventListener('click', function() {
+            // Close button functionality (cross icon)
+            closeVideoPlayerBtn.addEventListener('click', function() {
                 closeVideoPlayer();
             });
             
@@ -3695,13 +3696,29 @@
                 iframe.src = '';
             }
             
-            // Show previous page instead of always home page
-            document.getElementById(`${previousPage}Page`).classList.add('active');
+            // Show the original page based on video type
+            let targetPage = 'home';
+            
+            if (currentVideoType === 'waz') {
+                targetPage = 'waz';
+            } else if (currentVideoType === 'gojol') {
+                targetPage = 'gojol';
+            } else if (currentVideoType === 'tilawat') {
+                targetPage = 'tilawat';
+            } else if (currentVideoType === 'cartoon') {
+                targetPage = 'cartoon';
+            }
+            
+            // Show the target page
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(`${targetPage}Page`).classList.add('active');
             
             // Update navigation button
             const navButtons = document.querySelectorAll('.nav-btn');
             navButtons.forEach(btn => {
-                if (btn.getAttribute('data-page') === previousPage) {
+                if (btn.getAttribute('data-page') === targetPage) {
                     navButtons.forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
                 }
@@ -4823,7 +4840,7 @@
                 .catch((error) => {
                     console.error("Error loading prayer times: ", error);
                     // API থেকে লোড করুন
-                    updatePrayerTimesFromAPI(country, district);
+                        updatePrayerTimesFromAPI(country, district);
                 });
         }
 
@@ -5499,11 +5516,6 @@
                     document.getElementById('masayelModal').classList.remove('active');
                     document.body.style.overflow = 'auto';
                 }
-            });
-            
-            // Modified back button for YouTube-style video player
-            document.getElementById('backFromVideoPlayer').addEventListener('click', function() {
-                closeVideoPlayer();
             });
             
             // Masayel category filtering
