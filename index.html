@@ -533,7 +533,7 @@
         /* New styles for compact page buttons */
         .compact-page-buttons {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(6, 1fr);
             gap: 10px;
             margin: 15px 0;
         }
@@ -993,39 +993,9 @@
             font-weight: bold;
         }
 
-        /* Hadith Section */
+        /* Hadith Section (removed from home) */
         .hadith-section {
-            background: var(--card-bg);
-            border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-
-        /* Desktop Hadith Section */
-        @media (min-width: 768px) {
-            .hadith-section {
-                padding: 25px;
-                margin-bottom: 25px;
-            }
-        }
-
-        .hadith-text {
-            font-style: italic;
-            text-align: center;
-            line-height: 1.6;
-            font-size: 1.1rem;
-            padding: 10px;
-        }
-
-        /* Desktop Hadith Text */
-        @media (min-width: 768px) {
-            .hadith-text {
-                font-size: 1.2rem;
-                line-height: 1.8;
-                padding: 15px 20px;
-            }
+            display: none;
         }
 
         /* Additional Pages Section */
@@ -1480,7 +1450,7 @@
                     "header header"
                     "slideshow slideshow"
                     "time prayer"
-                    "hadith hadith"
+                    "compact compact"
                     "additional additional";
             }
             
@@ -1502,8 +1472,8 @@
                 margin-bottom: 0;
             }
             
-            #homePage .hadith-section {
-                grid-area: hadith;
+            #homePage .compact-page-buttons {
+                grid-area: compact;
             }
             
             #homePage .additional-pages {
@@ -1767,8 +1737,8 @@
             font-size: 0.9rem;
         }
 
-        /* New Pages Styles - Masayel, Dua, Tilawat, Cartoon */
-        .masayel-container, .dua-container, .tilawat-container, .cartoon-container {
+        /* New Pages Styles - Masayel, Dua, Tilawat, Cartoon, Hadith, Prayer Schedule */
+        .masayel-container, .dua-container, .tilawat-container, .cartoon-container, .hadith-container, .prayer-schedule-container {
             max-width: 100%;
             margin: 0 auto;
         }
@@ -1797,20 +1767,20 @@
             color: var(--dark);
         }
 
-        .masayel-grid, .dua-grid {
+        .masayel-grid, .dua-grid, .hadith-grid {
             display: grid;
             grid-template-columns: 1fr;
             gap: 15px;
         }
 
         @media (min-width: 768px) {
-            .masayel-grid, .dua-grid {
+            .masayel-grid, .dua-grid, .hadith-grid {
                 grid-template-columns: repeat(2, 1fr);
                 gap: 20px;
             }
         }
 
-        .masayel-item, .dua-item {
+        .masayel-item, .dua-item, .hadith-item {
             background: var(--card-bg);
             border-radius: 15px;
             padding: 20px;
@@ -1820,7 +1790,7 @@
             border: 1px solid rgba(255,255,255,0.05);
         }
 
-        .masayel-item:hover, .dua-item:hover {
+        .masayel-item:hover, .dua-item:hover, .hadith-item:hover {
             transform: translateY(-5px);
             box-shadow: 0 8px 20px rgba(0,0,0,0.3);
         }
@@ -1835,7 +1805,7 @@
             margin-bottom: 10px;
         }
 
-        .masayel-title, .dua-title {
+        .masayel-title, .dua-title, .hadith-title {
             font-size: 1.1rem;
             font-weight: bold;
             margin-bottom: 10px;
@@ -1936,6 +1906,87 @@
                 font-size: 1rem;
                 height: 70px;
             }
+        }
+
+        /* Hadith Text */
+        .hadith-text {
+            font-style: italic;
+            line-height: 1.6;
+            color: #ddd;
+            text-align: justify;
+        }
+
+        /* Prayer Schedule Page Styles */
+        .prayer-schedule-detail {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .prayer-detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        @media (min-width: 768px) {
+            .prayer-detail-grid {
+                grid-template-columns: repeat(5, 1fr);
+                gap: 20px;
+            }
+        }
+
+        .prayer-detail-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            transition: all 0.3s;
+        }
+
+        .prayer-detail-item:hover {
+            background: rgba(255,255,255,0.08);
+            transform: translateY(-2px);
+        }
+
+        .prayer-detail-name {
+            font-size: 1.1rem;
+            color: var(--accent);
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .prayer-detail-time {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--light);
+        }
+
+        .prayer-detail-info {
+            margin-top: 25px;
+            padding: 20px;
+            background: rgba(10, 92, 10, 0.1);
+            border-radius: 15px;
+            border-left: 4px solid var(--accent);
+        }
+
+        .prayer-detail-info-title {
+            color: var(--accent);
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .prayer-detail-info-content {
+            color: #ddd;
+            line-height: 1.6;
         }
 
         /* Masayel Detail Modal */
@@ -2091,7 +2142,7 @@
             }
             
             .compact-page-buttons {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: repeat(3, 1fr);
                 gap: 8px;
             }
             
@@ -2530,7 +2581,7 @@
                 </div>
             </div>
 
-            <!-- Compact Page Buttons - Moved below slideshow -->
+            <!-- Compact Page Buttons - Updated with 6 buttons -->
             <div class="compact-page-buttons">
                 <button class="compact-page-btn" data-page="masayel">
                     <i class="fas fa-question-circle"></i>
@@ -2547,6 +2598,14 @@
                 <button class="compact-page-btn" data-page="cartoon">
                     <i class="fas fa-video"></i>
                     <span>ইসলামিক কার্টুন</span>
+                </button>
+                <button class="compact-page-btn" data-page="hadith">
+                    <i class="fas fa-book-open"></i>
+                    <span>হাদিস শরীফ</span>
+                </button>
+                <button class="compact-page-btn" data-page="prayerSchedule">
+                    <i class="fas fa-clock"></i>
+                    <span>নামাজের সময়সূচি</span>
                 </button>
             </div>
 
@@ -2637,10 +2696,7 @@
                 </div>
             </div>
 
-            <div class="hadith-section">
-                <h3 class="section-title">হাদিস শরীফ</h3>
-                <p class="hadith-text" id="randomHadith">লোড হচ্ছে...</p>
-            </div>
+            <!-- Hadith Section removed from home page -->
 
             <!-- Original Additional Pages Section - Now Hidden -->
             <div class="additional-pages">
@@ -2955,6 +3011,113 @@
             </div>
         </div>
 
+        <!-- Hadith Page (New) -->
+        <div class="page" id="hadithPage">
+            <!-- Compact Page Header with Back Button -->
+            <header class="compact-page-header">
+                <button class="compact-page-back-btn" data-back="home">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <div class="compact-page-title">হাদিস শরীফ</div>
+            </header>
+            
+            <header class="islamic-header">
+                <div class="app-title">
+                    <h1>Zikrayn</h1>
+                </div>
+                <div class="search-container">
+                    <input type="text" placeholder="হাদিস খুঁজুন..." class="search-bar" id="hadithSearch">
+                    <button class="search-btn"><i class="fas fa-search"></i></button>
+                </div>
+            </header>
+
+            <!-- Search Result Message -->
+            <div class="search-result-message" id="hadithSearchResult"></div>
+
+            <div class="hadith-container">
+                <h3 class="section-title">হাদিস শরীফ</h3>
+                
+                <!-- Hadith Categories -->
+                <div class="masayel-categories" id="hadithCategories">
+                    <button class="category-btn active" data-category="all">সব</button>
+                    <button class="category-btn" data-category="ইমান">ইমান</button>
+                    <button class="category-btn" data-category="ইবাদত">ইবাদত</button>
+                    <button class="category-btn" data-category="আখলাক">আখলাক</button>
+                    <button class="category-btn" data-category="সমাজ">সমাজ</button>
+                    <button class="category-btn" data-category="পরিবার">পরিবার</button>
+                    <button class="category-btn" data-category="ব্যবসা">ব্যবসা</button>
+                    <button class="category-btn" data-category="অন্যান্য">অন্যান্য</button>
+                </div>
+
+                <div class="hadith-grid" id="hadithGrid">
+                    <!-- Hadith items will be populated from Firebase -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Prayer Schedule Page (New) -->
+        <div class="page" id="prayerSchedulePage">
+            <!-- Compact Page Header with Back Button -->
+            <header class="compact-page-header">
+                <button class="compact-page-back-btn" data-back="home">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <div class="compact-page-title">নামাজের সময়সূচি</div>
+            </header>
+            
+            <header class="islamic-header">
+                <div class="app-title">
+                    <h1>Zikrayn</h1>
+                </div>
+                <div class="search-container">
+                    <input type="text" placeholder="শহর খুঁজুন..." class="search-bar" id="prayerScheduleSearch">
+                    <button class="search-btn"><i class="fas fa-search"></i></button>
+                </div>
+            </header>
+
+            <!-- Search Result Message -->
+            <div class="search-result-message" id="prayerScheduleSearchResult"></div>
+
+            <div class="prayer-schedule-container">
+                <h3 class="section-title">নামাজের সময়সূচি</h3>
+                
+                <div class="prayer-schedule-detail">
+                    <h4 style="text-align: center; color: var(--accent); margin-bottom: 20px;" id="prayerLocationTitle">আপনার বর্তমান অবস্থানের জন্য নামাজের সময়</h4>
+                    
+                    <div class="prayer-detail-grid">
+                        <div class="prayer-detail-item">
+                            <div class="prayer-detail-name">ফজর</div>
+                            <div class="prayer-detail-time" id="detailFajrTime">--:--</div>
+                        </div>
+                        <div class="prayer-detail-item">
+                            <div class="prayer-detail-name">জোহর</div>
+                            <div class="prayer-detail-time" id="detailDhuhrTime">--:--</div>
+                        </div>
+                        <div class="prayer-detail-item">
+                            <div class="prayer-detail-name">আসর</div>
+                            <div class="prayer-detail-time" id="detailAsrTime">--:--</div>
+                        </div>
+                        <div class="prayer-detail-item">
+                            <div class="prayer-detail-name">মাগরিব</div>
+                            <div class="prayer-detail-time" id="detailMaghribTime">--:--</div>
+                        </div>
+                        <div class="prayer-detail-item">
+                            <div class="prayer-detail-name">ইশা</div>
+                            <div class="prayer-detail-time" id="detailIshaTime">--:--</div>
+                        </div>
+                    </div>
+                    
+                    <div class="prayer-detail-info">
+                        <div class="prayer-detail-info-title">নামাজের সময়সূচি সম্পর্কে তথ্য</div>
+                        <div class="prayer-detail-info-content">
+                            নামাজের সময়সূচি আপনার নির্বাচিত অবস্থান অনুযায়ী প্রদর্শিত হয়। সময়সূচি নিয়মিত আপডেট করা হয়। 
+                            যদি আপনার সময় সঠিক না দেখায়, তাহলে দয়া করে আপনার অবস্থান আপডেট করুন।
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Video Popup -->
         <div class="video-popup" id="videoPopup">
             <div class="popup-content">
@@ -3112,6 +3275,18 @@
             </div>
         </div>
 
+        <!-- Hadith Detail Modal -->
+        <div class="masayel-modal" id="hadithModal">
+            <div class="masayel-modal-content">
+                <button class="close-masayel-modal" id="closeHadithModal"><i class="fas fa-times"></i></button>
+                <div class="masayel-modal-category" id="hadithModalCategory">ইমান</div>
+                <h3 class="masayel-modal-title" id="hadithModalTitle">হাদিসের শিরোনাম</h3>
+                <div class="masayel-modal-description" id="hadithModalDescription">
+                    হাদিসের বিস্তারিত বর্ণনা এখানে দেখানো হবে।
+                </div>
+            </div>
+        </div>
+
         <!-- Updated Footer Navigation -->
         <footer class="main-footer">
             <div class="nav-icons">
@@ -3177,11 +3352,31 @@
 
         // Sample data for initial setup
         const sampleHadiths = [
-            "যে ব্যক্তি আল্লাহ ও আখিরাতের দিনের উপর ঈমান রাখে, সে যেন তার প্রতিবেশীকে কষ্ট না দেয়।",
-            "তোমাদের মধ্যে সেই ব্যক্তি সর্বোত্তম, যে কুরআন শিক্ষা করে এবং অন্যকে শিক্ষা দেয়।",
-            "সদকাহ দারিদ্র্য দূর করে, আয়ু বাড়ায় এবং অসুস্থতা থেকে রক্ষা করে।",
-            "যে ব্যক্তি তার ভাইয়ের প্রয়োজনে সাহায্য করে, আল্লাহও তার প্রয়োজনে সাহায্য করেন।",
-            "আল্লাহ তায়ালা বলেন, 'হে আদম সন্তান, তুমি আমার ইবাদত কর, আমি তোমার অন্তরকে ধন-সম্পদে পূর্ণ করে দিব।'"
+            { 
+                title: "প্রতিবেশীর হক",
+                text: "যে ব্যক্তি আল্লাহ ও আখিরাতের দিনের উপর ঈমান রাখে, সে যেন তার প্রতিবেশীকে কষ্ট না দেয়।", 
+                category: "সমাজ"
+            },
+            { 
+                title: "কুরআন শিক্ষার ফজিলত",
+                text: "তোমাদের মধ্যে সেই ব্যক্তি সর্বোত্তম, যে কুরআন শিক্ষা করে এবং অন্যকে শিক্ষা দেয়।", 
+                category: "ইবাদত"
+            },
+            { 
+                title: "সদকার ফজিলত",
+                text: "সদকাহ দারিদ্র্য দূর করে, আয়ু বাড়ায় এবং অসুস্থতা থেকে রক্ষা করে।", 
+                category: "ইবাদত"
+            },
+            { 
+                title: "ভাইয়ের প্রয়োজনে সাহায্য",
+                text: "যে ব্যক্তি তার ভাইয়ের প্রয়োজনে সাহায্য করে, আল্লাহও তার প্রয়োজনে সাহায্য করেন।", 
+                category: "আখলাক"
+            },
+            { 
+                title: "আল্লাহর বাণী",
+                text: "আল্লাহ তায়ালা বলেন, 'হে আদম সন্তান, তুমি আমার ইবাদত কর, আমি তোমার অন্তরকে ধন-সম্পদে পূর্ণ করে দিব।'", 
+                category: "ইমান"
+            }
         ];
 
         // Sample Waz and Gojol data
@@ -3343,7 +3538,6 @@
             setupLocationSystem();
             updatePrayerTimes();
             checkAutoLocationOnStartup();
-            loadRandomHadithFromFirebase();
             loadWazFromFirebase();
             loadGojolFromFirebase();
             loadCartoonFromFirebase();
@@ -3380,6 +3574,208 @@
             
             // YouTube-style video player functions
             initializeYouTubeStylePlayer();
+            
+            // Load Hadith from Firebase
+            loadHadithFromFirebase();
+            
+            // Setup Hadith page functionality
+            setupHadithPage();
+        }
+
+        // Load Hadith from Firebase
+        function loadHadithFromFirebase() {
+            const hadithGrid = document.getElementById('hadithGrid');
+            hadithGrid.innerHTML = '<p style="text-align:center; padding:20px; color: var(--accent);">লোড হচ্ছে...</p>';
+            
+            hadithCollection.orderBy('timestamp', 'desc')
+                .limit(ITEMS_PER_PAGE)
+                .get()
+                .then((querySnapshot) => {
+                    hadithGrid.innerHTML = '';
+                    
+                    if (querySnapshot.empty) {
+                        // If no data in Firebase, use sample data
+                        sampleHadiths.forEach((hadith, index) => {
+                            createHadithItem(hadithGrid, hadith);
+                        });
+                        return;
+                    }
+                    
+                    querySnapshot.forEach((doc) => {
+                        const hadith = doc.data();
+                        createHadithItem(hadithGrid, hadith);
+                    });
+                })
+                .catch((error) => {
+                    hadithGrid.innerHTML = '<p style="text-align:center; padding:20px; color: #ff6b6b;">লোড করতে সমস্যা হচ্ছে</p>';
+                    console.error("Error loading hadith: ", error);
+                });
+        }
+
+        // Create Hadith Item
+        function createHadithItem(container, hadith) {
+            const hadithItem = document.createElement('div');
+            hadithItem.className = 'hadith-item';
+            hadithItem.setAttribute('data-category', hadith.category || 'all');
+            hadithItem.setAttribute('data-title', hadith.title?.toLowerCase() || '');
+            
+            hadithItem.innerHTML = `
+                <div class="masayel-category">${hadith.category || 'হাদিস'}</div>
+                <div class="hadith-title">${hadith.title || 'হাদিস'}</div>
+                <div class="hadith-text">${hadith.text || ''}</div>
+            `;
+            
+            hadithItem.addEventListener('click', () => openHadithDetail(hadith));
+            container.appendChild(hadithItem);
+        }
+
+        // Open Hadith Detail Modal
+        function openHadithDetail(hadith) {
+            document.getElementById('hadithModalCategory').textContent = hadith.category || 'হাদিস';
+            document.getElementById('hadithModalTitle').textContent = hadith.title || 'হাদিস';
+            document.getElementById('hadithModalDescription').textContent = hadith.text || '';
+            document.getElementById('hadithModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Setup Hadith Page
+        function setupHadithPage() {
+            // Close hadith modal
+            document.getElementById('closeHadithModal').addEventListener('click', () => {
+                document.getElementById('hadithModal').classList.remove('active');
+                document.body.style.overflow = 'auto';
+            });
+            
+            // Close hadith modal when clicking outside
+            document.getElementById('hadithModal').addEventListener('click', (e) => {
+                if (e.target.id === 'hadithModal') {
+                    document.getElementById('hadithModal').classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                }
+            });
+            
+            // Hadith category filtering
+            const hadithCategoryButtons = document.querySelectorAll('#hadithCategories .category-btn');
+            hadithCategoryButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const category = button.getAttribute('data-category');
+                    
+                    // Update active category button
+                    hadithCategoryButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    
+                    // Filter hadith items
+                    const hadithItems = document.querySelectorAll('.hadith-item');
+                    hadithItems.forEach(item => {
+                        if (category === 'all' || item.getAttribute('data-category') === category) {
+                            item.style.display = 'block';
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                });
+            });
+            
+            // Hadith search
+            document.querySelector('#hadithSearch + .search-btn').addEventListener('click', function() {
+                const query = document.getElementById('hadithSearch').value;
+                if (query.trim()) {
+                    searchHadith(query);
+                }
+            });
+            
+            // Clear search when input is empty for Hadith
+            document.getElementById('hadithSearch').addEventListener('input', function() {
+                if (this.value.trim() === '') {
+                    const hadithGrid = document.getElementById('hadithGrid');
+                    const hadithItems = hadithGrid.querySelectorAll('.hadith-item');
+                    const searchResult = document.getElementById('hadithSearchResult');
+                    
+                    hadithItems.forEach(item => {
+                        item.style.display = 'block';
+                    });
+                    
+                    searchResult.classList.remove('show');
+                }
+            });
+            
+            // Real-time listener for hadith
+            hadithCollection.orderBy('timestamp', 'desc')
+                .limit(ITEMS_PER_PAGE)
+                .onSnapshot((querySnapshot) => {
+                    const hadithGrid = document.getElementById('hadithGrid');
+                    hadithGrid.innerHTML = '';
+                    
+                    if (querySnapshot.empty) {
+                        // If no data in Firebase, use sample data
+                        sampleHadiths.forEach((hadith, index) => {
+                            createHadithItem(hadithGrid, hadith);
+                        });
+                        return;
+                    }
+                    
+                    querySnapshot.forEach((doc) => {
+                        const hadith = doc.data();
+                        createHadithItem(hadithGrid, hadith);
+                    });
+                }, (error) => {
+                    console.error("Real-time hadith listener error: ", error);
+                });
+        }
+
+        // Search Hadith function
+        function searchHadith(query) {
+            const hadithGrid = document.getElementById('hadithGrid');
+            const searchResult = document.getElementById('hadithSearchResult');
+            const hadithItems = hadithGrid.querySelectorAll('.hadith-item');
+            
+            let foundItems = 0;
+            
+            hadithItems.forEach(item => {
+                const title = item.getAttribute('data-title');
+                const hadithText = item.querySelector('.hadith-text').textContent.toLowerCase();
+                
+                if (title.includes(query.toLowerCase()) || hadithText.includes(query.toLowerCase())) {
+                    item.style.display = 'block';
+                    foundItems++;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            
+            if (foundItems === 0) {
+                searchResult.textContent = `"${query}" এর জন্য কোনো হাদিস পাওয়া যায়নি।`;
+                searchResult.classList.add('show');
+                
+                // Log the search query to Firebase
+                logSearchQuery(query, 'hadith');
+            } else {
+                searchResult.textContent = `"${query}" এর জন্য ${foundItems} টি হাদিস পাওয়া গেছে।`;
+                searchResult.classList.add('show');
+            }
+        }
+
+        // Update Prayer Schedule Page
+        function updatePrayerSchedulePage() {
+            const savedLocation = localStorage.getItem('zikraynLocation');
+            
+            if (savedLocation) {
+                const location = JSON.parse(savedLocation);
+                const country = countryNames[location.country] || location.country;
+                const district = location.district;
+                
+                // Update location title
+                document.getElementById('prayerLocationTitle').textContent = `${country}, ${district} - এর জন্য নামাজের সময়`;
+                
+                // Update prayer times from home page to detail page
+                document.getElementById('detailFajrTime').textContent = document.getElementById('fajrTime').textContent;
+                document.getElementById('detailDhuhrTime').textContent = document.getElementById('dhuhrTime').textContent;
+                document.getElementById('detailAsrTime').textContent = document.getElementById('asrTime').textContent;
+                document.getElementById('detailMaghribTime').textContent = document.getElementById('maghribTime').textContent;
+                document.getElementById('detailIshaTime').textContent = document.getElementById('ishaTime').textContent;
+            } else {
+                document.getElementById('prayerLocationTitle').textContent = 'লোকেশন সিলেক্ট করা হয়নি - দয়া করে হোম পেজ থেকে লোকেশন সিলেক্ট করুন';
+            }
         }
 
         // YouTube-Style Video Player Functions
@@ -4832,6 +5228,7 @@
                     if (doc.exists) {
                         const prayerTimes = doc.data();
                         updatePrayerTimesDisplay(prayerTimes);
+                        updatePrayerSchedulePage();
                     } else {
                         // Firebase-এ ডেটা না থাকলে API থেকে লোড করুন
                         updatePrayerTimesFromAPI(country, district);
@@ -4840,7 +5237,7 @@
                 .catch((error) => {
                     console.error("Error loading prayer times: ", error);
                     // API থেকে লোড করুন
-                        updatePrayerTimesFromAPI(country, district);
+                    updatePrayerTimesFromAPI(country, district);
                 });
         }
 
@@ -4905,6 +5302,7 @@
                     
                     // DOM আপডেট করুন
                     updatePrayerTimesDisplay(adjustedPrayerTimes);
+                    updatePrayerSchedulePage();
                     
                     // Firebase-এ সেভ করুন
                     const locationKey = `${country}_${city}`;
@@ -4930,6 +5328,7 @@
                     isha: "6:31 PM"
                 };
                 updatePrayerTimesDisplay(defaultPrayerTimes);
+                updatePrayerSchedulePage();
             }
         }
 
@@ -5015,6 +5414,7 @@
                     if (doc.exists) {
                         const prayerTimes = doc.data();
                         updatePrayerTimesDisplay(prayerTimes);
+                        updatePrayerSchedulePage();
                     }
                 });
             }
@@ -5140,32 +5540,6 @@
             const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
             const match = url.match(regExp);
             return (match && match[7].length === 11) ? match[7] : null;
-        }
-
-        function loadRandomHadithFromFirebase() {
-            hadithCollection.get()
-                .then((querySnapshot) => {
-                    if (!querySnapshot.empty) {
-                        const hadiths = [];
-                        querySnapshot.forEach((doc) => {
-                            hadiths.push(doc.data().text);
-                        });
-                        
-                        // Random hadith select koro
-                        const randomIndex = Math.floor(Math.random() * hadiths.length);
-                        document.getElementById('randomHadith').textContent = hadiths[randomIndex];
-                    } else {
-                        // If no hadiths in Firebase, use sample hadiths
-                        const randomIndex = Math.floor(Math.random() * sampleHadiths.length);
-                        document.getElementById('randomHadith').textContent = sampleHadiths[randomIndex];
-                    }
-                })
-                .catch((error) => {
-                    // If error, use sample hadiths
-                    const randomIndex = Math.floor(Math.random() * sampleHadiths.length);
-                    document.getElementById('randomHadith').textContent = sampleHadiths[randomIndex];
-                    console.error("Error loading hadith: ", error);
-                });
         }
 
         // Real-time listeners for instant updates
@@ -5459,6 +5833,11 @@
                     
                     // Scroll to top when changing pages
                     window.scrollTo(0, 0);
+                    
+                    // Update prayer schedule page if needed
+                    if (targetPage === 'prayerSchedule') {
+                        updatePrayerSchedulePage();
+                    }
                 });
             });
             
@@ -5485,6 +5864,11 @@
                     
                     // Scroll to top when changing pages
                     window.scrollTo(0, 0);
+                    
+                    // Update prayer schedule page if needed
+                    if (targetPage === 'prayerSchedule') {
+                        updatePrayerSchedulePage();
+                    }
                 });
             });
             
