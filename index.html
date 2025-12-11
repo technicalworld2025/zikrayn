@@ -8,7 +8,10 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <!-- YouTube IFrame API -->
+    <script src="https://www.youtube.com/iframe_api"></script>
     <style>
+        /* All your existing CSS styles remain exactly the same */
         * {
             margin: 0;
             padding: 0;
@@ -3330,6 +3333,16 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
+        // YouTube Player Variables
+        let youtubePlayer;
+        let isYouTubeAPIReady = false;
+
+        // YouTube IFrame API Ready Function
+        function onYouTubeIframeAPIReady() {
+            console.log("YouTube API is ready");
+            isYouTubeAPIReady = true;
+        }
+
         // Firebase Collections
         const wazCollection = db.collection('waz');
         const gojolCollection = db.collection('gojol');
@@ -3778,6 +3791,183 @@
             }
         }
 
+        // Modified YouTube-style video player function
+        function openYouTubeStyleVideoPlayer(videoUrl, videoTitle, videoDescription, videoType, videoIndex, videoList) {
+            // Hide all other pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // Show video player page
+            const videoPlayerPage = document.getElementById('videoPlayerPage');
+            videoPlayerPage.classList.add('active');
+            
+            // Set video title and description
+            document.getElementById('videoPlayerTitle').textContent = videoTitle;
+            document.getElementById('videoDescription').textContent = videoDescription || 'এই ভিডিওর কোনো বর্ণনা নেই।';
+            
+            // Store current video context
+            currentVideoType = videoType;
+            currentVideoIndex = videoIndex;
+            currentVideoList = videoList;
+            
+            // Set collection name
+            const collectionNames = {
+                'waz': 'ওয়াজ',
+                'gojol': 'গজল',
+                'tilawat': 'তিলাওয়াত',
+                'cartoon': 'ইসলামিক কার্টুন'
+            };
+            document.getElementById('collectionName').textContent = collectionNames[videoType] || 'ভিডিও';
+            
+            // Extract YouTube Video ID
+            const videoId = getYouTubeId(videoUrl);
+            
+            if (videoId) {
+                // Clear previous player
+                const playerContainer = document.getElementById('youtubePlayer');
+                playerContainer.innerHTML = '';
+                
+                // Create new iframe with proper parameters to avoid "I'm not a robot"
+                const iframe = document.createElement('iframe');
+                iframe.id = 'youtubePlayerIframe';
+                iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&enablejsapi=1&playsinline=1&origin=${window.location.origin}`;
+                iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+                iframe.allowFullscreen = true;
+                iframe.style.width = '100%';
+                iframe.style.height = '100%';
+                iframe.style.border = 'none';
+                iframe.style.position = 'absolute';
+                iframe.style.top = '0';
+                iframe.style.left = '0';
+                
+                playerContainer.appendChild(iframe);
+                
+                // Load previous 8 videos
+                loadPreviousVideos(videoType, videoIndex, videoList);
+            } else {
+                alert('ভিডিও লোড করতে সমস্যা হচ্ছে। দয়া করে ভিডিও লিঙ্ক চেক করুন।');
+            }
+            
+            // Prevent body scrolling
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Improved close video player function
+        function closeVideoPlayer() {
+            // Hide video player page
+            const videoPlayerPage = document.getElementById('videoPlayerPage');
+            videoPlayerPage.classList.remove('active');
+            
+            // Stop video and remove iframe
+            const iframe = document.getElementById('youtubePlayerIframe');
+            if (iframe) {
+                iframe.src = '';
+                iframe.remove();
+            }
+            
+            // Show the original page based on video type
+            let targetPage = 'home';
+            
+            if (currentVideoType === 'waz') {
+                targetPage = 'waz';
+            } else if (currentVideoType === 'gojol') {
+                targetPage = 'gojol';
+            } else if (currentVideoType === 'tilawat') {
+                targetPage = 'tilawat';
+            } else if (currentVideoType === 'cartoon') {
+                targetPage = 'cartoon';
+            }
+            
+            // Show the target page
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(`${targetPage}Page`).classList.add('active');
+            
+            // Update navigation button
+            const navButtons = document.querySelectorAll('.nav-btn');
+            navButtons.forEach(btn => {
+                if (btn.getAttribute('data-page') === targetPage) {
+                    navButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Restore body scrolling
+            document.body.style.overflow = 'auto';
+        }
+
+        // Modified playVideo function
+        function playVideo(videoUrl, title, videoType, videoIndex, videoList) {
+            openYouTubeStyleVideoPlayer(
+                videoUrl, 
+                title, 
+                'Zikrayn ইসলামিক গাইড থেকে প্রদর্শিত হচ্ছে', 
+                videoType, 
+                videoIndex, 
+                videoList
+            );
+            addToRecentlyViewed({videoUrl: videoUrl, title: title}, videoType);
+        }
+
+        // Function to load previous 8 videos
+        function loadPreviousVideos(videoType, currentIndex, videoList) {
+            const relatedVideosList = document.getElementById('relatedVideosList');
+            relatedVideosList.innerHTML = '';
+            
+            // Calculate the range of videos to show (previous 8)
+            const startIndex = Math.max(0, currentIndex - 8);
+            const endIndex = currentIndex;
+            
+            // Update navigation info
+            document.getElementById('currentVideoPosition').textContent = currentIndex + 1;
+            document.getElementById('totalVideosCount').textContent = videoList.length;
+            
+            // If there are no previous videos
+            if (startIndex === currentIndex) {
+                relatedVideosList.innerHTML = `
+                    <div style="text-align: center; padding: 20px; color: #aaa;">
+                        <i class="fas fa-info-circle" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                        <div>এই ভিডিওর আগে আর কোনো ভিডিও নেই</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Show previous videos
+            for (let i = startIndex; i < endIndex; i++) {
+                const video = videoList[i];
+                const videoId = getYouTubeId(video.videoUrl);
+                const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+                
+                const relatedVideoItem = document.createElement('div');
+                relatedVideoItem.className = 'related-video-item';
+                
+                relatedVideoItem.innerHTML = `
+                    <img src="${thumbnailUrl}" class="related-video-thumbnail" alt="${video.title}" onerror="this.src='https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80'">
+                    <div class="related-video-details">
+                        <div class="related-video-title">${video.title}</div>
+                        <div class="related-video-channel">Zikrayn ইসলামিক গাইড</div>
+                    </div>
+                `;
+                
+                // Add click event to play the selected video
+                relatedVideoItem.addEventListener('click', function() {
+                    openYouTubeStyleVideoPlayer(
+                        video.videoUrl, 
+                        video.title, 
+                        'Zikrayn ইসলামিক গাইড থেকে প্রদর্শিত হচ্ছে', 
+                        videoType, 
+                        i, 
+                        videoList
+                    );
+                });
+                
+                relatedVideosList.appendChild(relatedVideoItem);
+            }
+        }
+
         // YouTube-Style Video Player Functions
         function initializeYouTubeStylePlayer() {
             const closeVideoPlayerBtn = document.getElementById('closeVideoPlayer');
@@ -3969,172 +4159,6 @@
             // Since we're using YouTube iframe, we can't directly control it from outside
             // In a real implementation, you would use the YouTube Player API
             console.log(`Seeking ${seconds} seconds`);
-        }
-        
-        // Update the openYouTubeStyleVideoPlayer function
-        function openYouTubeStyleVideoPlayer(videoUrl, videoTitle, videoDescription, videoType, videoIndex, videoList) {
-            // Hide all other pages
-            document.querySelectorAll('.page').forEach(page => {
-                page.classList.remove('active');
-            });
-            
-            // Show video player page
-            const videoPlayerPage = document.getElementById('videoPlayerPage');
-            videoPlayerPage.classList.add('active');
-            
-            // Set video title and description
-            document.getElementById('videoPlayerTitle').textContent = videoTitle;
-            document.getElementById('videoDescription').textContent = videoDescription || 'এই ভিডিওর কোনো বর্ণনা নেই।';
-            
-            // Store current video context
-            currentVideoType = videoType;
-            currentVideoIndex = videoIndex;
-            currentVideoList = videoList;
-            
-            // Set collection name
-            const collectionNames = {
-                'waz': 'ওয়াজ',
-                'gojol': 'গজল',
-                'tilawat': 'তিলাওয়াত',
-                'cartoon': 'ইসলামিক কার্টুন'
-            };
-            document.getElementById('collectionName').textContent = collectionNames[videoType] || 'ভিডিও';
-            
-            // Load YouTube iframe
-            const videoPlayer = document.getElementById('youtubePlayer');
-            const videoId = getYouTubeId(videoUrl);
-            
-            if (videoId) {
-                videoPlayer.innerHTML = `
-                    <iframe 
-                        src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&enablejsapi=1" 
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                        allowfullscreen
-                        id="youtubePlayerIframe">
-                    </iframe>
-                `;
-                
-                // Load previous 8 videos
-                loadPreviousVideos(videoType, videoIndex, videoList);
-            } else {
-                alert('ভিডিও লোড করতে সমস্যা হচ্ছে। দয়া করে ভিডিও লিঙ্ক চেক করুন।');
-            }
-            
-            // Prevent body scrolling
-            document.body.style.overflow = 'hidden';
-        }
-        
-        // Function to load previous 8 videos
-        function loadPreviousVideos(videoType, currentIndex, videoList) {
-            const relatedVideosList = document.getElementById('relatedVideosList');
-            relatedVideosList.innerHTML = '';
-            
-            // Calculate the range of videos to show (previous 8)
-            const startIndex = Math.max(0, currentIndex - 8);
-            const endIndex = currentIndex;
-            
-            // Update navigation info
-            document.getElementById('currentVideoPosition').textContent = currentIndex + 1;
-            document.getElementById('totalVideosCount').textContent = videoList.length;
-            
-            // If there are no previous videos
-            if (startIndex === currentIndex) {
-                relatedVideosList.innerHTML = `
-                    <div style="text-align: center; padding: 20px; color: #aaa;">
-                        <i class="fas fa-info-circle" style="font-size: 2rem; margin-bottom: 10px;"></i>
-                        <div>এই ভিডিওর আগে আর কোনো ভিডিও নেই</div>
-                    </div>
-                `;
-                return;
-            }
-            
-            // Show previous videos
-            for (let i = startIndex; i < endIndex; i++) {
-                const video = videoList[i];
-                const videoId = getYouTubeId(video.videoUrl);
-                const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-                
-                const relatedVideoItem = document.createElement('div');
-                relatedVideoItem.className = 'related-video-item';
-                
-                relatedVideoItem.innerHTML = `
-                    <img src="${thumbnailUrl}" class="related-video-thumbnail" alt="${video.title}" onerror="this.src='https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80'">
-                    <div class="related-video-details">
-                        <div class="related-video-title">${video.title}</div>
-                        <div class="related-video-channel">Zikrayn ইসলামিক গাইড</div>
-                    </div>
-                `;
-                
-                // Add click event to play the selected video
-                relatedVideoItem.addEventListener('click', function() {
-                    openYouTubeStyleVideoPlayer(
-                        video.videoUrl, 
-                        video.title, 
-                        'Zikrayn ইসলামিক গাইড থেকে প্রদর্শিত হচ্ছে', 
-                        videoType, 
-                        i, 
-                        videoList
-                    );
-                });
-                
-                relatedVideosList.appendChild(relatedVideoItem);
-            }
-        }
-        
-        function closeVideoPlayer() {
-            // Hide video player page
-            const videoPlayerPage = document.getElementById('videoPlayerPage');
-            videoPlayerPage.classList.remove('active');
-            
-            // Stop video
-            const iframe = document.getElementById('youtubePlayerIframe');
-            if (iframe) {
-                iframe.src = '';
-            }
-            
-            // Show the original page based on video type
-            let targetPage = 'home';
-            
-            if (currentVideoType === 'waz') {
-                targetPage = 'waz';
-            } else if (currentVideoType === 'gojol') {
-                targetPage = 'gojol';
-            } else if (currentVideoType === 'tilawat') {
-                targetPage = 'tilawat';
-            } else if (currentVideoType === 'cartoon') {
-                targetPage = 'cartoon';
-            }
-            
-            // Show the target page
-            document.querySelectorAll('.page').forEach(page => {
-                page.classList.remove('active');
-            });
-            document.getElementById(`${targetPage}Page`).classList.add('active');
-            
-            // Update navigation button
-            const navButtons = document.querySelectorAll('.nav-btn');
-            navButtons.forEach(btn => {
-                if (btn.getAttribute('data-page') === targetPage) {
-                    navButtons.forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                }
-            });
-            
-            // Restore body scrolling
-            document.body.style.overflow = 'auto';
-        }
-        
-        // Update the playVideo function to pass the necessary parameters
-        function playVideo(videoUrl, title, videoType, videoIndex, videoList) {
-            openYouTubeStyleVideoPlayer(
-                videoUrl, 
-                title, 
-                'Zikrayn ইসলামিক গাইড থেকে প্রদর্শিত হচ্ছে', 
-                videoType, 
-                videoIndex, 
-                videoList
-            );
-            addToRecentlyViewed({videoUrl: videoUrl, title: title}, videoType);
         }
 
         // Quran Functions
